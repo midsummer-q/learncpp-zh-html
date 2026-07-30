@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/scope-duration-and-linkage-summary/" name="learncpp:source-url"/>
+<meta content="8eddd07267fb69c1539abf9a22b705f69482b4498eb2e77f18061cd25156e571" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:47:12.642333+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T17:24:00.728256+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>7.12 — Scope, duration, and linkage summary</title>
+<link href="../assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="../assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="../index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="../index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">7.12 — 作用域、生存期和链接性总结</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 7.12</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/scope-duration-and-linkage-summary/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>作用域、生存期和链接性的概念经常引起混淆，因此我们额外用一节课来总结所有内容。其中一些内容我们尚未涉及，放在这里只是为了完整性和日后参考。</p><p style="clear:both"></p><p></p><p class="cpp-section cpp-topline" style="clear:both">作用域总结</p><p>标识符的 <em>作用域</em> 决定了标识符在源代码中可以被访问的位置。</p><ul><li>具有 <strong>块（局部）作用域</strong> 的变量只能从声明点开始访问，直到它们所在块的结束（包括嵌套块）。这包括：<ul><li>局部变量</li><li>函数参数</li><li>在块内声明的程序定义类型（如枚举和类）</li></ul></li><li>具有 <strong>全局作用域</strong> 的变量和函数可以从声明点开始访问，直到文件结束。这包括：<ul><li>全局变量</li><li>函数</li><li>在命名空间或全局作用域内声明的程序定义类型（如枚举和类）</li></ul></li></ul><p class="cpp-section cpp-topline" style="clear:both">生存期总结</p><p>变量的 <em>生存期</em> 决定了变量何时创建和销毁。</p><ul><li>具有 <strong>自动生存期</strong> 的变量在定义点创建，在退出它们所属的块时销毁。这包括：<ul><li>局部变量</li><li>函数参数</li></ul></li><li>具有 <strong>静态存储期</strong> 的变量在程序开始时创建，在程序结束时销毁。这包括：<ul><li>全局变量</li><li>静态局部变量</li></ul></li><li>具有 <strong>动态生存期</strong> 的变量由程序员请求创建和销毁。这包括：<ul><li>动态分配的变量</li></ul></li></ul><p class="cpp-section cpp-topline" style="clear:both">链接性总结</p><p>标识符的 <strong>链接性</strong> 决定了同一标识符在不同作用域中的声明是否引用同一个实体（对象、函数、引用等）。</p><p>局部变量没有链接性。每个没有链接性的标识符的声明都引用一个唯一的对象或函数。</p><ul><li>具有 <strong>无链接性</strong> 意味着同一标识符的另一个声明引用一个唯一的实体。标识符无链接性的实体包括：<ul><li>局部变量</li><li>在块内声明的程序定义类型标识符（如枚举和类）</li></ul></li><li>具有 <strong>内部链接</strong> 意味着同一翻译单元内同一标识符的声明引用同一个对象或函数。标识符具有内部链接性的实体包括：<ul><li>静态全局变量（已初始化或未初始化）</li><li>静态函数</li><li>常量全局变量</li><li>未命名命名空间及其内部定义的任何内容</li></ul></li><li>具有 <strong>外部链接</strong> 意味着整个程序中同一标识符的声明引用同一个对象或函数。标识符具有外部链接性的实体包括：<ul><li>非静态函数</li><li>非常量全局变量（已初始化或未初始化）</li><li>外部常量全局变量</li><li>内联常量全局变量</li><li>命名空间</li></ul></li></ul><p>如果定义被编译到多个 .cpp 文件中，具有外部链接性的标识符通常会导致重复定义链接器错误（由于违反单一定义规则）。此规则有一些例外（对于类型、模板以及内联函数和变量）——我们将在后续课程中讨论这些主题时进一步介绍。</p><p>另请注意，函数默认具有外部链接性。可以通过使用 static 关键字使其成为内部链接性。</p><p class="cpp-section cpp-topline" style="clear:both">变量作用域、生存期和链接性总结</p><p>由于变量具有作用域、生存期和链接性，让我们用图表总结：</p><div class="cpp-table-wrapper"><p></p><p></p><table class="cpp-table"><tbody><tr><th>类型</th><th>示例</th><th>作用域</th><th>生命周期</th><th>链接性</th><th>备注</th></tr><tr><td>局部变量</td><td>int x;</td><td>块作用域</td><td>自动存储期</td><td>无链接性</td><td></td></tr><tr><td>静态局部变量</td><td>static int s_x;</td><td>块作用域</td><td>静态存储期</td><td>无链接性</td><td></td></tr><tr><td>动态局部变量</td><td>int* x { new int{} };</td><td>块作用域</td><td>动态存储期</td><td>无链接性</td><td></td></tr><tr><td>函数参数</td><td>void foo(int x)</td><td>块作用域</td><td>自动存储期</td><td>无链接性</td><td></td></tr><tr><td>内部非 const 全局变量</td><td>static int g_x;</td><td>全局</td><td>静态存储期</td><td>内部链接性</td><td>已初始化或未初始化</td></tr><tr><td>外部非 const 全局变量</td><td>int g_x;</td><td>全局</td><td>静态存储期</td><td>外部链接性</td><td>已初始化或未初始化</td></tr><tr><td>内联非 const 全局变量 (C++17)</td><td>inline int g_x;</td><td>全局</td><td>静态存储期</td><td>外部链接性</td><td>已初始化或未初始化</td></tr><tr><td>内部 const 全局变量</td><td>constexpr int g_x { 1 };</td><td>全局</td><td>静态存储期</td><td>内部链接性</td><td>必须初始化</td></tr><tr><td>外部 const 全局变量</td><td>extern const int g_x { 1 };</td><td>全局</td><td>静态存储期</td><td>外部链接性</td><td>必须初始化</td></tr><tr><td>内联 const 全局变量 (C++17)</td><td>inline constexpr int g_x { 1 };</td><td>全局</td><td>静态存储期</td><td>外部链接性</td><td>必须初始化</td></tr></tbody></table></div><p class="cpp-section cpp-topline" style="clear:both">前向声明总结</p><p>你可以使用前向声明来访问另一个文件中的函数或变量。声明变量的作用域与通常相同（全局变量为全局作用域，局部变量为块作用域）。</p><div class="cpp-table-wrapper"><p></p><p></p><table class="cpp-table"><tbody><tr><th>类型</th><th>示例</th><th>备注</th></tr><tr><td>函数前向声明</td><td>void foo(int x);</td><td>仅原型，无函数体</td></tr><tr><td>非常量变量前向声明</td><td>extern int g_x;</td><td>必须未初始化</td></tr><tr><td>const 变量前向声明</td><td>extern const int g_x;</td><td>必须未初始化</td></tr><tr><td>constexpr 变量的前向声明</td><td>extern constexpr int g_x;</td><td>不允许，constexpr 不能被前向声明</td></tr></tbody></table></div><p>constexpr 变量（隐式 const）可以使用 const 变量的前向声明进行前向声明。通过前向声明访问时，该变量将被视为 const（而非 constexpr）。</p><p class="cpp-section cpp-topline" style="clear:both">存储类说明符到底是什么？</p><p>当用作标识符声明的一部分时， <code>static</code> 和 <code>extern</code> 关键字被称为 <strong>存储类说明符</strong>。在此上下文中，它们设置标识符的存储持续时间和链接性。</p><p>C++ 支持 4 个活跃的存储类说明符：</p><div class="cpp-table-wrapper"><p></p><p></p><table class="cpp-table"><tbody><tr><th>说明符</th><th>含义</th><th>备注</th></tr><tr><td>外部</td><td>static（或 thread_local）存储持续时间和外部链接性</td><td></td></tr><tr><td>静态</td><td>static（或 thread_local）存储持续时间和内部链接性</td><td></td></tr><tr><td>线程局部</td><td>线程存储持续时间</td><td></td></tr><tr><td>可变</td><td>允许对象被修改，即使包含类为 const</td><td></td></tr><tr><td>auto</td><td>自动存储期</td><td>在 C++11 中弃用</td></tr><tr><td>寄存器</td><td>自动存储持续时间，并提示编译器将其放入寄存器</td><td>在 C++17 中弃用</td></tr></tbody></table></div><p>术语 <em>存储类说明符</em> 通常仅在正式文档中使用。</p>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="static-local-variables.html" rel="prev"><small>上一课</small><strong>7.11 — 静态局部变量</strong></a><a class="lesson-nav-index" href="../index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="using-declarations-and-using-directives.html" rel="next"><small>下一课</small><strong>7.13 — 使用声明与使用指令</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

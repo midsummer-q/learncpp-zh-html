@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/aggregation/" name="learncpp:source-url"/>
+<meta content="19364913554d0d3a7d2219d98b763530e43e1138eea5fa6213e105475856f98e" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:53:28.305402+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T18:11:30.779079+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>23.3 — Aggregation</title>
+<link href="../assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="../assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="../index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="../index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">23.3 — 聚合</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 23.3</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/aggregation/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>在上一节课 <a href="composition.html">23.2 -- 组合</a>中，我们指出对象组合是从简单对象创建复杂对象的过程。我们还讨论了一种对象组合类型，称为组合。在组合关系中，整体对象负责部分的存在。</p><p>在本课中，我们将探讨对象组合的另一种子类型，称为聚合。</p><p class="cpp-section cpp-topline" style="clear:both">聚合</p><p>要成为 <strong>聚合</strong>，整体对象及其部分必须满足以下关系：</p><ul><li>部分（成员）是对象（类）的一部分</li><li>部分（成员）可以（如果需要）同时属于多个对象（类）</li><li>部分（成员）的 <em>不是</em> 存在不由对象（类）管理</li><li>部分（成员）不知道对象（类）的存在</li></ul><p>与组合类似，聚合仍然是部分-整体关系，其中部分包含在整体中，并且是单向关系。然而，与组合不同，部分可以同时属于多个对象，并且整体对象不负责部分的存在和生命周期。当创建聚合时，聚合不负责创建部分。当聚合被销毁时，聚合不负责销毁部分。</p><p>例如，考虑一个人与其家庭地址之间的关系。在这个例子中，为简单起见，我们假设每个人都有地址。然而，该地址可以同时属于多个人：例如，同时属于你和你的室友或伴侣。但是，该地址不由人管理——地址可能在人到达之前就已存在，并在人离开后继续存在。此外，人知道他们住在哪个地址，但地址不知道谁住在那里。因此，这是一种聚合关系。</p><p>或者，考虑一辆汽车和一个发动机。汽车发动机是汽车的一部分。尽管发动机属于汽车，但它也可以属于其他东西，比如汽车的主人。汽车不负责发动机的创建或销毁。虽然汽车知道它有发动机（为了行驶必须如此），但发动机不知道它是汽车的一部分。</p><p>在建模物理对象时，“销毁”一词的使用可能有些棘手。有人可能会争辩说：“如果一颗流星从天而降砸碎了汽车，汽车零件不也会被摧毁吗？”是的，当然。但那是流星的错。关键点是汽车不负责销毁其零件（但外力可能负责）。</p><p>我们可以说聚合建模了“has-a”关系（部门有教师，汽车有发动机）。</p><p>与组合类似，聚合的部分可以是单一的或多重的。</p><p class="cpp-section cpp-topline" style="clear:both">实现聚合</p><p>由于聚合与组合相似，都是部分-整体关系，它们的实现几乎相同，区别主要在于语义。在组合中，我们通常使用普通成员变量（或指针，其分配和释放过程由组合类处理）将部分添加到组合中。</p><p>在聚合中，我们也添加部分作为成员变量。然而，这些成员变量通常是引用或指针，用于指向在类作用域之外创建的对象。因此，聚合通常要么将要指向的对象作为构造函数参数，要么初始为空，然后通过访问函数或运算符添加子对象。</p><p>由于这些部分存在于类的作用域之外，当类被销毁时，指针或引用成员变量将被销毁（但不会被删除）。因此，部分本身仍然存在。</p><p>让我们更详细地看一个教师和部门的例子。在这个例子中，我们将做一些简化：首先，部门只容纳一名教师。其次，教师不知道他们属于哪个部门。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;string_view&gt;
+
+class Teacher
+{
+private:
+  std::string m_name{};
+
+public:
+  Teacher(std::string_view name)
+      : m_name{ name }
+  {
+  }
+
+  const std::string&amp; getName() const { return m_name; }
+};
+
+class Department
+{
+private:
+  const Teacher&amp; m_teacher; // 为简单起见，该部门只保存一位教师，但可以保存多位教师
+
+public:
+  Department(const Teacher&amp; teacher)
+      : m_teacher{ teacher }
+  {
+  }
+};
+
+int main()
+{
+  // 在部门作用域之外创建一个教师
+  Teacher bob{ "Bob" }; // 创建一个教师
+
+  {
+    // 创建一个部门，并使用构造函数参数传递
+    // 教师给它。
+    Department department{ bob };
+
+  } // 部门在此处离开作用域并被销毁
+
+  // bob 仍然存在，但部门不存在
+
+  std::cout &lt;&lt; bob.getName() &lt;&lt; " still exists!\n";
+
+  return 0;
+}
+</code></pre><p>在这种情况下， <code>bob</code> 是独立于 <code>department</code>创建的，然后被传入 <code>department</code>的构造函数。当 <code>department</code> 被销毁时， <code>m_teacher</code> 引用被销毁，但教师本身没有被销毁，因此它仍然存在，直到稍后在 <code>main()</code>。</p><p class="cpp-section cpp-topline" style="clear:both">中选择适合你建模的关系</p><p>尽管在上面的例子中，教师不知道他们为哪个部门工作可能看起来有点傻，但在特定程序的上下文中，这可能是完全可行的。在确定要实现哪种关系时，实现满足需求的最简单关系，而不是在现实生活中最合适的关系。</p><p>例如，如果你正在编写一个车身修理厂模拟器，你可能希望将汽车和发动机实现为聚合，以便发动机可以被拆下并放在架子上以备后用。然而，如果你正在编写一个赛车模拟，你可能希望将汽车和发动机实现为组合，因为在这种情况下发动机永远不会在汽车之外存在。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>实现满足程序需求的最简单关系类型，而不是在现实生活中最合适的关系。</p></div><p class="cpp-section cpp-topline" style="clear:both">总结组合和聚合</p><p>组合：</p><ul><li>通常使用普通成员变量</li><li>如果类自己处理对象分配/释放，可以使用指针成员</li><li>负责部分的创建/销毁</li></ul><p>聚合：</p><ul><li>通常使用指针或引用成员，指向或引用存在于聚合类作用域之外的对象</li><li>不负责创建/销毁部分</li></ul><p>值得注意的是，组合和聚合的概念可以在同一个类中自由混合。完全有可能编写一个类，负责某些部分的创建/销毁，而不负责其他部分。例如，我们的部门类可以有一个名称和一个教师。名称可能通过组合添加到部门中，并与部门一起创建和销毁。另一方面，教师通过聚合添加到部门中，并独立创建/销毁。</p><p>虽然聚合可能非常有用，但它们也可能更危险，因为聚合不处理其部分的释放。释放留给外部方处理。如果外部方不再拥有指向被遗弃部分的指针或引用，或者如果它只是忘记进行清理（假设类会处理），那么就会发生内存泄漏。</p><p>因此，组合应优先于聚合。</p><p class="cpp-section cpp-topline" style="clear:both">一些警告/勘误</p><p>由于各种历史和上下文原因，与组合不同，聚合的定义并不精确——因此你可能会在其他参考资料中看到与我们不同的定义。这没问题，只需注意即可。</p><p>最后一点：在课程 <a href="introduction-to-structs-members-and-member-selection.html">13.7 课——结构体、成员和成员选择简介中介绍结构体。</a>中，我们将聚合数据类型（如结构体和类）定义为将多个变量组合在一起的数据类型。你可能会在 C++ 学习过程中遇到术语 <def>聚合类</def> ，它被定义为没有提供构造函数、析构函数或重载赋值，所有成员公有，且不使用继承的结构体或类——本质上是一个普通旧数据（POD）结构体。尽管名称相似，但聚合（aggregate）和聚合（aggregation）是不同的，不应混淆。</p><p class="cpp-section cpp-topline" style="clear:both">std::reference_wrapper</p><p>在 <code>Department</code>/<code>Teacher</code> 上面的例子中，我们在 <code>Department</code> 中使用了引用来存储 <code>Teacher</code>。如果只有一个 <code>Teacher</code>，这没问题，但如果一个部门有多个教师呢？我们希望将这些教师存储在某种列表中（例如 <code>std::vector</code>），但固定数组和各种标准库列表不能存储引用（因为列表元素必须可赋值，而引用不能被重新赋值）。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">std::vector&lt;const Teacher&amp;&gt; m_teachers{}; // 非法
+</code></pre><p>我们可以使用指针代替引用，但这会引入存储或传递空指针的可能性。在 <code>Department</code>/<code>Teacher</code> 例子中，我们不想允许空指针。为了解决这个问题，有 <code>std::reference_wrapper</code>。</p><p>本质上， <code>std::reference_wrapper</code> 是一个行为类似引用的类，但也允许赋值和拷贝，因此它与像 <code>std::vector</code>。</p><p>这样的列表兼容。好消息是，你不需要真正理解它的工作原理就能使用它。你只需要知道三件事：</p><ol start="1"><li><code>std::reference_wrapper</code> 位于 &lt;functional&gt; 头文件中。</li><li>当你创建 <code>std::reference_wrapper</code> 包装的对象时，该对象不能是匿名对象（因为匿名对象具有表达式作用域，这会导致引用悬空）。</li><li>当你想要从 <code>std::reference_wrapper</code>中取回对象时，使用 <code>get()</code> 成员函数。</li></ol><p>这是一个使用 <code>std::reference_wrapper</code> 在 <code>std::vector</code>：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;functional&gt; // std::reference_wrapper
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;string&gt;
+
+int main()
+{
+  std::string tom{ "Tom" };
+  std::string berta{ "Berta" };
+
+  std::vector&lt;std::reference_wrapper&lt;std::string&gt;&gt; names{ tom, berta }; // 这些字符串通过引用存储，而不是值
+
+  std::string jim{ "Jim" };
+
+  names.emplace_back(jim);
+
+  for (auto name : names)
+  {
+    // 使用 get() 成员函数获取引用的字符串。
+    name.get() += " Beam";
+  }
+
+  std::cout &lt;&lt; jim &lt;&lt; '\n'; // 打印 Jim Beam
+
+  return 0;
+}
+</code></pre><p>中的例子。要创建 const 引用的向量，我们需要在 <code>std::string</code> 前添加 const，如下所示：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">// std::string 的常量引用向量
+std::vector&lt;std::reference_wrapper&lt;const std::string&gt;&gt; names{ tom, berta };
+</code></pre><p class="cpp-section cpp-topline" style="clear:both">小测验时间</p><div class="quiz" style="clear:both"><p class="quiz-header">问题 #1</p><p>你更可能将以下实现为组合还是聚合？<br/>a) 一个有颜色的球<br/>b) 一个雇佣了多个人的雇主<br/>c) 大学里的各个系<br/>d) 你的年龄<br/>e) 一袋弹珠</p><p><a aria-controls="cpp_solution_id_0" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_0" href="#cpp_solution_id_0">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_0"><p>a) 组合：颜色是球的固有属性。<br/>b) 聚合：雇主开始时没有雇员，并且希望破产时不会销毁所有雇员。<br/>c) 组合：系不能脱离大学而存在。<br/>d) 组合：你的年龄是你的固有属性。<br/>e) 聚合：袋子和里面的弹珠各自独立存在。</p></div><p></p></div><div class="quiz" style="clear:both"><p class="quiz-header">问题 #2</p><p>更新 <code>Department</code>/<code>Teacher</code> 示例，使 <code>Department</code> 能够处理多个教师。以下代码应能执行：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+// ...
+
+int main()
+{
+  // 在部门作用域之外创建一个教师
+  Teacher t1{ "Bob" };
+  Teacher t2{ "Frank" };
+  Teacher t3{ "Beth" };
+
+  {
+    // 创建一个部门并向其中添加一些教师
+    Department department{}; // 创建一个空部门
+
+    department.add(t1);
+    department.add(t2);
+    department.add(t3);
+
+    std::cout &lt;&lt; department;
+
+  } // 部门在此处离开作用域并被销毁
+
+  std::cout &lt;&lt; t1.getName() &lt;&lt; " still exists!\n";
+  std::cout &lt;&lt; t2.getName() &lt;&lt; " still exists!\n";
+  std::cout &lt;&lt; t3.getName() &lt;&lt; " still exists!\n";
+
+  return 0;
+}
+</code></pre><p>这应打印：</p><pre>Department: Bob Frank Beth
+Bob still exists!
+Frank still exists!
+Beth still exists!
+</pre><p><a aria-controls="cpp_hint_id_0" aria-expanded="false" class="hint_link_show" data-hide-label="隐藏提示" data-hint-target="cpp_hint_id_0" data-show-label="显示提示" href="#cpp_hint_id_0">显示提示</a></p><div class="wphint" hidden="" id="cpp_hint_id_0">提示：将教师存储在一个 <code>std::vector</code><p></p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">std::vector&lt;std::reference_wrapper&lt;const Teacher&gt;&gt; m_teachers{};
+</code></pre></div><p><a aria-controls="cpp_solution_id_1" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_1" href="#cpp_solution_id_1">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_1"><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;functional&gt; // std::reference_wrapper
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;string_view&gt;
+#include &lt;vector&gt;
+
+class Teacher
+{
+private:
+  std::string m_name{};
+
+public:
+  Teacher(std::string_view name)
+      : m_name{ name }
+  {
+  }
+
+  const std::string&amp; getName() const { return m_name; }
+};
+
+class Department
+{
+private:
+  std::vector&lt;std::reference_wrapper&lt;const Teacher&gt;&gt; m_teachers{};
+
+public:
+  Department() = default;
+
+  // 通过常规引用传递。Department 类的用户不应关心
+  // 它是如何实现的。
+  void add(const Teacher&amp; teacher)
+  {
+    m_teachers.emplace_back(teacher);
+  }
+
+  friend std::ostream&amp; operator&lt;&lt;(std::ostream&amp; out, const Department&amp; department)
+  {
+    out &lt;&lt; "Department: ";
+
+    for (const auto&amp; teacher : department.m_teachers)
+    {
+      out &lt;&lt; teacher.get().getName() &lt;&lt; ' ';
+    }
+
+    out &lt;&lt; '\n';
+
+    return out;
+  }
+};
+
+int main()
+{
+  // 在部门作用域之外创建一个教师
+  Teacher t1{ "Bob" };
+  Teacher t2{ "Frank" };
+  Teacher t3{ "Beth" };
+
+  {
+    // 创建一个部门并向其中添加一些教师
+    Department department{}; // 创建一个空部门
+
+    department.add(t1);
+    department.add(t2);
+    department.add(t3);
+
+    std::cout &lt;&lt; department;
+
+  } // 部门在此处离开作用域并被销毁
+
+  std::cout &lt;&lt; t1.getName() &lt;&lt; " still exists!\n";
+  std::cout &lt;&lt; t2.getName() &lt;&lt; " still exists!\n";
+  std::cout &lt;&lt; t3.getName() &lt;&lt; " still exists!\n";
+
+  return 0;
+}
+</code></pre></div></div>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="composition.html" rel="prev"><small>上一课</small><strong>23.2 — 组合</strong></a><a class="lesson-nav-index" href="../index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="association.html" rel="next"><small>下一课</small><strong>23.4 — 关联</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

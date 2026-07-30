@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/introduction-to-function-parameters-and-arguments/" name="learncpp:source-url"/>
+<meta content="32195a47c96d6cbd53a8903b2a4cdb9812b767fafca38309c1f7695723c9c16e" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:44:54.713080+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T17:18:21.846240+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>2.4 — Introduction to function parameters and arguments</title>
+<link href="../assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="../assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="../index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="../index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">2.4 — 函数参数与实参简介</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 2.4</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/introduction-to-function-parameters-and-arguments/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>在上一课中，我们学习了如何让函数向调用者返回值。我们利用这一点创建了一个模块化的 <em>getValueFromUser</em> 函数，并在本程序中使用：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int getValueFromUser()
+{
+ 	std::cout &lt;&lt; "Enter an integer: ";
+	int input{};
+	std::cin &gt;&gt; input;  
+
+	return input;
+}
+
+int main()
+{
+	int num { getValueFromUser() };
+
+	std::cout &lt;&lt; num &lt;&lt; " doubled is: " &lt;&lt; num * 2 &lt;&lt; '\n';
+
+	return 0;
+}
+</code></pre><p>但是，如果我们想将输出行也放入它自己的函数中呢？你可能会尝试像这样写：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int getValueFromUser()
+{
+ 	std::cout &lt;&lt; "Enter an integer: ";
+	int input{};
+	std::cin &gt;&gt; input;  
+
+	return input;
+}
+
+// 该函数无法编译
+void printDouble()
+{
+	std::cout &lt;&lt; num &lt;&lt; " doubled is: " &lt;&lt; num * 2 &lt;&lt; '\n';
+}
+
+int main()
+{
+	int num { getValueFromUser() };
+
+	printDouble();
+
+	return 0;
+}
+</code></pre><p>这无法编译，因为函数 <em>printDouble</em> 不知道标识符 <em>num</em> 是什么。你可能会尝试在函数 printDouble() 内部将 num 定义为一个变量：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">void printDouble()
+{
+	int num{}; // 我们添加了这一行
+	std::cout &lt;&lt; num &lt;&lt; " doubled is: " &lt;&lt; num * 2 &lt;&lt; '\n';
+}
+</code></pre><p>虽然这解决了编译器错误并使程序可以编译，但程序仍然无法正常工作（它总是输出“0 doubled is: 0”）。这里问题的核心在于函数 <em>printDouble</em> 无法访问用户输入的值。</p><p>我们需要某种方式将变量 <em>num</em> 的值传递给函数 <em>printDouble</em> 以便 <em>printDouble</em> 以便在函数体中使用该值。</p><p class="cpp-section cpp-topline" style="clear:both">函数参数与实参</p><p>在许多情况下，能够传递信息 <em>切换到</em> 给被调用的函数，这样函数就有数据可以处理。例如，如果我们想编写一个函数来将两个数字相加，我们需要某种方式来告诉函数在调用时应该相加哪两个数字。否则，函数怎么知道要相加什么？我们通过函数参数和实参来实现这一点。</p><p>一个 <strong>函数参数</strong> 是在函数头中使用的变量。函数参数的工作方式与函数内部定义的变量几乎完全相同，但有一个区别：它们由函数的调用者提供的值进行初始化。</p><p>函数参数在函数头中定义，放在函数名后面的括号内，多个参数之间用逗号分隔。</p><p>以下是一些具有不同数量参数的函数的示例：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">// 该函数不接受参数
+// 它不依赖调用者提供任何东西
+void doPrint()
+{
+    std::cout &lt;&lt; "In doPrint()\n";
+}
+
+// 该函数接受一个名为 x 的整数参数
+// 调用者将提供 x 的值
+void printValue(int x)
+{
+    std::cout &lt;&lt; x &lt;&lt; '\n';
+}
+
+// 该函数有两个整型参数，一个名为 x，一个名为 y
+// 调用者将提供 x 和 y 的值
+int add(int x, int y)
+{
+    return x + y;
+}
+</code></pre><p>一种 <strong>实参</strong> 是调用者 <em>从</em> 传递 <em>切换到</em> 给函数的值，当进行函数调用时：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">doPrint(); // 此调用没有实参
+printValue(6); // 6 是传递给函数 printValue() 的实参
+add(2, 3); // 2 和 3 是传递给函数 add() 的实参
+</code></pre><p>注意多个实参之间也用逗号分隔。</p><p class="cpp-section cpp-topline" style="clear:both">参数和实参如何协同工作</p><p>当调用函数时，函数的所有参数都会作为变量被创建，并且每个实参的值会被 <em>复制</em> 到匹配的参数中（使用复制初始化）。这个过程称为 <strong>按值传递</strong>。使用按值传递的函数参数称为 <strong>值参数</strong>。</p><p>例如：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+// 该函数有两个整型参数，一个名为 x，一个名为 y
+// x 和 y 的值由调用者传入
+void printValues(int x, int y)
+{
+    std::cout &lt;&lt; x &lt;&lt; '\n';
+    std::cout &lt;&lt; y &lt;&lt; '\n';
+}
+
+int main()
+{
+    printValues(6, 7); // 此函数调用有两个实参：6 和 7
+
+    return 0;
+}
+</code></pre><p>当函数 <em>printValues</em> 被调用时，实参 <em>6</em> 和 <em>7</em>， <em>printValues</em>的参数 <em>x</em> 会被创建并用 <em>6</em>、和 <em>printValues</em>的参数 <em>y</em> 会被创建并用 <em>7</em>。</p><p>这会产生输出：</p><pre>6
+7
+</pre><p>请注意，参数的数量通常必须与函数参数的数量匹配，否则编译器会抛出错误。传递给函数的实参可以是任何有效的表达式（因为实参本质上只是形参的初始化器，而初始化器可以是任何有效的表达式）。</p><p class="cpp-section cpp-topline" style="clear:both">修复我们的挑战程序</p><p>现在我们有必要的工具来修复课程开头展示的程序：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int getValueFromUser()
+{
+ 	std::cout &lt;&lt; "Enter an integer: ";
+	int input{};
+	std::cin &gt;&gt; input;  
+
+	return input;
+}
+
+void printDouble(int value) // 该函数现在有一个整型参数
+{
+	std::cout &lt;&lt; value &lt;&lt; " doubled is: " &lt;&lt; value * 2 &lt;&lt; '\n';
+}
+
+int main()
+{
+	int num { getValueFromUser() };
+
+	printDouble(num);
+
+	return 0;
+}
+</code></pre><p>在这个程序中，变量 <em>num</em> 首先通过用户输入的值进行初始化。然后，函数 <em>printDouble</em> 被调用，实参 <em>num</em> 的值被复制到 <em>值</em> 函数的形参 <em>printDouble</em>。函数 <em>printDouble</em> 然后使用形参的值 <em>值</em>。</p><p class="cpp-section cpp-topline" style="clear:both">将返回值用作实参</p><p>在上面的问题中，我们可以看到变量 <em>num</em> 仅使用一次，用于将函数 <em>getValueFromUser</em> 的返回值传递给函数调用的实参 <em>printDouble</em>。</p><p>我们可以将上面的例子稍微简化如下：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int getValueFromUser()
+{
+ 	std::cout &lt;&lt; "Enter an integer: ";
+	int input{};
+	std::cin &gt;&gt; input;  
+
+	return input;
+}
+
+void printDouble(int value)
+{
+	std::cout &lt;&lt; value &lt;&lt; " doubled is: " &lt;&lt; value * 2 &lt;&lt; '\n';
+}
+
+int main()
+{
+	printDouble(getValueFromUser());
+
+	return 0;
+}
+</code></pre><p>现在，我们将函数 <em>getValueFromUser</em> 的返回值直接用作函数 <em>printDouble</em>！</p><p>虽然这个程序更简洁（并且清楚地表明用户读取的值将不会用于其他任何目的），但您可能也会觉得这种“紧凑语法”有点难以阅读。如果您更习惯使用变量的版本，那也没问题。</p><p class="cpp-section cpp-topline" style="clear:both">参数和返回值如何协同工作</p><p>通过同时使用参数和返回值，我们可以创建函数，这些函数将数据作为输入，对其进行一些计算，然后将值返回给调用者。</p><p>这是一个非常简单的函数示例，它将两个数相加并将结果返回给调用者。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+// add() 接受两个整数作为参数，并返回它们的和
+// x 和 y 的值由调用 add() 的函数决定
+int add(int x, int y)
+{
+    return x + y;
+}
+
+// main 没有参数
+int main()
+{
+    std::cout &lt;&lt; add(4, 5) &lt;&lt; '\n'; // 实参 4 和 5 被传递给函数 add()
+    return 0;
+}
+</code></pre><p>执行从顶部开始 <em>main</em>。当 <code>add(4, 5)</code> 被求值时，函数 <em>add</em> 被调用，参数 <em>x</em> 被初始化为值 <em>4</em>， <em>y</em> 被初始化为值 <em>5</em>。</p><p>浮点类型的 <em>return语句</em> 在函数 <em>add</em> 求值 <em>x + y</em> 得到值 <em>9</em>，然后返回给 <em>main</em>。这个 <em>9</em> 的值随后被发送到 <em>std::cout</em> 在控制台上打印。</p><p>输出：</p><pre>9
+</pre><p>示意图如下：</p><div class="cpp-image-wrapper"><img alt="" src="../assets/images/fcaf3c36a38fa645e57143e8e3016f89421aab020c98440382e11f47116a4cba.webp"/></div><p class="cpp-section cpp-topline" style="clear:both">更多示例</p><p>让我们看更多的函数调用：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int add(int x, int y)
+{
+    return x + y;
+}
+
+int multiply(int z, int w)
+{
+    return z * w;
+}
+
+int main()
+{
+    std::cout &lt;&lt; add(4, 5) &lt;&lt; '\n'; // 在 add() 内部 x=4, y=5，因此 x+y=9
+    std::cout &lt;&lt; add(1 + 2, 3 * 4) &lt;&lt; '\n'; // 在 add() 内部 x=3, y=12，因此 x+y=15
+
+    int a{ 5 };
+    std::cout &lt;&lt; add(a, a) &lt;&lt; '\n'; // 求值 (5 + 5)
+
+    std::cout &lt;&lt; add(1, multiply(2, 3)) &lt;&lt; '\n'; // 求值 1 + (2 * 3)
+    std::cout &lt;&lt; add(1, add(2, 3)) &lt;&lt; '\n'; // 求值 1 + (2 + 3)
+
+    return 0;
+}
+</code></pre><p>该程序产生输出：</p><pre>9
+15
+10
+7
+6
+</pre><p>第一条语句很直接。</p><p>在第二条语句中，参数是表达式，在传递之前会被求值。在这种情况下， <em>1 + 2</em> 求值为 <em>3</em>，所以 <em>3</em> 被复制到参数 <em>x</em>。 <em>3 * 4</em> 求值为 <em>12</em>，所以 <em>12</em> 被复制到参数 <em>y</em>。 <em>add(3, 12)</em> 解析为 <em>15</em>。</p><p>下一对语句也相对简单：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">    int a{ 5 };
+    std::cout &lt;&lt; add(a, a) &lt;&lt; '\n'; // 求值 (5 + 5)
+</code></pre><p>在这种情况下， <em>add()</em> 被调用时，其中变量 <em>a</em> 的值被复制到两个参数中 <em>x</em> 和 <em>y</em>。因为 <em>a</em> 值为 <em>5</em>， <em>add(a, a)</em> = <em>add(5, 5)</em>，其解析为值 <em>10</em>。</p><p>我们来看看这一组中第一个棘手的语句：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">    std::cout &lt;&lt; add(1, multiply(2, 3)) &lt;&lt; '\n'; // 求值 1 + (2 * 3)
+</code></pre><p>当函数 <em>add</em> 被执行时，程序需要确定参数 <em>x</em> 和 <em>y</em> 的值。 <em>x</em> 很简单，因为我们只是传递了整数 <em>1</em>。要获取参数 <em>y</em>，它需要求值 <em>multiply(2, 3)</em> 首先。程序调用 <em>multiply</em> 并初始化 <em>z</em> = <em>2</em> 和 <em>w</em> = <em>3</em>，所以 <em>multiply(2, 3)</em> 返回整数值 <em>6</em>。该返回值 <em>6</em> 现在可以用来初始化 <em>y</em> 的参数 <em>add</em> 函数的顶部开始。 <em>add(1, 6)</em> 返回整数 <em>7</em>，然后传递给 std::cout 进行打印。</p><p>更简洁地说：<br/><em>add(1, multiply(2, 3))</em> 求值为 <em>add(1, 6)</em> 求值为 <em>7</em></p><p>以下语句看起来很棘手，因为传递给 <em>add</em> 是另一个对 <em>add</em>。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">    std::cout &lt;&lt; add(1, add(2, 3)) &lt;&lt; '\n'; // 求值 1 + (2 + 3)
+</code></pre><p>但这种情况与之前的情况完全相同。add(2, 3) 首先求值，得到返回值 <em>5</em>。现在它可以求值 add(1, 5)，计算结果为值 <em>6</em>，它被传递给 std::cout 进行打印。</p><p>更简洁地说：<br/><em>add(1, add(2, 3))</em> 求值为 <em>add(1, 5)</em> =&gt; 求值为 <em>6</em></p><p class="cpp-section cpp-topline" style="clear:both">未引用参数和未命名参数</p><p>在某些情况下，你会遇到函数拥有在函数体内未使用的参数。这些参数被称为 <strong>未引用参数</strong>。</p><p>举一个简单的例子：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">void doSomething(int count) // 警告：未引用的参数 count
+{
+    // 该函数过去曾用 count 做点什么，但现在不再使用了
+}
+
+int main()
+{
+    doSomething(4);
+
+    return 0;
+}
+</code></pre><p>就像未使用的局部变量一样，你的编译器可能会警告变量 <code>count</code> 已被定义但未使用。</p><p>在函数定义中，函数参数的名称是可选的。因此，在需要函数参数存在但未在函数体内使用的情况下，你可以直接省略名称。没有名称的参数被称为 <strong>未命名参数</strong>：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">void doSomething(int) // 好：未命名参数将不会生成警告
+{
+}
+</code></pre><p>Google C++ 风格指南建议使用注释来说明该未命名参数原本是什么：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">void doSomething(int /*计数*/)
+{
+}
+</code></pre><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">作者注</p><p>你可能想知道为什么我们要编写一个拥有未使用参数值的函数。这种情况最常见于类似以下的场景：</p><ol start="1"><li>假设我们有一个带单个参数的函数。后来，函数以某种方式更新，参数的数值不再需要。如果直接删除现在未使用的函数参数，那么所有现有对该函数的调用都会出错（因为函数调用提供的实参数量超过了函数所能接受的数量）。这要求我们找到所有对该函数的调用并移除不需要的实参。这可能是大量的工作（并且需要大量重新测试）。甚至可能不可能做到（在我们无法控制所有调用该函数的代码的情况下）。因此，我们可能保持参数不变，只是让它不起作用。</li></ol></div><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">进阶读者</p><p>其他出现这种情况的场景：</p><ol start="2"><li>运算符 <code>++</code> 和 <code>--</code> 有前缀和后缀变体（例如 <code>++foo</code> vs <code>foo++</code>）。未引用的函数参数用于区分此类运算符的重载是前缀还是后缀情况。我们在课程 <a href="overloading-the-increment-and-decrement-operators.html">21.8 -- 重载自增和自减运算符</a>。</li><li>当我们需要从类型模板参数的类型（而非值）中确定某些内容时。</li></ol></div><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">作者注</p><p>如果未命名参数对你来说仍然没有意义，请不要担心。我们将在未来的课程中再次遇到它们，届时会有更多上下文来解释它们的用途。</p></div><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>当函数参数存在但未在函数体中使用时，不要给它命名。你可以选择在注释中放置一个名称。</p></div><p class="cpp-section cpp-topline" style="clear:both">总结</p><p>函数参数和返回值是函数以可重用方式编写的主要机制，因为它们允许我们编写能够执行任务并将获取或计算的结果返回给调用者的函数，而无需事先知道具体的输入或输出。</p><p class="cpp-section cpp-topline" style="clear:both">小测验时间</p><div class="quiz" style="clear:both"><p class="quiz-header">问题 #1</p><p>这个程序片段有什么问题？</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+void multiply(int x, int y)
+{
+    return x * y;
+}
+
+int main()
+{
+    std::cout &lt;&lt; multiply(4, 5) &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p><a aria-controls="cpp_solution_id_0" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_0" href="#cpp_solution_id_0">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_0">multiply() 的返回类型为 void，意味着它是一个不返回值的函数。由于该函数试图通过 return 语句返回值，因此会产生编译器错误。返回类型应为 int。</div><p></p></div><div class="quiz" style="clear:both"><p class="quiz-header">问题 #2</p><p>这个程序片段有哪些两个错误？</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int multiply(int x, int y)
+{
+    int product { x * y };
+}
+
+int main()
+{
+    std::cout &lt;&lt; multiply(4) &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p><a aria-controls="cpp_solution_id_1" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_1" href="#cpp_solution_id_1">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_1">问题1：main() 向 multiply() 传递了一个参数，但 multiply() 需要两个参数。问题2：multiply() 没有 return 语句。</div><p></p></div><div class="quiz" style="clear:both"><p class="quiz-header">问题 #3</p><p>以下程序打印什么值？</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int add(int x, int y, int z)
+{
+    return x + y + z;
+}
+
+int multiply(int x, int y)
+{
+    return x * y;
+}
+
+int main()
+{
+    std::cout &lt;&lt; multiply(add(1, 2, 3), 4) &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p><a aria-controls="cpp_solution_id_2" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_2" href="#cpp_solution_id_2">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_2">调用 multiply 时，x = add(1, 2, 3) 且 y = 4。首先，CPU 解析 x = add(1, 2, 3)，返回 1 + 2 + 3，即 x = 6。multiply(6, 4) = 24，这就是答案。</div><p></p></div><div class="quiz" style="clear:both"><p class="quiz-header">问题 #4</p><p>编写一个名为 doubleNumber() 的函数，该函数接受一个整数参数。函数应返回参数值的两倍。</p><p><a aria-controls="cpp_solution_id_3" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_3" href="#cpp_solution_id_3">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_3"><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int doubleNumber(int x)
+{
+    return 2 * x;
+}
+</code></pre></div></div><div class="quiz" style="clear:both"><p class="quiz-header">问题 #5</p><ol start="5"><li>编写一个完整程序，从用户处读取一个整数，使用你在上一道测验题中编写的 doubleNumber() 函数将其加倍，然后将加倍后的值打印到控制台。</li></ol><p><a aria-controls="cpp_solution_id_4" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_4" href="#cpp_solution_id_4">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_4"><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int doubleNumber(int x)
+{
+    return 2 * x;
+}
+
+int main()
+{
+    std::cout &lt;&lt; "Enter an integer value: ";
+    int x{};
+    std::cin &gt;&gt; x;
+    std::cout &lt;&lt; doubleNumber(x) &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>注意：你可能会有其他（类似的）解决方案。在 C++ 中，通常有多种方式来完成相同的事情。</p></div><p></p></div>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="void-functions-non-value-returning-functions.html" rel="prev"><small>上一课</small><strong>2.3 — void函数（不返回值的函数）</strong></a><a class="lesson-nav-index" href="../index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="introduction-to-local-scope.html" rel="next"><small>下一课</small><strong>2.5 — 局部作用域简介</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

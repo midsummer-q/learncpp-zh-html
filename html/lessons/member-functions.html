@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/member-functions/" name="learncpp:source-url"/>
+<meta content="9b173ad396d7e3e08c29e85fe1035a90d1825206bce9a4135095c47079aeffb2" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:50:13.073497+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T17:44:23.729855+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>14.3 — Member functions</title>
+<link href="../assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="../assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="../index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="../index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">14.3 — 成员函数</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 14.3</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/member-functions/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>在课程 <a href="introduction-to-structs-members-and-member-selection.html">13.7 课——结构体、成员和成员选择简介中介绍结构体。</a>，我们介绍了结构体程序定义类型，它可以包含成员变量。下面是一个用于保存日期的结构体示例：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">struct Date
+{
+    int year {};
+    int month {};
+    int day {};
+};
+</code></pre><p>现在，如果我们想将日期打印到屏幕上（这可能是我们经常要做的事情），编写一个函数来实现这个功能是合理的。下面是一个完整的程序：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+struct Date
+{
+    // 这里是我们的成员变量
+    int year {};
+    int month {};
+    int day {};
+};
+
+void print(const Date&amp; date)
+{
+    // 使用成员选择运算符 (.) 访问成员变量
+    std::cout &lt;&lt; date.year &lt;&lt; '/' &lt;&lt; date.month &lt;&lt; '/' &lt;&lt; date.day;
+}
+
+int main()
+{
+    Date today { 2020, 10, 14 }; // 聚合初始化我们的结构体
+
+    today.day = 16; // 使用成员选择运算符 (.) 访问成员变量
+    print(today);   // 使用普通调用约定访问非成员函数
+
+    return 0;
+}
+</code></pre><p>该程序打印出：</p><pre>2020/10/16
+</pre><p class="cpp-section cpp-topline" style="clear:both">属性与行为的分离</p><p>环顾四周——你看到的到处都是对象：书籍、建筑、食物，甚至你自己。现实生活中的对象有两个主要组成部分：1）一些可观察的属性（例如重量、颜色、大小、坚固性、形状等），以及2）基于这些属性可以执行或对其执行的一些行为（例如被打开、损坏其他东西等）。这些属性和行为是不可分割的。</p><p>在编程中，我们用变量表示属性，用函数表示行为。</p><p>在 <code>Date</code> 上面的例子中，注意我们分别定义了属性（ <code>Date</code>的成员变量）和使用这些属性执行的行为（函数 <code>print()</code>）。我们只能通过 <code>Date</code> 和 <code>print()</code> 的参数 <code>const Date&amp;</code> 来推断 <code>print()</code>。</p><p>之间的联系。虽然我们可以将 <code>Date</code> 和 <code>print()</code> 都放入一个命名空间（以更清楚地表明两者是打包在一起的），但这会在程序中增加更多的名称和命名空间前缀，使代码变得杂乱。</p><p>如果能有一种方法将我们的属性和行为定义在一起，作为一个单独的包，那就太好了。</p><p class="cpp-section cpp-topline" style="clear:both">成员函数</p><p>除了拥有成员变量之外，类类型（包括结构体、类和联合体）也可以拥有自己的函数！属于类类型的函数称为 <strong>成员函数</strong>。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">顺便说一句……</p><p>在其他面向对象语言（如Java和C#）中，这些被称为 <strong>方法</strong>。虽然C++中不使用“方法”这个术语，但先学习其他语言的程序员可能仍会使用这个术语。</p></div><p>不是成员函数的函数称为 <strong>非成员函数</strong> （有时也称为 <strong>自由函数</strong>），以区别于成员函数。上面的 <code>print()</code> 函数是一个非成员函数。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">作者注</p><p>在本课中，我们将使用结构体来展示成员函数的示例——但我们在这里展示的所有内容同样适用于类。出于某些原因，我们将在接下来的课程（<a href="public-and-private-members-and-access-specifiers.html">14.5 -- 公有和私有成员及访问说明符</a>)。</p></div><p>）中展示带有成员函数的类的示例。成员函数必须在类类型定义内部声明，并且可以在类类型定义内部或外部定义。提醒一下，定义也是一种声明，所以如果在类内部定义成员函数，那也算作声明。</p><p>为了简单起见，我们现在将在类类型定义内部定义成员函数。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">相关内容</p><p>我们将在课程 <a href="classes-and-header-files.html">15.2 -- 类和头文件</a>。</p></div><p class="cpp-section cpp-topline" style="clear:both">中展示如何在类类型定义外部定义成员函数。</p><p>一个成员函数示例 <code>Date</code> 让我们重写本课开头的 <code>print()</code> 示例，将</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">// 成员函数版本
+#include &lt;iostream&gt;
+
+struct Date
+{
+    int year {};
+    int month {};
+    int day {};
+
+    void print() // 定义了一个名为 print 的成员函数
+    {
+        std::cout &lt;&lt; year &lt;&lt; '/' &lt;&lt; month &lt;&lt; '/' &lt;&lt; day;
+    }
+};
+
+int main()
+{
+    Date today { 2020, 10, 14 }; // 聚合初始化我们的结构体
+
+    today.day = 16; // 使用成员选择运算符 (.) 访问成员变量
+    today.print();  // 成员函数也使用成员选择运算符 (.) 访问
+
+    return 0;
+}
+</code></pre><p>从非成员函数转换为成员函数：</p><pre>2020/10/16
+</pre><p>这个程序编译并产生与上面相同的结果：</p><ol start="1"><li>非成员和成员示例之间有三个关键区别： <code>print()</code> 函数</li><li>我们声明（和定义） <code>print()</code> 函数</li><li>我们调用 <code>print()</code> 函数</li></ol><p>让我们逐一探讨这些内容。</p><p class="cpp-section cpp-topline" style="clear:both">成员函数在类类型定义内部声明</p><p>在非成员示例中， <code>print()</code> 非成员函数定义在 <code>Date</code> struct 外部，位于全局命名空间中。默认情况下，它具有外部链接，因此可以从其他源文件调用（通过适当的前向声明）。</p><p>在成员示例中， <code>print()</code> 成员函数声明（并在本例中定义）在 <code>Date</code> struct 定义内部。因为 <code>print()</code> 被声明为 <code>Date</code>的一部分，这告诉编译器 <code>print()</code> 是一个成员函数。</p><p>在类类型定义内部定义的成员函数是隐式内联的，因此如果类类型定义被包含到多个代码文件中，它们不会违反单一定义规则。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">相关内容</p><p>成员函数也可以在类定义内部进行（前向）声明，并在类定义之后定义。我们在课程 <a href="classes-and-header-files.html">15.2 -- 类和头文件</a>。</p></div><p class="cpp-section cpp-topline" style="clear:both">调用成员函数（以及隐式对象）</p><p>在非成员示例中，我们调用 <code>print(today)</code>，其中 <code>today</code> 被（显式地）作为参数传递。</p><p>在成员示例中，我们调用 <code>today.print()</code>。这种语法使用成员选择运算符 (.) 来选择要调用的成员函数，与我们访问成员变量的方式一致（例如 <code>today.day = 16;</code>)。</p><p>所有（非静态）成员函数必须使用该类的对象来调用。在这种情况下， <code>today</code> 是 <code>print()</code> 被调用的对象。</p><p>注意，在成员函数的情况下，我们不需要将 <code>today</code> 作为参数传递。成员函数被调用的对象是 <em>隐式地</em> 传递给成员函数的。因此，成员函数被调用的对象通常被称为 <strong>隐式对象</strong>。</p><p>换句话说，当我们调用 <code>today.print()</code>， <code>today</code> 是隐式对象，它被隐式传递给 <code>print()</code> 成员函数。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">相关内容</p><p>我们在课程 <a href="the-hidden-this-pointer-and-member-function-chaining.html">15.1 -- 隐藏的“this”指针和成员函数链式调用</a>。</p></div><p class="cpp-section cpp-topline" style="clear:both">在成员函数内部访问成员使用隐式对象</p><p>这是非成员版本的 <code>print()</code> 再次：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">// print 的非成员版本
+void print(const Date&amp; date)
+{
+    // 使用成员选择运算符 (.) 访问成员变量
+    std::cout &lt;&lt; date.year &lt;&lt; '/' &lt;&lt; date.month &lt;&lt; '/' &lt;&lt; date.day;
+}
+</code></pre><p>这个版本的 <code>print()</code> 具有引用参数 <code>const Date&amp; date</code>。在函数内部，我们通过这个引用参数访问成员，如 <code>date.year</code>， <code>date.month</code>、和 <code>date.day</code>。当 <code>print(today)</code> 被调用， <code>date</code> 引用参数绑定到参数 <code>today</code>、和 <code>date.year</code>， <code>date.month</code>、和 <code>date.day</code> 求值为 <code>today.year</code>， <code>today.month</code>、和 <code>today.day</code> </p><p>现在让我们看看 <code>print()</code> 成员函数的定义：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">    void print() // 定义了一个名为 print() 的成员函数
+    {
+        std::cout &lt;&lt; year &lt;&lt; '/' &lt;&lt; month &lt;&lt; '/' &lt;&lt; day;
+    }
+</code></pre><p>在成员示例中，我们访问成员为 <code>year</code>， <code>month,</code> 和 <code>day</code>。</p><p>在成员函数内部，任何没有用成员选择运算符（.）前缀的成员标识符都与隐式对象相关联。</p><p>换句话说，当 <code>today.print()</code> 被调用时， <code>today</code> 是我们的隐式对象，而 <code>year</code>， <code>month</code>、和 <code>day</code> （没有前缀）求值为 <code>today.year</code>， <code>today.month</code>、和 <code>today.day</code> </p><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">关键提示</p><p>对于非成员函数，我们必须显式地将一个对象传递给函数来操作，并且成员通过该对象显式访问。</p><p>对于成员函数，我们隐式地将一个对象传递给函数来操作，并且成员通过该对象隐式访问。</p></div><p class="cpp-section cpp-topline" style="clear:both">另一个成员函数示例</p><p>这是一个稍微复杂一点的成员函数的例子：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+struct Person
+{
+    std::string name{};
+    int age{};
+
+    void kisses(const Person&amp; person)
+    {
+        std::cout &lt;&lt; name &lt;&lt; " kisses " &lt;&lt; person.name &lt;&lt; '\n';
+    }
+};
+
+int main()
+{
+    Person joe{ "Joe", 29 };
+    Person kate{ "Kate", 27 };
+
+    joe.kisses(kate);
+
+    return 0;
+}
+</code></pre><p>这将产生输出：</p><pre>Joe kisses Kate
+</pre><p>让我们看看这是如何工作的。首先，我们定义两个 <code>Person</code> 结构体， <code>joe</code> 和 <code>kate</code>。接下来，我们调用 <code>joe.kisses(kate)</code>。 <code>joe</code> 是这里的隐式对象，而 <code>kate</code> 作为显式参数传递。</p><p>当 <code>kisses()</code> 成员函数执行时，标识符 <code>name</code> 没有使用成员选择运算符（.），所以它引用隐式对象，即 <code>joe</code>。因此这解析为 <code>joe.name</code>。 <code>person.name</code> 使用了成员选择运算符，所以它不引用隐式对象。由于 <code>person</code> 是 <code>kate</code>的引用，这解析为 <code>kate.name</code>。</p><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">关键提示</p><p>如果没有成员函数，我们会写成 <code>kisses(joe, kate)</code>。有了成员函数，我们写成 <code>joe.kisses(kate)</code>。注意后者读起来好得多，并且清楚地表明了哪个对象是发起动作的，哪个是辅助的。</p></div><p class="cpp-section cpp-topline" style="clear:both">成员变量和函数可以按任意顺序定义</p><p>C++ 编译器通常从上到下编译代码。对于遇到的每个名称，编译器确定它是否已经看到该名称的声明，以便进行正确的类型检查。</p><p>非成员必须在使用前声明，否则编译器会报错：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int x()
+{
+    return y(); // 错误：y 尚未声明，因此编译器不知道它是什么
+}
+ 
+int y()
+{
+    return 5;
+}
+</code></pre><p>为了解决这个问题，我们通常要么按使用的大致顺序定义非成员（这需要在我们需要改变顺序时进行工作），要么使用前向声明（这需要额外的工作来添加）。</p><p>然而，在类定义内部，这个限制不适用：你可以在成员变量和成员函数声明之前访问它们。这意味着你可以按任意顺序定义成员变量和成员函数！</p><p>例如：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">struct Foo
+{
+    int z() { return m_data; } // 我们可以在数据成员定义之前访问它们
+    int x() { return y(); }    // 我们可以在成员函数定义之前访问它们
+
+    int m_data { y() };        // 这甚至在默认成员初始化器中也能工作（参见下面的警告）
+    int y() { return 5; }
+};
+</code></pre><p>我们在接下来的课程中讨论成员定义的推荐顺序 <a href="the-benefits-of-data-hiding-encapsulation.html">14.8 -- 数据隐藏（封装）的好处</a>。</p><div class="cpp-note cpp-lightredbackground"><p class="cpp-note-title cpp-bottomline">警告</p><p>数据成员按声明顺序初始化。如果数据成员的初始化访问了另一个尚未声明（因此尚未初始化）的数据成员，则初始化将导致未定义行为。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">struct Bad
+{
+    int m_bad1 { m_data }; // 未定义行为：m_bad1 在 m_data 之前初始化
+    int m_bad2 { fcn() };  // 未定义行为：m_bad2 在 m_data 之前初始化（通过 fcn() 访问）
+
+    int m_data { 5 };
+    int fcn() { return m_data; }
+};
+</code></pre><p>因此，通常最好避免在默认成员初始化器中使用其他成员。</p></div><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">进阶读者</p><p>为了允许按任意顺序定义数据成员和成员函数，编译器采用了一个巧妙的技巧。当编译器遇到在类定义内部定义的成员函数时：</p><ul><li>该成员函数被隐式前向声明。</li><li>该成员函数定义被立即移动到类定义结束之后。</li></ul><p>这样，当编译器实际编译成员函数定义时，它已经看到了完整的类定义（包含所有成员的声明！）</p><p>例如，当编译器遇到这个：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">struct Foo
+{
+    int z() { return m_data; } // m_data 尚未声明
+    int x() { return y(); }    // y 尚未声明
+    int y() { return 5; }
+
+    int m_data{};
+};
+</code></pre><p>它将编译等效于这个：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">struct Foo
+{
+    int z(); // Foo::z() 的前向声明
+    int x(); // Foo::x() 的前向声明
+    int y(); // Foo::y() 的前向声明
+
+    int m_data{};
+};
+
+int Foo::z() { return m_data; } // m_data 已在上面声明
+int Foo::x() { return y(); }    // y 已在上面声明
+int Foo::y() { return 5; }
+</code></pre></div><p class="cpp-section cpp-topline" style="clear:both">成员函数可以被重载</p><p>就像非成员函数一样，成员函数可以被重载，只要每个成员函数可以被区分。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">相关内容</p><p>我们在课程中介绍函数重载的区分 <a href="function-overload-differentiation.html">11.2 -- 函数重载区分</a>。</p></div><p>以下是一个带有重载 <code>Date</code> 成员函数的 <code>print()</code> struct 示例：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;string_view&gt;
+
+struct Date
+{
+    int year {};
+    int month {};
+    int day {};
+
+    void print()
+    {
+        std::cout &lt;&lt; year &lt;&lt; '/' &lt;&lt; month &lt;&lt; '/' &lt;&lt; day;
+    }
+
+    void print(std::string_view prefix)
+    {
+        std::cout &lt;&lt; prefix &lt;&lt; year &lt;&lt; '/' &lt;&lt; month &lt;&lt; '/' &lt;&lt; day;
+    }
+};
+
+int main()
+{
+    Date today { 2020, 10, 14 };
+
+    today.print(); // 调用 Date::print()
+    std::cout &lt;&lt; '\n';
+
+    today.print("The date is: "); // 调用 Date::print(std::string_view)
+    std::cout &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>这会打印：</p><pre>2020/10/14
+The date is: 2020/10/14
+</pre><p class="cpp-section cpp-topline" style="clear:both">结构体与成员函数</p><p>在 C 语言中，结构体只有数据成员，没有成员函数。</p><p>在 C++ 中，设计类时，Bjarne Stroustrup 花了一些时间考虑是否应该允许结构体（继承自 C）拥有成员函数。经过思考，他决定应该允许。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">顺便说一句……</p><p>这个决定引发了一系列关于结构体还应具备哪些其他新 C++ 能力的问题。Bjarne 担心，如果只给结构体有限的能力子集，会增加语言的复杂性和边界情况。为了简化，他最终决定结构体和类使用统一的规则集（意味着结构体可以做类能做的一切，反之亦然），而约定俗成的用法可以决定结构体实际如何使用。</p></div><p>在现代 C++ 中，结构体拥有成员函数是完全可以的。但这不包括构造函数，构造函数是一种特殊的成员函数，我们将在后续课程中介绍 <a href="introduction-to-constructors.html">14.9 -- 构造函数简介</a>。带有构造函数的类类型不再是聚合体，而我们希望结构体保持为聚合体。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>成员函数可以用于结构体和类。</p><p>然而，结构体应避免定义构造函数成员函数，因为这样做会使它们成为非聚合体。</p></div><p class="cpp-section cpp-topline" style="clear:both">没有数据成员的类类型</p><p>可以创建没有数据成员的类类型（例如，只有成员函数的类类型）。也可以实例化这种类类型的对象：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+struct Foo
+{
+    void printHi() { std::cout &lt;&lt; "Hi!\n"; }
+};
+
+int main()
+{
+    Foo f{};
+    f.printHi(); // 需要对象才能调用
+
+    return 0;
+}
+</code></pre><p>然而，如果类类型没有任何数据成员，那么使用类类型可能有些过度。在这种情况下，考虑使用命名空间（包含非成员函数）代替。这样可以让读者更清楚地知道没有数据被管理（并且不需要实例化对象来调用函数）。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+namespace Foo
+{
+    void printHi() { std::cout &lt;&lt; "Hi!\n"; }
+};
+
+int main()
+{
+    Foo::printHi(); // 不需要对象
+
+    return 0;
+}
+</code></pre><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>如果你的类类型没有数据成员，优先使用命名空间。</p></div><p class="cpp-section cpp-topline" style="clear:both">小测验时间</p><p class="cpp-quiz-question" style="clear:both">问题 #1</p><p>创建一个名为 <code>IntPair</code> 的结构体，包含两个整数。添加一个名为 <code>print</code> 的成员函数，用于打印这两个整数的值。</p><p>以下程序函数应能编译：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+// 在此处提供 IntPair 和 print() 成员函数的定义
+
+int main()
+{
+	IntPair p1 {1, 2};
+	IntPair p2 {3, 4};
+
+	std::cout &lt;&lt; "p1: ";
+	p1.print();
+
+	std::cout &lt;&lt; "p2: ";
+	p2.print();
+
+	return 0;
+}
+</code></pre><p>并产生输出：</p><pre>p1: Pair(1, 2)
+p2: Pair(3, 4)
+</pre><p><a aria-controls="cpp_solution_id_0" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_0" href="#cpp_solution_id_0">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_0"><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+struct IntPair
+{
+	int first{};
+	int second{};
+
+	void print()
+	{
+		std::cout &lt;&lt; "Pair(" &lt;&lt; first &lt;&lt; ", " &lt;&lt; second &lt;&lt; ")\n";
+	}
+};
+
+int main()
+{
+	IntPair p1 {1, 2};
+	IntPair p2 {3, 4};
+
+	std::cout &lt;&lt; "p1: ";
+	p1.print();
+
+	std::cout &lt;&lt; "p2: ";
+	p2.print();
+
+	return 0;
+}
+</code></pre></div><p class="cpp-quiz-question cpp-topline" style="clear:both">问题 #2</p><p>向 <code>IntPair</code> 的变量，名为 <code>isEqual</code> 添加一个新的成员函数，返回一个布尔值，指示一个 <code>IntPair</code> 是否等于另一个。</p><p>以下程序函数应能编译：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+// 在此处提供 IntPair 和成员函数的定义
+
+int main()
+{
+	IntPair p1 {1, 2};
+	IntPair p2 {3, 4};
+
+	std::cout &lt;&lt; "p1: ";
+	p1.print();
+
+	std::cout &lt;&lt; "p2: ";
+	p2.print();
+
+	std::cout &lt;&lt; "p1 and p1 " &lt;&lt; (p1.isEqual(p1) ? "are equal\n" : "are not equal\n");
+	std::cout &lt;&lt; "p1 and p2 " &lt;&lt; (p1.isEqual(p2) ? "are equal\n" : "are not equal\n");
+
+	return 0;
+}
+</code></pre><p>并产生输出：</p><pre>p1: Pair(1, 2)
+p2: Pair(3, 4)
+p1 and p1 are equal
+p1 and p2 are not equal 
+</pre><p><a aria-controls="cpp_solution_id_1" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_1" href="#cpp_solution_id_1">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_1"><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+struct IntPair
+{
+	int first{};
+	int second{};
+
+	void print()
+	{
+		std::cout &lt;&lt; "Pair(" &lt;&lt; first &lt;&lt; ", " &lt;&lt; second &lt;&lt; ")\n";
+	}
+
+	bool isEqual(IntPair a)
+	{
+		return (first == a.first) &amp;&amp; (second == a.second);
+	}
+};
+
+int main()
+{
+	IntPair p1 {1, 2};
+	IntPair p2 {3, 4};
+
+	std::cout &lt;&lt; "p1: ";
+	p1.print();
+
+	std::cout &lt;&lt; "p2: ";
+	p2.print();
+
+	std::cout &lt;&lt; "p1 and p1 " &lt;&lt; (p1.isEqual(p1) ? "are equal\n" : "are not equal\n");
+	std::cout &lt;&lt; "p1 and p2 " &lt;&lt; (p1.isEqual(p2) ? "are equal\n" : "are not equal\n");
+
+	return 0;
+}
+</code></pre></div>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="introduction-to-classes.html" rel="prev"><small>上一课</small><strong>14.2 — 类简介</strong></a><a class="lesson-nav-index" href="../index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="const-class-objects-and-const-member-functions.html" rel="next"><small>下一课</small><strong>14.4 — 常量类对象和常量成员函数</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

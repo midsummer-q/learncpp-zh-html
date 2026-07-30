@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/the-debugging-process/" name="learncpp:source-url"/>
+<meta content="9a010b6454371f8287e127cefd8d6a056e1508a416b9d3520b70a7918bfbcdc1" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:45:18.962519+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T17:18:29.462030+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>3.2 — The debugging process</title>
+<link href="../assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="../assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="../index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="../index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">3.2 — 调试过程</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 3.2</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/the-debugging-process/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>假设你写了一个程序，但它运行不正常——代码编译通过，但运行时得到错误结果。某处肯定有一个语义错误。如何找到它？如果你一直遵循最佳实践，写一点点代码就测试一下，你可能对错误位置有比较好的把握。或者你可能完全没头绪。</p><p>所有bug都源于一个简单的前提：你认为正确的东西，其实不正确。实际找出错误所在可能很有挑战性。在本课中，我们将概述调试程序的一般过程。</p><p>由于我们尚未涵盖那么多C++主题，本章中的示例程序将相当基础。这可能会使我们在此展示的一些技术显得多余。但请记住，这些技术是为更大、更复杂的程序设计的，在这样的环境中会更有用（这也是你最需要它们的地方）。</p><p class="cpp-section cpp-topline" style="clear:both">调试的一般方法</p><p>一旦发现问题，调试通常包括六个步骤：</p><ol start="1"><li>找到问题的根本原因（通常是有问题的代码行）。我们将在下一课中讨论一些实现此目的的策略。</li><li>确保你理解问题发生的原因。</li><li>确定修复问题的方法。</li><li>修复导致问题的错误。</li><li>重新测试以确保问题已被修复。</li><li>重新测试以确保没有出现新问题。</li></ol><p>让我们用现实生活中的类比来说明。假设某天晚上，你去冰箱的制冰机取冰。你把杯子放在制冰器下方，按下杠杆，然后……什么也没出来。哎呀，你发现某种缺陷。你会怎么做？你可能会开始调查，看是否能找到问题的根本原因。</p><p><strong>找到根本原因：</strong> 由于你听到制冰器试图送冰的声音，可能不是送冰机制本身的问题。于是你打开冰箱，检查冰盘，没有冰。这是问题的根本原因吗？不，这是另一个症状。进一步检查后，你确定制冰机似乎没有在制冰。问题是制冰机还是其他东西？冰箱仍然制冷，水管没有堵塞，其他一切似乎正常，所以你得出结论，根本原因是制冰机坏了。</p><p><strong>理解问题：</strong> 在这个案例中很简单。坏了的制冰机不会制冰。</p><p><strong>确定修复方案：</strong> 此刻，你有几种修复方案：你可以绕过问题（从商店买袋装冰）。你可以尝试进一步诊断制冰机，看看是否有可修复的部件。你可以买一个新的制冰机并替换当前的。或者你可以买一个新冰箱。你决定买一个新的制冰机。</p><p><strong>修复问题：</strong> 一旦制冰机到达，你将其安装好。</p><p><strong>重新测试：</strong> 在重新接通电源并等待一夜之后，你的新制冰机开始制冰。未发现新问题。</p><p>现在，让我们将这个流程应用到上一课的简单程序中：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int add(int x, int y) // 此函数本应执行加法运算
+{
+    return x - y; // 但由于使用了错误的运算符而未实现
+}
+
+int main()
+{
+    std::cout &lt;&lt; "5 + 3 = " &lt;&lt; add(5, 3) &lt;&lt; '\n'; // 本应产生8，但实际产生了2
+
+    return 0;
+}
+</code></pre><p>这段代码在一个方面很好：Bug 非常明显，因为第 10 行将错误结果打印到了屏幕。这为我们的调查提供了一个起点。</p><p><strong>找到根本原因：</strong> 在第 10 行，我们可以看到我们传入的字面量作为实参（5 和 3），因此那里没有出错的空间。由于传入函数 <em>add</em> 是正确的，但输出却不是，那么很明显，函数 <em>add</em> 一定产生了错误的值。函数中唯一的语句是 <em>add</em> 是返回语句，它一定是罪魁祸首。我们已经找到了问题所在的行。现在我们知道应该把注意力集中在哪里，注意到我们是在做减法而不是加法，这很可能是你通过检查能够发现的。</p><p><strong>理解问题：</strong> 在这种情况下，错误值产生的原因很明显——我们使用了错误的运算符。</p><p><strong>确定修复方案：</strong> 我们只需将 <em>operator-</em> 切换到 <em>operator+</em>。</p><p><strong>修复问题：</strong> 这实际上是在修改 <em>operator-</em> 切换到 <em>operator+</em> 并确保程序重新编译。</p><p><strong>重新测试：</strong> 实施更改后，重新运行程序将表明我们的程序现在产生了正确的值 8。对于这个简单的程序，这就是所需要的全部测试。</p><p>这个例子很简单，但说明了诊断任何程序时你将经历的基本过程。</p>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="syntax-and-semantic-errors.html" rel="prev"><small>上一课</small><strong>3.1 — 语法错误和语义错误</strong></a><a class="lesson-nav-index" href="../index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="a-strategy-for-debugging.html" rel="next"><small>下一课</small><strong>3.3 — 调试策略</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

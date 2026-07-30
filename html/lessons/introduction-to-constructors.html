@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/introduction-to-constructors/" name="learncpp:source-url"/>
+<meta content="c76041d01865827af551e3f2dfbcf15061212f58371813b859f52117082def4b" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:50:25.028589+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T17:45:28.194176+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>14.9 — Introduction to constructors</title>
+<link href="../assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="../assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="../index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="../index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">14.9 — 构造函数简介</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 14.9</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/introduction-to-constructors/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>当类类型是聚合体时，我们可以使用聚合初始化来直接初始化类类型：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">struct Foo // Foo 是一个聚合体
+{
+    int x {};
+    int y {};
+};
+
+int main()
+{
+    Foo foo { 6, 7 }; // 使用聚合初始化
+
+    return 0;
+}
+</code></pre><p>聚合初始化按成员初始化（成员按照定义顺序初始化）。所以当 <code>foo</code> 在上面的例子中被实例化时， <code>foo.x</code> 被初始化为 <code>6</code>、和 <code>foo.y</code> 被初始化为 <code>7</code>。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">相关内容</p><p>我们在课程中讨论了聚合体的定义和聚合初始化 <a href="struct-aggregate-initialization.html">13.8 -- 结构体聚合初始化</a>。</p></div><p>然而，一旦我们将任何成员变量设为私有（以隐藏数据），我们的类类型就不再是聚合体（因为聚合体不能有私有成员）。这意味着我们不能再使用聚合初始化：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">class Foo // Foo 不是聚合体（有私有成员）
+{
+    int m_x {};
+    int m_y {};
+};
+
+int main()
+{
+    Foo foo { 6, 7 }; // 编译错误：不能使用聚合初始化
+
+    return 0;
+}
+</code></pre><p>不允许具有私有成员的类类型通过聚合初始化进行初始化，这有几个原因：</p><ul><li>聚合初始化需要了解类的实现（因为必须知道成员是什么以及它们的定义顺序），而当我们隐藏数据成员时，我们有意避免这种情况。</li><li>如果我们的类有某种不变性，我们将依赖用户以保持不变性的方式初始化类。</li></ul><p>那么，我们如何初始化具有私有成员变量的类呢？前面示例中编译器给出的错误信息提供了线索：“error: no matching constructor for initialization of ‘Foo'”</p><p>我们必须需要一个匹配的构造函数。但那到底是什么？</p><p class="cpp-section cpp-topline" style="clear:both">构造函数</p><p>一个 <strong>构造函数</strong> 是一个特殊的成员函数，在非聚合类类型对象创建后自动调用。</p><p>当定义一个非聚合类类型对象时，编译器会查找是否存在一个可访问的构造函数，该构造函数与调用者提供的初始化值（如果有）匹配。</p><ul><li>如果找到可访问的匹配构造函数，则分配对象的内存，然后调用构造函数。</li><li>如果找不到可访问的匹配构造函数，将产生编译错误。</li></ul><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">关键提示</p><p>许多新手程序员对构造函数是否创建对象感到困惑。它们不创建对象——编译器在构造函数调用之前为对象设置内存分配。然后构造函数在未初始化的对象上调用。</p><p>然而，如果对于一组初始化器找不到匹配的构造函数，编译器将报错。因此，虽然构造函数不创建对象，但缺少匹配的构造函数会阻止对象的创建。</p></div><p>除了确定对象如何创建之外，构造函数通常执行两个功能：</p><ul><li>它们通常执行任何成员变量的初始化（通过成员初始化列表）</li><li>它们可能执行其他设置功能（通过构造函数体中的语句）。这可能包括诸如检查初始化值的错误、打开文件或数据库等操作。</li></ul><p>构造函数执行完毕后，我们说对象已被“构造”，并且对象现在应处于一致、可用的状态。</p><p>注意，聚合体不允许有构造函数——因此，如果你向聚合体添加构造函数，它就不再是聚合体。</p><p class="cpp-section cpp-topline" style="clear:both">命名构造函数</p><p>与普通成员函数不同，构造函数有特定的命名规则：</p><ul><li>构造函数必须与类同名（大小写相同）。对于模板类，此名称不包括模板参数。</li><li>构造函数没有返回类型（甚至没有 <code>void</code>)。</li></ul><p>因为构造函数通常是类接口的一部分，所以它们通常是公有的。</p><p class="cpp-section cpp-topline" style="clear:both">一个基本的构造函数示例</p><p>让我们向上面的示例添加一个基本构造函数：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+class Foo
+{
+private:
+    int m_x {};
+    int m_y {};
+
+public:
+    Foo(int x, int y) // 这是我们的构造函数，接受两个初始化值
+    {
+        std::cout &lt;&lt; "Foo(" &lt;&lt; x &lt;&lt; ", " &lt;&lt; y &lt;&lt; ") constructed\n";
+    }
+
+    void print() const
+    {
+        std::cout &lt;&lt; "Foo(" &lt;&lt; m_x &lt;&lt; ", " &lt;&lt; m_y &lt;&lt; ")\n";
+    }
+};
+
+int main()
+{
+    Foo foo{ 6, 7 }; // 调用 Foo(int, int) 构造函数
+    foo.print();
+
+    return 0;
+}
+</code></pre><p>这个程序现在将编译并产生结果：</p><pre>Foo(6, 7) constructed
+Foo(0, 0)
+</pre><p>当编译器看到定义 <code>Foo foo{ 6, 7 }</code>时，它会寻找一个匹配的 <code>Foo</code> 构造函数，该构造函数接受两个 <code>int</code> 实参调用了该函数。 <code>Foo(int, int)</code> 是匹配的，因此编译器将允许该定义。</p><p>在运行时，当 <code>foo</code> 被实例化时，为 <code>foo</code> 分配内存，然后调用 <code>Foo(int, int)</code> 构造函数，参数为 <code>x</code> 初始化为 <code>6</code> 和参数 <code>y</code> 初始化为 <code>7</code>。然后构造函数体执行并打印 <code>Foo(6, 7) constructed</code>。</p><p>当我们调用 <code>print()</code> 成员函数时，你会注意到成员 <code>m_x</code> 和 <code>m_y</code> 的值为 0。这是因为虽然我们的 <code>Foo(int, int)</code> 构造函数被调用了，但它实际上并没有初始化这些成员。我们将在下一课中展示如何做到这一点。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">相关内容</p><p>我们在课程中讨论了使用拷贝初始化、直接初始化和列表初始化来通过构造函数初始化对象的区别 <a href="class-initialization-and-copy-elision.html">14.15 -- 类初始化与复制省略</a>。</p></div><p class="cpp-section cpp-topline" style="clear:both">构造函数的参数隐式转换</p><p>在课程 <a href="implicit-type-conversion.html">10.1 -- 隐式类型转换</a>，我们注意到编译器会在函数调用中执行参数的隐式转换（如果需要），以匹配参数类型不同的函数定义：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">void foo(int, int)
+{
+}
+
+int main()
+{
+    foo('a', true); // 将匹配 foo(int, int)
+
+    return 0;
+}
+</code></pre><p>对于构造函数也是如此： <code>Foo(int, int)</code> 构造函数将匹配任何参数可以隐式转换为 <code>int</code>：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">class Foo
+{
+public:
+    Foo(int x, int y)
+    {
+    }
+};
+
+int main()
+{
+    Foo foo{ 'a', true }; // 将匹配 Foo(int, int) 构造函数
+
+    return 0;
+}
+</code></pre><p class="cpp-section cpp-topline" style="clear:both">构造函数不应为 const</p><p>构造函数需要能够初始化正在构造的对象——因此，构造函数不能是 const。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+class Something
+{
+private:
+    int m_x{};
+
+public:
+    Something() // 构造函数必须是非 const 的
+    {
+        m_x = 5; // 在非 const 构造函数中修改成员是可以的
+    }
+
+    int getX() const { return m_x; } // 常量
+};
+
+int main()
+{
+    const Something s{}; // const 对象，隐式调用（非 const）构造函数
+
+    std::cout &lt;&lt; s.getX(); // 打印 5
+    
+    return 0;
+}
+</code></pre><p>通常，非 const 成员函数不能在 const 对象上调用。然而，C++ 标准明确规定（参见 <a href="https://eel.is/c++draft/class.ctor.general#5">class.ctor.general#5</a>）const 不适用于正在构造的对象，只有在构造函数结束后才生效。</p><p class="cpp-section cpp-topline" style="clear:both">构造函数与设置函数</p><p>构造函数旨在在实例化时初始化整个对象。设置函数旨在为现有对象的单个成员赋值。</p>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="the-benefits-of-data-hiding-encapsulation.html" rel="prev"><small>上一课</small><strong>14.8 — 数据隐藏（封装）的好处</strong></a><a class="lesson-nav-index" href="../index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="constructor-member-initializer-lists.html" rel="next"><small>下一课</small><strong>14.10 — 构造函数成员初始化列表</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/constexpr-variables/" name="learncpp:source-url"/>
+<meta content="44f3c619149a772ffb071d077aae31736deef8ac18d794cb91233b26eea2f969" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:46:14.723554+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-29T01:40:41.161800+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>5.6 — Constexpr variables</title>
+<link href="../assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="../assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="../index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="../index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">5.6 — Constexpr 变量</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 5.6</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/constexpr-variables/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>在上一节课 <a href="https://www.learncpp.com/cpp-tutorial/constant-expressions/#whywecare">5.5 -- 常量表达式</a>我们定义了什么是常量表达式，讨论了为什么常量表达式是可取的，并总结了常量表达式何时在编译时实际求值。</p><p>在本课中，我们将更深入地了解如何在现代 C++ 中创建可用于常量表达式的变量。我们还将探索确保代码实际在编译时执行的第一种方法。</p><p class="cpp-section cpp-topline" style="clear:both">编译时 <code>const</code> 挑战</p><p>在上一课中，我们注意到创建可用于常量表达式的变量的一种方法是使用 <code>const</code> 关键字。具有整型类型和常量表达式初始化器的 <code>const</code> 变量可以在常量表达式中使用。所有其他 <code>const</code> 变量不能在常量表达式中使用。</p><p>然而，使用 <code>const</code> 创建可用于常量表达式的变量存在一些挑战。</p><p>首先，使用 <code>const</code> 并不能立即清楚该变量是否可以在常量表达式中使用。在某些情况下，我们可以很容易地判断：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int a { 5 };       // 根本不是 const
+const int b { a }; // 显然不是常量表达式（因为初始化器是非 const 的）
+const int c { 5 }; // 显然是常量表达式（因为初始化器是常量表达式）
+</code></pre><p>在其他情况下，可能相当困难：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">const int d { someVar };    // 不清楚 d 是否可以在常量表达式中使用
+const int e { getValue() }; // 不清楚 e 是否可以在常量表达式中使用
+</code></pre><p>在上面的例子中，变量 <code>d</code> 和 <code>e</code> 可能可以在常量表达式中使用，也可能不行，这取决于 <code>someVar</code> 和 <code>getValue()</code> 是如何定义的。这意味着我们必须检查这些初始化器的定义并推断我们处于哪种情况。而且这甚至可能还不够——如果 <code>someVar</code> 是 const 并且用变量或函数调用初始化，我们还得检查它的初始化器的定义！</p><p>其次，使用 <code>const</code> 无法告知编译器我们需要一个可在常量表达式中使用的变量（并且如果它不能，编译器应该停止编译）。相反，它只会静默地创建一个只能在运行时表达式中使用的变量。</p><p>第三，使用 <code>const</code> 创建编译时常量变量的方法不适用于非整型变量。而在许多情况下，我们也希望非整型变量成为编译时常量。</p><p class="cpp-section cpp-topline" style="clear:both">浮点类型的 <code>constexpr</code> 关键字的类型推导</p><p>幸运的是，我们可以借助编译器的帮助，确保在我们需要的地方得到编译时常量变量。为此，我们在变量声明中使用 <code>constexpr</code> 关键字（它是“常量表达式”的缩写）而不是 <code>const</code> <strong>constexpr</strong> 变量始终是编译时常量。因此，constexpr 变量必须用常量表达式初始化，否则会导致编译错误。</p><p>例如：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+// 非 constexpr 函数的返回值不是 constexpr
+int five()
+{
+    return 5;
+}
+
+int main()
+{
+    constexpr double gravity { 9.8 }; // ok: 9.8 是常量表达式
+    constexpr int sum { 4 + 5 };      // ok: 4 + 5 是常量表达式
+    constexpr int something { sum };  // ok: sum 是常量表达式
+
+    std::cout &lt;&lt; "Enter your age: ";
+    int age{};
+    std::cin &gt;&gt; age;
+
+    constexpr int myAge { age };      // 编译错误：age 不是常量表达式
+    constexpr int f { five() };       // 编译错误：five() 的返回值不是 constexpr
+
+    return 0;
+}
+</code></pre><p>因为函数通常在运行时执行，所以函数的返回值不是 constexpr（即使返回表达式是常量表达式）。这就是为什么 <code>five()</code> 不是 <code>constexpr int f</code>。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">相关内容</p><p>的合法初始化值。我们在第 <a href="constexpr-functions.html">F.1 -- Constexpr函数</a>。</p></div><p>课中讨论了返回值可以在常量表达式中使用的函数。 <code>constexpr</code> 此外，</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">constexpr double d { 1.2 }; // d 可以在常量表达式中使用！
+</code></pre><p class="cpp-section cpp-topline" style="clear:both">也适用于非整型类型的变量：</p><p>const 与 constexpr 对于变量的含义</p><ul><li><code>const</code> 对于变量：</li><li><code>constexpr</code> 意味着对象的值在初始化后不能更改。初始化器的值可以在编译时或运行时已知。const 对象可以在运行时求值。</li></ul><p>意味着该对象可以在常量表达式中使用。初始化器的值必须在编译时已知。constexpr 对象可以在运行时或编译时求值。 <code>constexpr</code> 和 <code>const</code>Constexpr 变量隐式地为 const。Const 变量并非隐式地为 constexpr（除了具有常量表达式初始化器的 const 整型变量）。虽然变量可以同时定义为 <code>const</code> 或 <code>constexpr</code>。</p><p>与 <code>const</code>， <code>constexpr</code> ，但在大多数情况下这是多余的，我们只需要使用 <code>constexpr int</code> 不是对象类型的一部分。因此，定义为 <code>const int</code> 的变量实际上具有类型 <code>const</code> 提供对象的 <code>constexpr</code> </p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>任何初始化器是常量表达式的常量变量都应声明为 <code>constexpr</code>。</p><p>任何初始化器不是常量表达式（使其成为运行时常量）的常量变量都应声明为 <code>const</code>。</p><p>注意：将来我们会讨论一些与 <code>constexpr</code> （包括 <code>std::string</code>， <code>std::vector</code>不完全兼容的类型，以及其他使用动态内存分配的类型。对于这些类型的常量对象，要么使用 <code>const</code> 而不是 <code>constexpr</code>，要么选择其他与 constexpr 兼容的类型（例如 <code>std::string_view</code> 或 <code>std::array</code>)。</p></div><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">术语</p><p>术语 <code>constexpr</code> 是“常量表达式”的合成词。之所以选择这个名称，是因为 constexpr 对象（和函数）可以在常量表达式中使用。</p><p>形式上，关键字 <code>constexpr</code> 仅适用于对象和函数。按照惯例，术语 <code>constexpr</code> 用作任何常量表达式的简写（例如 <code>1 + 2</code>)。</p></div><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">作者注</p><p>本网站上的某些示例是在使用 <code>constexpr</code> 的最佳实践之前编写的——因此，您会注意到一些示例没有遵循上述最佳实践。我们目前正在更新遇到的不符合规范的示例。</p></div><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">进阶读者</p><p>在 C 和 C++ 中，数组对象（一个对象可以保存多个值）的声明要求数组的长度（它可以保存的值的数量）在编译时已知（以便编译器确保为数组对象分配正确的内存量）。</p><p>由于字面量在编译时已知，它们可以用作数组长度：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int arr[5]; // 一个包含 5 个 int 值的数组，长度 5 在编译时已知
+</code></pre><p>在许多情况下，最好使用符号常量作为数组长度（例如，避免魔法数字，并且如果数组长度在多个地方使用，更容易更改）。在 C 中，这可以通过预处理器宏或枚举器实现，但不能通过 const 变量（不包括 VLA，它们有其他缺点）。C++ 为了改进这种情况，希望允许使用 const 变量而不是宏。但变量的值通常被认为只在运行时已知，这使得它们不能用作数组长度。</p><p>为了解决这个问题，C++ 语言标准增加了一个例外，使得具有常量表达式初始化器的 const 整数类型被视为编译时已知的值，从而可以用作数组长度：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">const int arrLen = 5;
+int arr[arrLen]; // ok: 包含 5 个 int 的数组
+</code></pre><p>当 C++11 引入常量表达式时，将具有常量表达式初始化器的 const int 纳入该定义是合理的。委员会讨论了是否也应包括其他类型，但最终决定不这样做。</p></div><p class="cpp-section cpp-topline" style="clear:both">Const 和 constexpr 函数参数</p><p>普通函数调用在运行时求值，提供的参数用于初始化函数的参数。由于函数参数的初始化发生在运行时，这导致两个后果：</p><ol start="1"><li><code>const</code> 函数参数被视为运行时常量（即使提供的参数是编译时常量）。</li><li>函数参数不能声明为 <code>constexpr</code>，因为它们的初始化值直到运行时才确定。</li></ol><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">相关内容</p><p>我们将在下面讨论可以在编译时求值（从而可以在常量表达式中使用）的函数。</p><p>C++ 还支持将编译时常量传递给函数的方法。我们在课程 <a href="non-type-template-parameters.html">11.9 -- 非类型模板参数</a>。</p></div><p class="cpp-section cpp-topline" style="clear:both">中讨论这些内容。</p><div class="cpp-table-wrapper"><table class="cpp-table"><tbody><tr><th>以下是汇总表：</th><th>定义</th></tr><tr><td>编译时常量</td><td>一个值或不可修改的对象，其值必须在编译时已知（例如字面量和 constexpr 变量）。</td></tr><tr><td>Constexpr</td><td>将对象声明为编译时常量（以及可以在编译时求值的函数）的关键字。非正式地，是“常量表达式”的简写。</td></tr><tr><td>常量表达式</td><td>一个只包含编译时常量和支持编译时求值的运算符/函数的表达式。</td></tr><tr><td>运行时表达式</td><td>一个不是常量表达式的表达式。</td></tr><tr><td>运行时常量</td><td>一个值或不可修改的对象，不是编译时常量。</td></tr></tbody></table></div><p class="cpp-section cpp-topline" style="clear:both">constexpr 函数简介</p><p>一个 <strong>constexpr 函数</strong> 是一个可以在常量表达式中调用的函数。当 constexpr 函数所在的常量表达式必须在编译时求值时（例如在 constexpr 变量的初始化器中），它必须在编译时求值。否则，constexpr 函数可以在编译时（如果符合条件）或运行时求值。要符合编译时执行的条件，所有参数必须是常量表达式。</p><p>要创建 constexpr 函数，将 <code>constexpr</code> 关键字放在函数声明中返回类型之前：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int max(int x, int y) // 这是一个非 constexpr 函数
+{
+    if (x &gt; y)
+        return x;
+    else
+        return y;
+}
+
+constexpr int cmax(int x, int y) // 这是一个 constexpr 函数
+{
+    if (x &gt; y)
+        return x;
+    else
+        return y;
+}
+
+int main()
+{
+    int m1 { max(5, 6) };            // ok
+    const int m2 { max(5, 6) };      // ok
+    constexpr int m3 { max(5, 6) };  // 编译错误：max(5, 6) 不是常量表达式
+
+    int m4 { cmax(5, 6) };           // ok: 可以在编译时或运行时求值
+    const int m5 { cmax(5, 6) };     // ok: 可以在编译时或运行时求值
+    constexpr int m6 { cmax(5, 6) }; // ok: 必须在编译时求值
+
+    return 0;
+}
+</code></pre><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">作者注</p><p>我们过去在本章中详细讨论 constexpr 函数，但读者的反馈表明，该主题太长且微妙，不适合在本教程系列的早期介绍。因此，我们将完整的讨论移到了课程 <a href="constexpr-functions.html">F.1 -- Constexpr函数</a>。</p><p>从这个介绍中需要记住的关键点是，constexpr 函数可以在常量表达式中被调用。</p><p>你会在一些未来的示例中看到 constexpr 函数的使用（在适当的地方），但在我们正式讲解这个主题之前，我们不会期望你进一步理解它们或编写自己的 constexpr 函数。</p></div>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="constant-expressions.html" rel="prev"><small>上一课</small><strong>5.5 — 常量表达式</strong></a><a class="lesson-nav-index" href="../index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="introduction-to-stdstring.html" rel="next"><small>下一课</small><strong>5.7 — std::string 简介</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

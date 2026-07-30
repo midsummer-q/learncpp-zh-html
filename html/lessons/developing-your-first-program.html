@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/developing-your-first-program/" name="learncpp:source-url"/>
+<meta content="7c44e94dcccc1049fdc60f13fd504789d94f2b44113b1907f13884373d0d4f15" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:44:44.659929+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T17:18:18.837127+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>1.11 — Developing your first program</title>
+<link href="../assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="../assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="../index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="../index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">1.11 — 开发你的第一个程序</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 1.11</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/developing-your-first-program/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>前面的课程介绍了大量的术语和概念，这些术语和概念在我们创建的几乎每个程序中都会用到。在本课中，我们将逐步讲解如何将这些知识整合到我们的第一个简单程序中。</p><p class="cpp-section cpp-topline" style="clear:both">乘以2</p><p>首先，让我们创建一个程序，要求用户输入一个整数，等待他们输入一个整数，然后告诉他们这个数的两倍是多少。该程序应产生如下输出（假设我输入了4）：</p><pre>Enter an integer: 4
+Double that number is: 8
+</pre><p>我们该如何处理？分步骤进行。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>新手程序员常常试图一次性写出整个程序，然后当程序产生大量错误时感到不知所措。更好的策略是每次添加一小部分，确保它能编译，并进行测试。然后当你确定它工作正常后，再继续下一部分。</p></div><p>我们将在这里利用这一策略。当我们逐步进行时，请将每个程序键入（不要复制/粘贴）到你的代码编辑器中，编译并运行。</p><p>首先，创建一个新的控制台项目。</p><p>现在让我们从一些基本的骨架开始。我们知道我们需要一个 main() 函数（因为所有 C++ 程序都必须有一个），所以如果你的 IDE 在创建新项目时没有创建一个空的 main() 函数，让我们创建一个：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int main()
+{
+	return 0;
+}
+</code></pre><p>我们知道我们需要向控制台输出文本，并从用户键盘获取文本，所以我们需要包含 iostream 以访问 std::cout 和 std::cin。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+	return 0;
+}
+</code></pre><p>现在让我们告诉用户我们需要他们输入一个整数：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+	std::cout &lt;&lt; "Enter an integer: ";
+
+	return 0;
+}
+</code></pre><p>此时，你的程序应该产生如下结果：</p><pre>Enter an integer:
+</pre><p>然后终止。</p><p>接下来，我们将获取用户的输入。我们将使用 std::cin 和 <code>operator&gt;&gt;</code> 来获取用户的输入。但我们还需要定义一个变量来存储该输入以备后续使用。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main() // 注意：此程序某处有错误
+{
+	std::cout &lt;&lt; "Enter an integer: ";
+
+	int num{ }; // 将变量 num 定义为整型变量
+	std::cin &lt;&lt; num; // 从用户键盘获取整数值
+
+	return 0;
+}
+</code></pre><p>是时候编译我们的修改了……然后……</p><p>哎呀！作者在 Visual Studio 2017 上得到了这样的结果：</p><pre>1&gt;------ Build started: Project: Double, Configuration: Release Win32 ------
+1&gt;Double.cpp
+1&gt;c:\vcprojects\double\double.cpp(8): error C2678: binary '&lt;&lt;': no operator found which takes a left-hand operand of type 'std::istream' (or there is no acceptable conversion)
+1&gt;c:\vcprojects\double\double.cpp: note: could be 'built-in C++ operator&lt;&lt;(bool, int)'
+1&gt;c:\vcprojects\double\double.cpp: note: while trying to match the argument list '(std::istream, int)'
+1&gt;Done building project "Double.vcxproj" -- FAILED.
+========== Build: 0 succeeded, 1 failed, 0 up-to-date, 0 skipped ==========
+</pre><p>我们遇到了一个编译错误！</p><p>首先，由于程序在我们进行最新更新之前能够编译，而现在不能编译，所以错误 <em>必须</em> 肯定在我们刚刚添加的代码中（第7行和第8行）。这大大减少了我们需要扫描以查找错误的代码量。第7行非常简单（只是一个变量定义），所以错误可能不在那里。这样就剩下第8行作为可能的罪魁祸首。</p><p>其次，这条错误信息不太容易阅读。但让我们解析一些关键要素：编译器告诉我们它在第8行遇到了错误。这意味着实际错误可能在第8行，或者可能在前一行，这强化了我们之前的判断。接下来，编译器告诉你它找不到一个左操作数为 std::istream 类型（即 std::cin 的类型）的‘&lt;&lt;‘运算符。换句话说，operator&lt;&lt; 不知道如何处理 std::cin，所以错误要么出在我们使用 std::cin 的方式上，要么出在我们使用 operator&lt;&lt; 的方式上。</p><p>现在看到错误了吗？如果没有，花点时间看看能否找到它。</p><p>以下是包含修正后代码的程序：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+	std::cout &lt;&lt; "Enter an integer: ";
+
+	int num{ };
+	std::cin &gt;&gt; num; // std::cin使用运算符&gt;&gt;，不是运算符&lt;&lt;！
+
+	return 0;
+}
+</code></pre><p>现在程序可以编译了，我们可以测试它。程序会等待你输入一个数字，那么让我们输入 4。输出应该如下所示：</p><pre>Enter an integer: 4
+</pre><p>差不多了！最后一步是将数字加倍。</p><p>一旦我们完成这最后一步，我们的程序就能成功编译并运行，产生所需的输出。</p><p>至少有3种方法可以做到这一点。让我们从最差到最好依次介绍。</p><p class="cpp-section cpp-topline" style="clear:both">不好的解决方案</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+// 最差的版本
+int main()
+{
+	std::cout &lt;&lt; "Enter an integer: ";
+
+	int num{ };
+	std::cin &gt;&gt; num;
+
+	num = num * 2; // 将num的值加倍，然后将该值赋值回num
+
+	std::cout &lt;&lt; "Double that number is: " &lt;&lt; num &lt;&lt; '\n';
+
+	return 0;
+}
+</code></pre><p>在这个解决方案中，我们使用一个表达式将 <em>num</em> 乘以2，然后将该值赋值回 <em>num</em>。从那时起， <em>num</em> 将包含我们加倍后的数字。</p><p>为什么这是个糟糕的解决方案：</p><ul><li>在赋值语句之前，num 包含用户的输入。赋值之后，它包含了一个不同的值。这令人困惑。</li><li>我们通过给输入变量赋新值覆盖了用户的输入，所以如果我们之后想扩展程序，用那个输入值做其他事情（例如，将用户的输入乘以三），它已经丢失了。</li></ul><p class="cpp-section cpp-topline" style="clear:both">还算不错的解决方案</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+// 稍微好一点的版本
+int main()
+{
+	std::cout &lt;&lt; "Enter an integer: ";
+
+	int num{ };
+	std::cin &gt;&gt; num;
+
+	int doublenum{ num * 2 }; // 定义一个新变量并用num * 2初始化它
+	std::cout &lt;&lt; "Double that number is: " &lt;&lt; doublenum &lt;&lt; '\n'; // 然后在这里打印该变量的值
+
+	return 0;
+}
+</code></pre><p>这个解决方案非常直接易懂，并且解决了最差方案中遇到的两个问题。</p><p>这里的主要缺点是我们定义了一个新变量（这增加了复杂性）来存储一个只使用一次的值。我们可以做得更好。</p><p class="cpp-section cpp-topline" style="clear:both">首选的解决方案</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+// 首选的版本
+int main()
+{
+	std::cout &lt;&lt; "Enter an integer: ";
+
+	int num{ };
+	std::cin &gt;&gt; num;
+
+	std::cout &lt;&lt; "Double that number is: " &lt;&lt;  num * 2 &lt;&lt; '\n'; // 在我们将要打印它的地方使用表达式将num乘以2
+
+	return 0;
+}
+</code></pre><p>这是这一组中的首选方案。当 std::cout 执行时，表达式 <em>num * 2</em>  将被求值，结果将是 num 的两倍 <em>num</em>。该值将被打印。num 变量中的值 <em>num</em> 本身不会被改变，因此如果我们愿意，可以之后再次使用它。</p><p>这个版本是我们的参考解决方案。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">作者注</p><p>编程的首要目标是让你的程序能够运行。一个不能运行的程序无论写得再好也没有用处。</p><p>不过，我喜欢一句俗话：“你必须先写一遍程序，才知道第一次应该怎么写。”这说明最佳方案往往并不明显，我们最初对问题的解决方案通常不如理想中那么好。</p><p>当我们专注于弄清楚如何让程序运行时，把大量时间投入在我们还不确定是否会保留的代码上并不明智。因此我们会走捷径。我们跳过错误处理和注释之类的东西。我们在解决方案中散布调试代码，以帮助诊断问题和发现错误。我们边做边学——那些我们认为可能有效的方法最终却行不通，于是不得不回头尝试另一种方法。</p><p>最终结果是，我们最初的解决方案往往结构不佳、不健壮（不易出错）、不易读或不简洁。因此，一旦程序能够运行，你的工作其实并没有结束（除非程序是一次性的或用完即抛）。下一步是清理你的代码。这包括：移除（或注释掉）临时/调试代码、添加注释、处理错误情况、格式化代码，以及确保遵循最佳实践。即使这样，你的程序可能仍然不够简洁——也许有可以合并的冗余逻辑，或可以组合的多条语句，或不需要的变量，或者成千上万其他可以简化的小问题。新手程序员常常过多地关注性能优化，而他们本应关注可维护性。</p><p>这些教程中呈现的解决方案很少一开始就非常出色。相反，它们是不断改进的结果，直到找不到任何可以改进的地方。而在许多情况下，读者仍然会发现许多其他可以改进的建议！</p><p>这一切其实是在说：如果你的解决方案没有立刻从脑海中蹦出完美的优化版本，不要沮丧。这很正常。编程中的完美是一个迭代过程（需要反复打磨）。</p></div><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">作者注</p><p>还有一件事：你可能会想，“C++ 有这么多规则和概念。我怎么才能记住所有这些内容？”</p><p>简短回答：你不需要。C++ 中一部分是使用你已经知道的知识，另外两部分是查找如何完成其他内容。</p><p>当你第一次阅读本网站时，少关注记忆具体细节，多关注理解哪些是可能的。然后，当你在编写程序时需要实现某些功能时，你可以回到这里（或参考网站）重新回忆如何实现。</p></div><p class="cpp-section cpp-topline" style="clear:both">小测验时间</p><div class="quiz" style="clear:both"><p class="quiz-header">问题 #1</p><p>修改上面“最佳方案”程序的解决方案，使其输出如下（假设用户输入 4）：</p><pre>Enter an integer: 4
+Double 4 is: 8
+Triple 4 is: 12
+</pre><p><a aria-controls="cpp_solution_id_0" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_0" href="#cpp_solution_id_0">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_0"><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+	std::cout &lt;&lt; "Enter an integer: ";
+
+	int num{ };
+	std::cin &gt;&gt; num;
+
+	std::cout &lt;&lt; "Double " &lt;&lt; num &lt;&lt; " is: " &lt;&lt; num * 2 &lt;&lt; '\n';
+	std::cout &lt;&lt; "Triple " &lt;&lt; num &lt;&lt; " is: " &lt;&lt; num * 3 &lt;&lt; '\n';
+
+	return 0;
+}
+</code></pre></div></div>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="introduction-to-expressions.html" rel="prev"><small>上一课</small><strong>1.10 — 表达式简介</strong></a><a class="lesson-nav-index" href="../index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="chapter-1-summary-and-quiz.html" rel="next"><small>下一课</small><strong>1.x — 第1章 总结与测验</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

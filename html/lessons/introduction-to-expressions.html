@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/introduction-to-expressions/" name="learncpp:source-url"/>
+<meta content="5e06a668d5f78e836006ed916dbeed6a74a46f5a2ec32607ab2ef27c6ae0408e" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:44:42.656688+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T17:18:18.487127+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>1.10 — Introduction to expressions</title>
+<link href="../assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="../assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="../index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="../index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">1.10 — 表达式简介</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 1.10</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/introduction-to-expressions/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p class="cpp-section">表达式</p><p>考虑以下一系列语句，每个语句都定义并初始化了一个变量：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">// five() 是返回值为5的函数
+int five()
+{
+    return 5;
+}
+
+int main()
+{
+    int a{ 2 };             // 用字面量值2初始化变量a
+    int b{ 2 + 3 };         // 用计算值5初始化变量b
+    int c{ (2 * 3) + 4 };   // 用计算值10初始化变量c
+    int d{ b };             // 用变量值5初始化变量d
+    int e{ five() };        // 用函数返回值5初始化变量e
+
+    return 0;
+}
+</code></pre><p>注意，上面的初始化器使用了多种不同的实体：字面量、变量、运算符和函数调用。不知何故，C++ 正在将所有这些不同的东西转换为一个单一的值，然后可以用作变量的初始值。</p><p>所有这些初始化器有什么共同点？它们都使用了一个表达式。</p><p>在一般编程中，一个 <strong>表达式</strong> 是由字面量、变量、运算符和函数调用组成的计算一个值的非空序列。执行表达式的过程称为 <strong>求值</strong>，所产生的结果值称为 <strong>结果</strong> （有时也称为 <strong>返回值</strong>)。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">进阶读者</p><p>在 C++ 中，表达式的结果是以下之一：</p><ul><li>一个值（最常见）</li><li>一个对象或函数。我们在课程 <a href="value-categories-lvalues-and-rvalues.html">12.2 -- Value categories (lvalues and rvalues)</a>。</li><li>无。这些是无返回值函数调用的结果（在课程 <a href="void-functions-non-value-returning-functions.html">2.3 -- Void functions (non-value returning functions)</a>中介绍），这些调用仅为了其副作用</li></ul><p>目前，为简单起见，我们假设表达式被求值以产生值。</p></div><p>当一个表达式被求值时，表达式中的每个项都会被求值，直到剩下单个值。以下是一些不同类型表达式的示例，注释说明了它们如何求值：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">2               // 2 是一个求值为2的字面量
+"Hello world!"  // "Hello world!" 是一个求值为文本"Hello world!"的字面量
+x               // x 是一个求值为变量x所持值的变量
+2 + 3           // operator+ 使用操作数 2 和 3 求值为值 5
+five()          // 求值为函数 five() 的返回值
+</code></pre><p>如您所见，字面量求值为自身的值。变量求值为变量的值。运算符（例如 <code>operator+</code>) 使用它们的操作数求值为其他值。我们还没有介绍函数调用，但在表达式的上下文中，函数调用求值为函数返回的任何值。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">进阶读者</p><p>涉及带有副作用的运算符的表达式稍微复杂一些：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">x = 5           // x = 5 有副作用：将 5 赋值给 x，求值为 x
+x = 2 + 3       // 有副作用：将 5 赋值给 x，求值为 x
+std::cout &lt;&lt; x  // 有副作用：将 x 的值打印到控制台，求值为 std::cout
+</code></pre></div><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">关键提示</p><p>在 C++ 中，任何期望单个值的地方，您都可以使用一个产生值的表达式代替，并且该表达式会被求值以产生一个单个值。</p></div><p>表达式不以分号结尾，且不能单独编译。例如，如果您尝试编译表达式 <code>x = 5</code>，编译器会报错（很可能提示缺少分号）。相反，表达式总是作为语句的一部分进行求值。</p><p>例如，考虑这条语句：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int x{ 2 + 3 }; // 2 + 3 是一个没有分号的表达式——分号在包含该表达式的语句末尾
+</code></pre><p>如果将此语句分解为语法结构，它将如下所示：</p><p><code>type identifier { expression };</code></p><p><em>类型</em> 可以是任何有效类型（我们选择了 <code>int</code>)。 <em>标识符</em> 可以是任何有效名称（我们选择了 <code>x</code>）。而 <em>表达式</em> 可以是任何有效表达式（我们选择了 <code>2 + 3</code>，它使用了两个字面量和一个运算符）。</p><p class="cpp-section cpp-topline" style="clear:both">表达式语句</p><p>某些表达式（例如 <code>x = 5</code>）主要用于它们的副作用（在这种情况下，将值 <code>5</code> 赋给变量 <code>x</code>），而不是它们产生的值。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">相关内容</p><p>我们在第 [url] 课中介绍了副作用 <a href="introduction-to-literals-and-operators.html">1.9 -- 字面量和运算符简介</a>)。</p></div><p>然而，我们上面提到表达式不能单独执行——它们必须作为语句的一部分存在。幸运的是，将任何表达式转换为等效语句是轻而易举的。一个 <strong>表达式语句</strong> 是由一个表达式后跟一个分号组成的语句。当执行表达式语句时，该表达式会被求值。</p><p>因此，我们可以取任意表达式（例如 <code>x = 5</code>），并将其转换为表达式语句（<code>x = 5;</code>），这样就能编译通过。</p><p>当表达式用于表达式语句时，表达式生成的任何结果都会被丢弃（因为它未被使用）。例如，当表达式 <code>x = 5</code> 求值时，函数 <code>operator=</code> 的返回值被丢弃。这没问题，因为我们只是想将 <code>5</code> 切换到 <code>x</code> 反正。</p><p class="cpp-section cpp-topline" style="clear:both">无用的表达式语句</p><p>我们还可以编写能编译但无效果的表达式语句。例如，表达式语句（<code>2 * 3;</code>）是一个表达式语句，其表达式求值为 <em>6</em>的结果值，然后被丢弃。虽然语法有效，但此类表达式语句是无用的。某些编译器（如 gcc 和 Clang）如果检测到表达式语句无用，会生成警告。</p><p class="cpp-section cpp-topline" style="clear:both">子表达式、完整表达式和复合表达式</p><p>我们偶尔需要讨论特定类型的表达式。为此，我们将定义一些相关术语。</p><p>考虑以下表达式：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">2               // 2 是一个求值为2的字面量
+2 + 3           // 2 + 3 使用 operator+ 求值为值 5
+x = 4 + 5       // 4 + 5 求值为值 9，然后赋值给变量 x
+</code></pre><p>简化一点， <strong>子表达式</strong> 是用作操作数的表达式。例如， <code>x = 4 + 5</code> 是 <code>x</code> 和 <code>4 + 5</code>的子表达式。 <code>4 + 5</code> 是 <code>4</code> 和 <code>5</code>。</p><p>一个 <strong>完整表达式</strong> 是一个不是子表达式的表达式。上面的三个表达式（<code>2</code>， <code>2 + 3</code>、和 <code>x = 4 + 5</code>）都是完整表达式。</p><p>通俗地说，一个 <strong>复合表达式</strong> 是一个包含两个或更多运算符使用的表达式。 <code>x = 4 + 5</code> 是一个复合表达式，因为它包含两个运算符的使用（<code>operator=</code> 和 <code>operator+</code>)。 <code>2</code> 和 <code>2 + 3</code> 不是复合表达式。</p><p class="cpp-section cpp-topline" style="clear:both">小测验时间</p><p></p><p class="cpp-quiz-question" style="clear:both">问题 #1</p><br/>语句和表达式之间的区别是什么？<p></p><p><a aria-controls="cpp_solution_id_0" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_0" href="#cpp_solution_id_0">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_0"><p>当我们希望程序执行一个动作时使用语句。当我们希望程序计算一个值时使用表达式。</p></div><p class="cpp-quiz-question cpp-topline" style="clear:both">问题 #2</p><p>指出以下几行是 <em>不包含表达式的语句</em>， <em>包含表达式的语句</em>，或者是 <em>表达式语句</em>。</p><p>a)</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int x;
+</code></pre><p><a aria-controls="cpp_solution_id_1" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_1" href="#cpp_solution_id_1">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_1"><p>语句不包含表达式。这是一个变量定义语句。 <code>x</code> 在此上下文中不是一个表达式，因为它正在被定义，而不是被求值。</p></div><p>b)</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int x = 5;
+</code></pre><p><a aria-controls="cpp_solution_id_2" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_2" href="#cpp_solution_id_2">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_2"><p>语句包含一个表达式。 <code>int x</code> 是一个变量定义。 <code>=</code> 是复制初始化语法的一部分。等号右侧的初始化器是一个表达式。</p></div><p>c)</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">x = 5;
+</code></pre><p><a aria-controls="cpp_solution_id_3" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_3" href="#cpp_solution_id_3">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_3"><p>表达式语句。 <code>x = 5</code> 是调用 <code>operator=</code> 带两个操作数： <code>x</code> 和 <code>5</code>。分号使其成为表达式语句。</p></div><p>d) 附加题：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">foo(); // foo 是一个函数
+</code></pre><p><a aria-controls="cpp_solution_id_4" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_4" href="#cpp_solution_id_4">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_4"><p>函数调用是表达式的一部分，因此这是一个表达式语句。</p></div><p>e) 额外加分：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">std::cout &lt;&lt; x; // 提示：operator&lt;&lt; 是一个二元运算符。
+</code></pre><p><a aria-controls="cpp_solution_id_5" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_5" href="#cpp_solution_id_5">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_5"><p><code>operator&lt;&lt;</code> 是二元运算符，所以 <code>std::cout</code> 必须是左操作数，而 <code>x</code> 必须是右操作数。由于那已是整个语句，这一定是一个表达式语句。</p></div><p class="cpp-quiz-question cpp-topline" style="clear:both">问题 #3</p><p>确定以下程序输出什么值。不要编译此程序。只需在脑中逐行推理。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+	std::cout &lt;&lt; 2 + 3 &lt;&lt; '\n';
+	
+	int x{ 6 };
+	int y{ x - 2 };
+	std::cout &lt;&lt; y &lt;&lt; '\n';
+
+	int z{};
+	z = x;
+	std::cout &lt;&lt; z * x &lt;&lt; '\n';
+
+	return 0;
+}
+</code></pre><p><a aria-controls="cpp_solution_id_6" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_6" href="#cpp_solution_id_6">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_6"><pre>5
+4
+36
+</pre></div>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="introduction-to-literals-and-operators.html" rel="prev"><small>上一课</small><strong>1.9 — 字面量和运算符简介</strong></a><a class="lesson-nav-index" href="../index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="developing-your-first-program.html" rel="next"><small>下一课</small><strong>1.11 — 开发你的第一个程序</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

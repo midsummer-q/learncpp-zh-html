@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/stdvector-bool/" name="learncpp:source-url"/>
+<meta content="27b00848a7905247e500b17c46ca17094a1dbe576b3fc522281cb897e8a3dff8" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:51:29.571055+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T17:55:09.532788+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>16.12 — std::vector&lt;bool&gt;</title>
+<link href="../assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="../assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="../index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="../index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">16.12 — std::vector&lt;bool&gt;</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 16.12</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/stdvector-bool/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>在课程 <a href="bit-flags-and-bit-manipulation-via-stdbitset.html">O.1 -- 位标志和通过std::bitset进行位操作</a>中，我们讨论了 <code>std::bitset</code> 能够将8个布尔值压缩到一个字节中。这些位随后可以通过成员函数进行修改。 <code>std::bitset</code>。</p><p><code>std::vector</code> 有一个有趣的技巧。对于 <code>std::vector&lt;bool&gt;</code> 有一个特殊的实现，它可能通过类似地将8个布尔值压缩到一个字节中，从而在空间上更高效。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">进阶读者</p><p>当模板类针对特定的模板类型参数有不同的实现时，这被称为 <strong>类模板特化</strong>。我们将在课程 <a href="class-template-specialization.html">26.4 -- 类模板特化</a>。</p></div><p>与 <code>std::bitset</code>中进一步讨论这个主题。，它专为位操作设计， <code>std::vector&lt;bool&gt;</code> 缺少位操作成员函数。</p><p class="cpp-section cpp-topline" style="clear:both">使用 <code>std::vector&lt;bool&gt;</code></p><p>在大多数情况下， <code>std::vector&lt;bool&gt;</code> 的工作方式与普通的 <code>std::vector</code>：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+int main()
+{
+    std::vector&lt;bool&gt; v { true, false, false, true, true };
+    
+    for (int i : v)
+        std::cout &lt;&lt; i &lt;&lt; ' ';
+    std::cout &lt;&lt; '\n';
+
+    // 将索引4的布尔值改为false
+    v[4] = false;
+
+    for (int i : v)
+        std::cout &lt;&lt; i &lt;&lt; ' ';
+    std::cout &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>类似。在作者的64位机器上，输出如下：</p><pre>1 0 0 1 1
+1 0 0 1 0
+</pre><p class="cpp-section cpp-topline" style="clear:both"><code>std::vector&lt;bool&gt;</code> 权衡</p><p>然而， <code>std::vector&lt;bool&gt;</code> 有一些用户应该注意的权衡。</p><p>首先， <code>std::vector&lt;bool&gt;</code> 有相当高的开销（<code>sizeof(std::vector&lt;bool&gt;)</code> 在作者的机器上是40字节），所以除非你分配的布尔值数量超过架构的开销，否则你不会节省内存。</p><p>其次， <code>std::vector&lt;bool&gt;</code> 的性能高度依赖于实现（因为实现甚至不需要进行优化，更不用说优化得好）。根据 <a href="https://isocpp.org/blog/2012/11/on-vectorbool">这篇文章</a>，高度优化的实现可能比替代方案快得多。然而，优化不佳的实现会更慢。</p><p>第三，也是最重要的一点， <code>std::vector&lt;bool&gt;</code> 不是一个向量（它不要求在内存中连续），也不存储 <code>bool</code> 值（它存储的是位集合），也不符合C++对容器的定义。</p><p>尽管 <code>std::vector&lt;bool&gt;</code> 在大多数情况下表现得像向量，但它不能完全与标准库的其他部分兼容。与其他元素类型一起工作的代码可能无法与 <code>std::vector&lt;bool&gt;</code>。</p><p>一起工作。例如，以下代码在 <code>T</code> 是除 <code>bool</code>：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">template&lt;typename T&gt;
+void foo( std::vector&lt;T&gt;&amp; v )
+{
+    T&amp; first = v[0]; // 获取第一个元素的引用
+    // 对first进行操作
+}
+</code></pre><p class="cpp-section cpp-topline" style="clear:both">在 for 循环条件中进行数值比较时，避免使用 <code>std::vector&lt;bool&gt;</code></p><p>之外的任何类型时都能工作。现代共识是 <code>std::vector&lt;bool&gt;</code> 通常应该避免使用，因为性能提升不太可能值得因它不是真正的容器而带来的不兼容问题。</p><p>不幸的是，这个优化版本的 <code>std::vector&lt;bool&gt;</code> 默认是启用的，并且没有办法禁用它以使用非优化版本（后者才是真正的容器）。已经有人呼吁弃用 <code>std::vector&lt;bool&gt;</code>，并且正在努力确定一个替代的压缩向量 <code>bool</code> 可能是什么样子（也许作为未来的 <code>std::dynamic_bitset</code>)。</p><p>）。我们的建议如下：</p><ul><li>当需要的位数在编译时已知，且布尔值数量不多（例如少于64k），并且有限的运算符和成员函数（例如缺乏迭代器支持）满足你的需求时，使用（constexpr） <code>std::bitset</code> </li><li>优先使用 <code>std::vector&lt;char&gt;</code> 当你需要一个可调整大小的布尔值容器且空间节省不是必需时使用。这种类型的行为类似于普通容器。</li><li>当你需要一个动态位集进行位操作时，优先使用第三方实现的动态位集（例如 <code>boost::dynamic_bitset</code>）。这样的类型不会在不是标准库容器时假装是。</li></ul><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>推荐使用 <code>constexpr std::bitset</code>， <code>std::vector&lt;char&gt;</code>，或第三方动态位集，而不是 <code>std::vector&lt;bool&gt;</code>。</p></div>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="stdvector-and-stack-behavior.html" rel="prev"><small>上一课</small><strong>16.11 — std::vector 与栈行为</strong></a><a class="lesson-nav-index" href="../index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="chapter-16-summary-and-quiz.html" rel="next"><small>下一课</small><strong>16.x — 第16章总结与测验</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

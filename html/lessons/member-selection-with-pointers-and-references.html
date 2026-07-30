@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/member-selection-with-pointers-and-references/" name="learncpp:source-url"/>
+<meta content="07076cd546808b9acbf858de7cb7fe1de05163ce3fdb01d8d4ea529fe0b7abf6" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:49:57.020276+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T17:42:07.680021+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>13.12 — Member selection with pointers and references</title>
+<link href="../assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="../assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="../index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="../index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">13.12 — 使用指针和引用进行成员选择</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 13.12</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/member-selection-with-pointers-and-references/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p class="cpp-section">结构体和结构体引用的成员选择</p><p>在课程 <a href="introduction-to-structs-members-and-member-selection.html">13.7 课——结构体、成员和成员选择简介中介绍结构体。</a>中，我们展示了可以使用成员选择运算符（.）从结构体对象中选择成员：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+struct Employee
+{
+    int id {};
+    int age {};
+    double wage {};
+};
+
+int main()
+{
+    Employee joe { 1, 34, 65000.0 };
+
+    // 使用成员选择运算符（.）从结构体对象中选择成员
+    ++joe.age; // Joe 过生日了
+    joe.wage = 68000.0; // Joe 升职了
+    
+    return 0;
+}
+</code></pre><p>由于对象的引用行为与对象本身完全相同，我们也可以使用成员选择运算符（.）从结构体引用中选择成员：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+struct Employee
+{
+    int id{};
+    int age{};
+    double wage{};
+};
+
+void printEmployee(const Employee&amp; e)
+{
+    // 使用成员选择运算符（.）从结构体引用中选择成员
+    std::cout &lt;&lt; "Id: " &lt;&lt; e.id &lt;&lt; '\n';
+    std::cout &lt;&lt; "Age: " &lt;&lt; e.age &lt;&lt; '\n';
+    std::cout &lt;&lt; "Wage: " &lt;&lt; e.wage &lt;&lt; '\n';
+}
+
+int main()
+{
+    Employee joe{ 1, 34, 65000.0 };
+
+    ++joe.age;
+    joe.wage = 68000.0;
+
+    printEmployee(joe);
+
+    return 0;
+}
+</code></pre><p class="cpp-section cpp-topline" style="clear:both">指向结构体的指针的成员选择</p><p>然而，成员选择运算符（.）不能直接用于指向结构体的指针：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+struct Employee
+{
+    int id{};
+    int age{};
+    double wage{};
+};
+
+int main()
+{
+    Employee joe{ 1, 34, 65000.0 };
+
+    ++joe.age;
+    joe.wage = 68000.0;
+
+    Employee* ptr{ &amp;joe };
+    std::cout &lt;&lt; ptr.id &lt;&lt; '\n'; // 编译错误：不能对指针使用运算符.
+
+    return 0;
+}
+</code></pre><p>对于普通变量或引用，我们可以直接访问对象。但是，由于指针保存的是地址，我们首先需要解引用指针以获取对象，然后才能对其进行操作。因此，从指向结构体的指针访问成员的一种方法如下：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+struct Employee
+{
+    int id{};
+    int age{};
+    double wage{};
+};
+
+int main()
+{
+    Employee joe{ 1, 34, 65000.0 };
+
+    ++joe.age;
+    joe.wage = 68000.0;
+
+    Employee* ptr{ &amp;joe };
+    std::cout &lt;&lt; (*ptr).id &lt;&lt; '\n'; // 不太好但可行：先解引用 ptr，然后使用成员选择
+
+    return 0;
+}
+</code></pre><p>然而，这有点丑陋，特别是因为我们需要将解引用操作括起来，以便它优先于成员选择操作。</p><p>为了提供更简洁的语法，C++ 提供了 <strong>指针成员选择运算符（-&gt;）</strong> （有时也称为 <strong>箭头运算符</strong>），可用于从指向对象的指针中选择成员：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+struct Employee
+{
+    int id{};
+    int age{};
+    double wage{};
+};
+
+int main()
+{
+    Employee joe{ 1, 34, 65000.0 };
+
+    ++joe.age;
+    joe.wage = 68000.0;
+
+    Employee* ptr{ &amp;joe };
+    std::cout &lt;&lt; ptr-&gt;id &lt;&lt; '\n'; // 更好：使用 -&gt; 从指向对象的指针中选择成员
+
+    return 0;
+}
+</code></pre><p>这个指针成员选择运算符（-&gt;）的工作方式与成员选择运算符（.）完全相同，但在选择成员之前隐式解引用指针对象。因此 <code>ptr-&gt;id</code> 等价于 <code>(*ptr).id</code>。</p><p>这个箭头运算符不仅更容易输入，而且更不容易出错，因为间接引用是隐式完成的，所以没有优先级问题需要担心。因此，当通过指针访问成员时，始终使用 -&gt; 运算符而不是 . 运算符。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>当使用指针访问成员时，使用指针成员选择运算符（-&gt;）而不是成员选择运算符（.）。</p></div><p class="cpp-section cpp-topline" style="clear:both">链式访问 <code>operator-&gt;</code></p><p>如果通过 <code>operator-&gt;</code> 访问的成员是指向类类型的指针， <code>operator-&gt;</code> 可以在同一表达式中再次应用以访问该类类型的成员。</p><p>以下示例说明了这一点（由读者 Luna 提供）：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+struct Point
+{
+    double x {};
+    double y {};
+};
+
+struct Triangle
+{
+    Point* a {};
+    Point* b {};
+    Point* c {};
+};
+
+int main()
+{
+    Point a {1,2};
+    Point b {3,7};
+    Point c {10,2};
+
+    Triangle tr { &amp;a, &amp;b, &amp;c };
+    Triangle* ptr {&amp;tr};
+
+    // ptr 是指向 Triangle 的指针，Triangle 包含指向 Point 的成员
+    // 要访问ptr指向的Triangle的Point c的成员y，以下两种方式等价：
+
+    // 通过operator.访问
+    std::cout &lt;&lt; (*(*ptr).c).y &lt;&lt; '\n'; // 丑陋！
+
+    // 通过operator-&gt;访问
+    std::cout &lt;&lt; ptr -&gt; c -&gt; y &lt;&lt; '\n'; // 好多了
+}
+</code></pre><p>当连续使用多个 <code>operator-&gt;</code> 时（例如 <code>ptr-&gt;c-&gt;y</code>），表达式可能难以阅读。在成员和 <code>operator-&gt;</code> 开头的单个大写字母（例如 <code>ptr -&gt; c -&gt; y</code>之间添加空格）可以使被访问的成员与运算符更容易区分。</p><p class="cpp-section cpp-topline" style="clear:both">混合使用指针和非指针成员</p><p>成员选择运算符始终应用于当前选定的变量。如果你混合使用指针和普通成员变量，你会看到 . 和 -&gt; 在序列中同时使用的成员选择：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+struct Paw
+{
+    int claws{};
+};
+ 
+struct Animal
+{
+    std::string name{};
+    Paw paw{};
+};
+ 
+int main()
+{
+    Animal puma{ "Puma", { 5 } };
+ 
+    Animal* ptr{ &amp;puma };
+ 
+    // ptr是指针，使用-&gt;
+    // paw不是指针，使用.
+
+    std::cout &lt;&lt; (ptr-&gt;paw).claws &lt;&lt; '\n';
+ 
+    return 0;
+}
+</code></pre><p>注意，在 <code>(ptr-&gt;paw).claws</code>的情况下，括号不是必需的，因为 <code>operator-&gt;</code> 和 <code>operator.</code> 都是从左到右求值，但它稍微有助于可读性。</p>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="struct-miscellany.html" rel="prev"><small>上一课</small><strong>13.11 — 结构体杂项</strong></a><a class="lesson-nav-index" href="../index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="class-templates.html" rel="next"><small>下一课</small><strong>13.13 — 类模板</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/internal-linkage/" name="learncpp:source-url"/>
+<meta content="4a0344ce206a241331064eb2de8e5ae2f5296a853db7baf5fc7b6ae107d33b18" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:47:00.718869+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-29T01:42:00.215013+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>7.6 — Internal linkage</title>
+<link href="../assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="../assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="../index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="../index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">7.6 — 内部链接</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 7.6</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/internal-linkage/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>在课程 <a href="local-variables.html">7.3 -- 局部变量</a>，我们说：“标识符的链接性决定了该名称的其他声明是否引用同一个对象”，并讨论了局部变量如何具有 <code>no linkage</code>。</p><p>全局变量和函数标识符可以具有 <code>internal linkage</code> 或 <code>external linkage</code>。我们将在本课中介绍内部链接的情况，并在课程 <a href="external-linkage-and-variable-forward-declarations.html">7.7 -- 外部链接与变量前向声明</a>。</p><p>具有 <strong>内部链接</strong> 的标识符可以在单个翻译单元内被看到和使用，但不能从其他翻译单元访问。这意味着如果两个源文件具有相同名称的内部链接标识符，这些标识符将被视为独立的（并且不会因为重复定义而导致ODR违规）。</p><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">关键提示</p><p>具有内部链接的标识符可能对链接器完全不可见。或者，它们可能对链接器可见，但标记为仅在特定翻译单元中使用。</p></div><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">相关内容</p><p>我们在课程 <a href="introduction-to-the-preprocessor.html">2.10 -- 预处理器简介</a>。</p></div><p class="cpp-section cpp-topline" style="clear:both">具有内部链接的全局变量</p><p>具有内部链接的全局变量有时被称为 <strong>内部变量</strong>。</p><p>要使非常量全局变量成为内部变量，我们使用 <code>static</code> 关键字。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+static int g_x{}; // // 非常量全局变量默认具有外部链接，但可以通过 static 关键字赋予内部链接
+
+const int g_y{ 1 }; // // const 全局变量默认具有内部链接
+constexpr int g_z{ 2 }; // // constexpr 全局变量默认具有内部链接
+
+int main()
+{
+    std::cout &lt;&lt; g_x &lt;&lt; ' ' &lt;&lt; g_y &lt;&lt; ' ' &lt;&lt; g_z &lt;&lt; '\n';
+    return 0;
+}
+</code></pre><p>const和constexpr全局变量默认具有内部链接（因此不需要 <code>static</code> 关键字——如果使用它，它将被忽略）。</p><p>以下是多个文件使用内部变量的示例：</p><p>a.cpp：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">[[maybe_unused]] constexpr int g_x { 2 }; // // 这个内部 g_x 只能在 a.cpp 内访问
+</code></pre><p>main.cpp:</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+static int g_x { 3 }; // // 这个独立的内部 g_x 只能在 main.cpp 内访问
+
+int main()
+{
+    std::cout &lt;&lt; g_x &lt;&lt; '\n'; // // 使用 main.cpp 的 g_x，打印 3
+
+    return 0;
+}
+</code></pre><p>该程序打印出：</p><pre>3
+</pre><p>因为 <code>g_x</code> 对每个文件是内部的， <code>main.cpp</code> 不知道 <code>a.cpp</code> 也有一个名为 <code>g_x</code> 的变量（反之亦然）。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">进阶读者</p><p>上面使用 <code>static</code> 关键字是 <strong>存储类说明符</strong>的一个例子，它同时设置了名称的链接性和存储持续时间。最常用的 <code>storage class specifiers</code> 是 <code>static</code>， <code>extern</code>、和 <code>mutable</code>。术语 <code>storage class specifier</code> 主要用于技术文档中。</p></div><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">进阶读者</p><p>C++11标准（附录C）提供了为什么const变量默认具有内部链接的理由：“因为const对象可以在C++中用作编译时值，这一特性促使程序员为每个const提供显式的初始值。这一特性允许用户将const对象放在包含在许多编译单元中的头文件中。”</p><p>C++的设计者意图实现两件事：</p><ul><li>const对象应该可以在常量表达式中使用。为了能在常量表达式中使用，编译器必须看到定义（而不是声明），以便在编译时求值。</li><li>const对象应该能够通过头文件传播。</li></ul><p>具有外部链接的对象只能在单个翻译单元中定义而不违反ODR——其他翻译单元必须通过前向声明访问这些对象。如果const对象默认具有外部链接，它们将只能在包含定义的单个翻译单元中用于常量表达式，并且无法通过头文件有效传播，因为将头文件#include到多个源文件中会导致ODR违规。</p><p>具有内部链接的对象可以在每个需要它们的翻译单元中有一个定义而不违反ODR。这允许将const对象放在头文件中，并根据需要#include到任意数量的翻译单元中而不违反ODR。而且由于每个翻译单元都有定义而不是声明，这确保了这些常量可以在翻译单元内的常量表达式中使用。</p><p>内联变量（可以具有外部链接而不导致ODR违规）直到C++17才引入。</p></div><p class="cpp-section cpp-topline" style="clear:both">具有内部链接的函数</p><p>如上所述，函数标识符也具有链接性。函数默认具有外部链接（我们将在下一课中介绍），但可以通过 <code>static</code> 关键字成为常量：</p><p>add.cpp:</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">// // 此函数声明为 static，现在只能在此文件中使用
+// // 尝试通过函数前向声明从另一个文件访问它将失败
+[[maybe_unused]] static int add(int x, int y)
+{
+    return x + y;
+}
+</code></pre><p>main.cpp:</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int add(int x, int y); // // 函数 add 的前向声明
+
+int main()
+{
+    std::cout &lt;&lt; add(3, 4) &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>这个程序无法链接，因为函数 <code>add</code> 在 <code>add.cpp</code>。</p><p class="cpp-section cpp-topline" style="clear:both">之外不可访问。</p><p>在课程 <a href="forward-declarations.html">2.7 -- 前向声明和定义</a>，我们指出单一定义规则规定一个对象或函数不能有多个定义，无论是在文件内还是在程序中。</p><p>然而，值得注意的是，定义在不同文件中的内部对象（和函数）被视为独立的实体（即使它们的名称和类型相同），因此不违反单一定义规则。每个内部对象只有一个定义。</p><p class="cpp-section cpp-topline" style="clear:both"><code>static</code> vs 未命名命名空间</p><p>在现代 C++ 中，使用 <code>static</code> 关键字为标识符赋予内部链接的做法已逐渐失宠。未命名命名空间可以为更广泛的标识符（例如类型标识符）赋予内部链接，并且更适合为多个标识符赋予内部链接。</p><p>我们在课程中介绍未命名命名空间 <a href="unnamed-and-inline-namespaces.html">7.14 -- 未命名和内联命名空间</a>。</p><p class="cpp-section cpp-topline" style="clear:both">为什么要费心赋予标识符内部链接？</p><p>通常有两个原因赋予标识符内部链接：</p><ul><li>有一个标识符我们希望确保其他文件无法访问。这可能是一个我们不想被弄乱的全局变量，或者一个我们不想被调用的辅助函数。</li><li>为了避免命名冲突而过于谨慎。因为具有内部链接的标识符不会暴露给链接器，它们只能与同一翻译单元中的名称冲突，而不是整个程序。</li></ul><p>许多现代开发指南建议为每个不打算从其他文件使用的变量和函数赋予内部链接。如果你有自律性，这是一个好建议。</p><p>目前，我们建议采用一种更轻量级的方法作为最低要求：为任何你有明确理由禁止从其他文件访问的标识符赋予内部链接。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>当你明确有理由禁止从其他文件访问时，赋予标识符内部链接。</p><p>考虑为所有你不希望其他文件访问的标识符赋予内部链接（使用未命名命名空间来实现）。</p></div><p class="cpp-section cpp-topline" style="clear:both">快速总结</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">// // 内部全局变量定义：
+static int g_x;          // // 定义未初始化的内部全局变量（默认零初始化）
+static int g_x{ 1 };     // // 定义已初始化的内部全局变量
+
+const int g_y { 2 };     // // 定义已初始化的内部全局 const 变量
+constexpr int g_y { 3 }; // // 定义已初始化的内部全局 constexpr 变量
+
+// // 内部函数定义：
+static int foo() {};     // // 定义内部函数
+</code></pre><p>我们在课程中提供了全面的总结 <a href="scope-duration-and-linkage-summary.html">7.12 -- 作用域、持续时间和链接总结</a>。</p>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="variable-shadowing-name-hiding.html" rel="prev"><small>上一课</small><strong>7.5 — 变量遮蔽（名称隐藏）</strong></a><a class="lesson-nav-index" href="../index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="external-linkage-and-variable-forward-declarations.html" rel="next"><small>下一课</small><strong>7.7 — 外部链接与变量前向声明</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

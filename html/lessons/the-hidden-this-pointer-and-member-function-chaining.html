@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/the-hidden-this-pointer-and-member-function-chaining/" name="learncpp:source-url"/>
+<meta content="0e2fca92996f5fcdbb5330f3b93f76088f5ae7b8a36992480406a292679e8da0" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:50:45.046827+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-29T01:46:51.296858+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>15.1 — The hidden “this” pointer and member function chaining</title>
+<link href="../assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="../assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="../index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="../index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">15.1 — 隐藏的“this”指针与成员函数链式调用</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 15.1</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/the-hidden-this-pointer-and-member-function-chaining/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>关于类，新手程序员经常问的一个问题是：“当调用成员函数时，C++ 如何跟踪它是在哪个对象上调用的？”</p><p>首先，让我们定义一个简单的类来使用。这个类封装了一个整数值，并提供了一些访问函数来获取和设置该值：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+class Simple
+{
+private:
+    int m_id{};
+ 
+public:
+    Simple(int id)
+        : m_id{ id }
+    {
+    }
+
+    int getID() const { return m_id; }
+    void setID(int id) { m_id = id; }
+
+    void print() const { std::cout &lt;&lt; m_id; }
+};
+
+int main()
+{
+    Simple simple{1};
+    simple.setID(2);
+
+    simple.print();
+
+    return 0;
+}
+</code></pre><p>正如你所料，这个程序产生的结果是：</p><pre>2
+</pre><p>不知何故，当我们调用 <code>simple.setID(2);</code>时，C++ 知道函数 <code>setID()</code> 应该操作对象 <code>simple</code>，并且 <code>m_id</code> 实际上引用的是 <code>simple.m_id</code>。</p><p>答案是 C++ 使用了一个名为 <code>this</code>的隐藏指针！在本课中，我们将更详细地了解 <code>this</code> </p><p class="cpp-section cpp-topline" style="clear:both">隐藏的 <code>this</code> 指针</p><p>在每个成员函数内部，关键字 <strong>这个</strong> 是一个 const 指针，它保存当前隐式对象的地址。</p><p>大多数时候，我们不会显式地提到 <code>this</code> ，但只是为了证明我们可以：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+class Simple
+{
+private:
+    int m_id{};
+
+public:
+    Simple(int id)
+        : m_id{ id }
+    {
+    }
+
+    int getID() const { return m_id; }
+    void setID(int id) { m_id = id; }
+
+    void print() const { std::cout &lt;&lt; this-&gt;m_id; } // 使用 `this` 指针访问隐式对象，并使用 operator-&gt; 选择成员 m_id
+};
+
+int main()
+{
+    Simple simple{ 1 };
+    simple.setID(2);
+    
+    simple.print();
+
+    return 0;
+}
+</code></pre><p>这与前面的示例完全相同，并输出：</p><pre>2
+</pre><p>中使用它的值。 <code>print()</code> 前两个示例中的成员函数做的事情完全相同：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">    void print() const { std::cout &lt;&lt; m_id; }       // 隐式使用 this
+    void print() const { std::cout &lt;&lt; this-&gt;m_id; } // 显式使用 this
+</code></pre><p>事实证明，前者是后者的简写。当我们编译程序时，编译器会隐式地将任何引用隐式对象的成员前面加上 <code>this-&gt;</code>。这有助于使我们的代码更简洁，并避免重复显式地编写 <code>this-&gt;</code> </p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">提醒</p><p>我们使用 <code>-&gt;</code> 从指向对象的指针中选择成员。 <code>this-&gt;m_id</code> 等价于 <code>(*this).m_id</code>。</p><p>我们介绍 <code>operator-&gt;</code> 在课程 <a href="member-selection-with-pointers-and-references.html">13.12 -- 使用指针和引用选择成员</a>。</p></div><p class="cpp-section cpp-topline" style="clear:both">如何设置 <code>this</code> ？</p><p>让我们仔细看看这个函数调用：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">    simple.setID(2);
+</code></pre><p>虽然对函数 <code>setID(2)</code> 的调用看起来只有一个参数，但实际上有两个！编译时，编译器将表达式 <code>simple.setID(2);</code> 重写如下：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">    Simple::setID(&amp;simple, 2); // 注意 simple 已从对象前缀变为函数参数！
+</code></pre><p>注意，现在这只是一个标准的函数调用，对象 <code>simple</code> （以前是对象前缀）现在作为参数通过地址传递给函数。</p><p>但这只是答案的一半。由于函数调用现在多了一个参数，成员函数定义也需要修改以接受（并使用）这个参数。这是我们的原始成员函数定义 <code>setID()</code>：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">    void setID(int id) { m_id = id; }
+</code></pre><p>编译器如何重写函数是实现相关的细节，但最终结果类似于这样：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">    static void setID(Simple* const this, int id) { this-&gt;m_id = id; }
+</code></pre><p>注意，我们的 <code>setId</code> 函数有一个新的最左边的参数，名为 <code>this</code>，它是一个 const 指针（意味着它不能被重新指向，但指针的内容可以被修改）。 <code>m_id</code> 成员也被重写为 <code>this-&gt;m_id</code>，利用 <code>this</code> 指针。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">进阶读者</p><p>在这种情况下， <code>static</code> 关键字意味着该函数不与类的对象关联，而是被视为类作用域内的普通函数。我们在第 <a href="static-member-functions.html">15.7 课——静态成员函数</a>。</p></div><p>中介绍了静态成员函数。</p><ol start="1"><li>当我们调用 <code>simple.setID(2)</code>，编译器实际上调用 <code>Simple::setID(&amp;simple, 2)</code>、和 <code>simple</code> 通过地址传递给函数。</li><li>该函数有一个名为 <code>this</code> 的隐藏参数，它接收 <code>simple</code>。</li><li>的地址。setID() 中的成员变量以 <code>this-&gt;</code>为前缀，它指向 <code>simple</code>。因此，当编译器计算 <code>this-&gt;m_id</code>时，实际上解析为 <code>simple.m_id</code>。</li></ol><p>好消息是这一切都是自动发生的，你是否记得它的工作原理并不重要。你只需要记住所有非静态成员函数都有一个 <code>this</code> 指针，指向调用该函数的对象。</p><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">关键提示</p><p>所有非静态成员函数都有一个 <code>this</code> const 指针，保存隐式对象的地址。</p></div><p class="cpp-section cpp-topline" style="clear:both"><code>this</code> 始终指向正在操作的对象。</p><p>新手程序员有时会困惑于存在多少个 <code>this</code> 指针。每个成员函数都有一个 <code>this</code> 指针参数，指向隐式对象。考虑：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int main()
+{
+    Simple a{1}; // 在 Simple 构造函数内部，this = &amp;a
+    Simple b{2}; // 在 Simple 构造函数内部，this = &amp;b
+    a.setID(3); // 在成员函数 setID() 内部，this = &amp;a
+    b.setID(4); // 在成员函数 setID() 内部，this = &amp;b
+
+    return 0;
+}
+</code></pre><p>中使用它的值。 <code>this</code> 指针交替保存对象 <code>a</code> 或 <code>b</code> 的地址，具体取决于我们是在对象 <code>a</code> 或 <code>b</code>。</p><p>因为 <code>this</code> 只是一个函数参数（而不是成员），因此它不会增加类的实例的内存大小。</p><p class="cpp-section cpp-topline" style="clear:both">显式引用 <code>this</code></p><p>大多数情况下，你不需要显式引用 <code>this</code> 指针。然而，在某些情况下这样做可能有用：</p><p>首先，如果成员函数有一个与数据成员同名的参数，你可以通过使用 <code>this</code>：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">struct Something
+{
+    int data{}; // 不使用 m_ 前缀，因为这是一个结构体
+
+    void setData(int data)
+    {
+        this-&gt;data = data; // this-&gt;data 是成员，data 是局部参数
+    }
+};
+</code></pre><p>这 <code>Something</code> 类有一个名为 <code>data</code>的成员。 <code>setData()</code> 的函数参数也名为 <code>data</code>。在 <code>setData()</code> 函数内部， <code>data</code> 内部， <code>data</code> 指的是函数参数（因为函数参数隐藏了数据成员），所以如果我们想引用 <code>this-&gt;data</code>。</p><p>成员，我们使用 <code>this-&gt;</code> 一些开发者喜欢显式地将</p><p class="cpp-section cpp-topline" style="clear:both">添加到所有类成员，以明确他们正在引用一个成员。我们建议你避免这样做，因为它往往会使代码可读性降低而收益甚微。使用“m_”前缀是区分私有成员变量与非成员（局部）变量的一种更简洁的方式。 <code>*this</code></p><p>返回 <strong>其次，有时让成员函数返回隐式对象作为返回值可能很有用。这样做的主要原因是允许成员函数“链式调用”，从而可以在单个表达式中对同一个对象调用多个成员函数！这称为</strong> （或 <strong>方法链</strong>)。</p><p>考虑这个常见示例，你使用 <code>std::cout</code>：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">std::cout &lt;&lt; "Hello, " &lt;&lt; userName;
+</code></pre><p>编译器会像这样评估上面的代码片段：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">(std::cout &lt;&lt; "Hello, ") &lt;&lt; userName;
+</code></pre><p>首先， <code>operator&lt;&lt;</code> 使用 <code>std::cout</code> 和字符串字面量 <code>"Hello, "</code> 来打印 <code>"Hello, "</code> 输出到控制台。然而，由于这是表达式的一部分， <code>operator&lt;&lt;</code> 也需要返回一个值（或 <code>void</code>）。如果 <code>operator&lt;&lt;</code> 返回 <code>void</code>，你会得到这个部分求值的表达式：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">void{} &lt;&lt; userName;
+</code></pre><p>这显然没有意义（编译器会抛出错误）。相反， <code>operator&lt;&lt;</code> 返回传入的流对象，在这里是 <code>std::cout</code>。这样，在第一个 <code>operator&lt;&lt;</code> 求值后，我们得到：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">(std::cout) &lt;&lt; userName;
+</code></pre><p>然后打印用户的名字。</p><p>这样，我们只需要指定 <code>std::cout</code> 一次，然后就可以使用 <code>operator&lt;&lt;</code> 链式连接任意多的文本片段。每次调用 <code>operator&lt;&lt;</code> 返回 <code>std::cout</code> ，所以下一次调用 <code>operator&lt;&lt;</code> 使用 <code>std::cout</code> 作为左操作数。</p><p>我们也可以在成员函数中实现这种行为。考虑以下类：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">class Calc
+{
+private:
+    int m_value{};
+
+public:
+
+    void add(int value) { m_value += value; }
+    void sub(int value) { m_value -= value; }
+    void mult(int value) { m_value *= value; }
+
+    int getValue() const { return m_value; }
+};
+</code></pre><p>如果你想加5、减3、再乘以4，你必须这样做：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+    Calc calc{};
+    calc.add(5); // 返回 void
+    calc.sub(3); // 返回 void
+    calc.mult(4); // 返回 void
+
+    std::cout &lt;&lt; calc.getValue() &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>然而，如果我们让每个函数返回 <code>*this</code> 的引用，我们就可以链式调用。这是新版本的 <code>Calc</code> ，带有“可链式”函数：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">class Calc
+{
+private:
+    int m_value{};
+
+public:
+    Calc&amp; add(int value) { m_value += value; return *this; }
+    Calc&amp; sub(int value) { m_value -= value; return *this; }
+    Calc&amp; mult(int value) { m_value *= value; return *this; }
+
+    int getValue() const { return m_value; }
+};
+</code></pre><p>注意 <code>add()</code>， <code>sub()</code> 和 <code>mult()</code> 现在返回 <code>*this</code> 的引用。因此，这允许我们执行以下操作：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+    Calc calc{};
+    calc.add(5).sub(3).mult(4); // 方法链
+
+    std::cout &lt;&lt; calc.getValue() &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>我们实际上将三行代码浓缩成了一个表达式！让我们仔细看看这是如何工作的。</p><p>首先， <code>calc.add(5)</code> 被调用，它加上 <code>5</code> 切换到 <code>m_value</code>。 <code>add()</code> 然后返回对 <code>*this</code>的引用，这是对隐式对象 <code>calc</code>，所以 <code>calc</code> 将是后续求值中使用的对象。接下来 <code>calc.sub(3)</code> 求值，它减去 <code>3</code> 从 <code>m_value</code> 并再次返回 <code>calc</code>。最后， <code>calc.mult(4)</code> 将 <code>m_value</code> 乘以 <code>4</code> 赋值并返回 <code>calc</code>，这个结果不再使用，因此被忽略。</p><p>由于每个函数在执行时都修改了 <code>calc</code> ， <code>m_value</code> 作为 <code>calc</code> 现在包含值 (((0 + 5) - 3) * 4)，即 <code>8</code>。</p><p>这可能是 <code>this</code>最常用的显式用法，当你觉得需要可链式调用的成员函数时，应该考虑使用它。</p><p>因为 <code>this</code> 始终指向隐式对象，因此解引用前无需检查它是否为空指针。</p><p class="cpp-section cpp-topline" style="clear:both">将类重置为默认状态</p><p>如果你的类有默认构造函数，你可能希望提供一种将现有对象恢复为默认状态的方法。</p><p>如前几课所述（<a href="delegating-constructors.html">14.12 -- 委托构造函数</a>），构造函数仅用于初始化新对象，不应直接调用。这样做会导致未定义行为。</p><p>将类重置为默认状态的最佳方法是创建一个 <code>reset()</code> 成员函数，让该函数创建一个新对象（使用默认构造函数），然后将该新对象赋值给当前隐式对象，如下所示：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">    void reset()
+    {
+        *this = {}; // 值初始化一个新对象并覆盖隐式对象
+    }
+</code></pre><p>下面是一个完整的程序，演示了 <code>reset()</code> 函数的实际应用：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+class Calc
+{
+private:
+    int m_value{};
+
+public:
+    Calc&amp; add(int value) { m_value += value; return *this; }
+    Calc&amp; sub(int value) { m_value -= value; return *this; }
+    Calc&amp; mult(int value) { m_value *= value; return *this; }
+
+    int getValue() const { return m_value; }
+
+    void reset() { *this = {}; }
+};
+
+
+int main()
+{
+    Calc calc{};
+    calc.add(5).sub(3).mult(4);
+
+    std::cout &lt;&lt; calc.getValue() &lt;&lt; '\n'; // 打印 8
+
+    calc.reset();
+    
+    std::cout &lt;&lt; calc.getValue() &lt;&lt; '\n'; // 打印 0
+
+    return 0;
+}
+</code></pre><p class="cpp-section cpp-topline" style="clear:both"><code>this</code> 和 const 对象</p><p>对于非 const 成员函数， <code>this</code> 是一个指向非 const 值的 const 指针（意味着 <code>this</code> 不能指向其他对象，但指向的对象可以被修改）。对于 const 成员函数， <code>this</code> 是一个指向 const 值的 const 指针（意味着指针不能指向其他对象，指向的对象也不能被修改）。</p><p>尝试在 const 对象上调用非 const 成员函数时产生的错误可能有点令人费解：</p><pre>error C2662: 'int Something::getValue(void)': cannot convert 'this' pointer from 'const Something' to 'Something &amp;'
+error: passing 'const Something' as 'this' argument discards qualifiers [-fpermissive]
+</pre><p>当我们在 const 对象上调用非 const 成员函数时，隐式的 <code>this</code> 函数参数是一个指向 <em>非 const</em> 对象的 const 指针。但参数的类型是指向 <em>const</em> 对象的 const 指针。将指向 const 对象的指针转换为指向非 const 对象的指针需要丢弃 const 限定符，这不能隐式完成。某些编译器生成的错误信息反映了编译器抱怨被要求执行这样的转换。</p><p class="cpp-section cpp-topline" style="clear:both">为什么 <code>this</code> 是指针而非引用</p><p>由于 <code>this</code> 指针始终指向隐式对象（并且除非我们做了导致未定义行为的事情，否则它永远不会是空指针），你可能想知道为什么 <code>this</code> 是指针而不是引用。答案很简单：当 <code>this</code> 被添加到 C++ 时，引用还不存在。</p><p>如果 <code>this</code> 如果今天才添加到 C++ 语言中，它无疑会是引用而不是指针。在其他更现代的类似 C++ 的语言中，例如 Java 和 C#， <code>this</code> 被实现为引用。</p>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="chapter-14-summary-and-quiz.html" rel="prev"><small>上一课</small><strong>14.x — 第14章 总结与测验</strong></a><a class="lesson-nav-index" href="../index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="classes-and-header-files.html" rel="next"><small>下一课</small><strong>15.2 — 类与头文件</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

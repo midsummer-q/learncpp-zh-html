@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/function-template-specialization/" name="learncpp:source-url"/>
+<meta content="53b255ddba455618f24f3f5ce0f18c8c76353c2815aa509fb381a1316996599f" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:54:29.106750+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T18:17:35.839720+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>26.3 — Function template specialization</title>
+<link href="../assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="../assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="../index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="../index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">26.3 — 函数模板特化</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 26.3</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/function-template-specialization/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>当为给定类型实例化函数模板时，编译器会复制一份模板函数，并将模板类型参数替换为变量声明中使用的实际类型。这意味着对于每个实例化的类型，特定函数将具有相同的实现细节（只是使用不同的类型）。虽然大多数情况下这正是你想要的，但偶尔也会出现这样的情况：对于特定的数据类型，以稍微不同的方式实现模板函数是有用的。</p><p class="cpp-section cpp-topline" style="clear:both">使用非模板函数</p><p>考虑以下示例：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+template &lt;typename T&gt;
+void print(const T&amp; t)
+{
+    std::cout &lt;&lt; t &lt;&lt; '\n';
+}
+
+int main()
+{
+    print(5);
+    print(6.7);
+    
+    return 0;
+}
+</code></pre><p>这会打印：</p><pre>5
+6.7
+</pre><p>现在，假设我们希望 double 值（且仅 double 值）以科学计数法输出。</p><p>为给定类型获得不同行为的一种方法是定义一个非模板函数：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+template &lt;typename T&gt;
+void print(const T&amp; t)
+{
+    std::cout &lt;&lt; t &lt;&lt; '\n';
+}
+
+void print(double d)
+{
+    std::cout &lt;&lt; std::scientific &lt;&lt; d &lt;&lt; '\n';
+}
+
+int main()
+{
+    print(5);
+    print(6.7);
+    
+    return 0;
+}
+</code></pre><p>当编译器解析 <code>print(6.7)</code>时，它会发现 <code>print(double)</code> 已经由我们定义，并使用该函数，而不是从 <code>print(const T&amp;)</code>。</p><p>这会产生以下结果：</p><pre>5
+6.700000e+000
+</pre><p>以这种方式定义函数的一个好处是，非模板函数不需要与函数模板具有相同的签名。注意， <code>print(const T&amp;)</code> 使用传 const 引用，而 <code>print(double)</code> 使用传值。</p><p>通常，如果可用，优先定义非模板函数。</p><p class="cpp-section cpp-topline" style="clear:both">函数模板特化</p><p>另一种实现类似结果的方法是使用显式模板特化。 <strong>显式模板特化</strong> （常简称为 <strong>模板特化</strong>是一种允许我们为特定类型或值显式定义不同模板实现的功能。当所有模板参数都被特化时，称为 <strong>完全特化</strong>。当只有部分模板参数被特化时，称为 <strong>部分特化</strong>。</p><p>让我们创建一个 <code>print&lt;T&gt;</code> 当 <code>T</code> 我们还调用了 <code>double</code>：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+// 这是我们的主模板（必须放在前面）
+template &lt;typename T&gt;
+void print(const T&amp; t)
+{
+    std::cout &lt;&lt; t &lt;&lt; '\n';
+}
+
+// 主模板 print&lt;T&gt; 针对 double 类型的完全特化
+// 完全特化不是隐式内联的，所以如果放在头文件中，请将其设为内联
+template&lt;&gt;                          // 不包含模板参数的模板参数声明 
+void print&lt;double&gt;(const double&amp; d) // 针对 double 类型特化
+{
+    std::cout &lt;&lt; std::scientific &lt;&lt; d &lt;&lt; '\n'; 
+}
+
+int main()
+{
+    print(5);
+    print(6.7);
+    
+    return 0;
+}
+</code></pre><p>为了特化一个模板，编译器必须首先看到主模板的声明。上面例子中的主模板是 <code>print&lt;T&gt;(const T&amp;)</code>。</p><p>现在，让我们仔细看看我们的函数模板特化：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">template&lt;&gt;                          // 不包含模板参数的模板参数声明 
+void print&lt;double&gt;(const double&amp; d) // 针对 double 类型特化
+</code></pre><p>首先，我们需要一个模板参数声明，以便编译器知道我们在做与模板相关的事情。然而，在这种情况下，我们实际上不需要任何模板参数，所以我们使用一对空的尖括号。由于特化中没有模板参数，这是一个完全特化。</p><p>在下一行， <code>print&lt;double&gt;</code> 告诉编译器我们正在特化 <code>print</code> 主模板函数，针对类型 <code>double</code>。特化必须与主模板具有相同的签名（除了特化将 <code>double</code> 替换为主模板使用 <code>T</code>的任何地方）。因为主模板有一个类型为 <code>const T&amp;</code>的参数，特化必须有一个类型为 <code>const double&amp;</code>的参数。特化不能在主模板使用传引用时使用传值（反之亦然）。</p><p>此示例打印与上面相同的结果。</p><p>注意，如果同时存在匹配的非模板函数和匹配的模板函数特化，非模板函数将优先。此外，完全特化不是隐式内联的，所以如果你在头文件中定义了一个，请确保 <code>inline</code> 它以避免 ODR 违规。</p><div class="cpp-note cpp-lightredbackground"><p class="cpp-note-title cpp-bottomline">警告</p><p>完全特化不是隐式内联的（部分特化是隐式内联的）。如果你在头文件中放置一个完全特化，它应该被标记为 <code>inline</code> ，这样当包含到多个翻译单元时不会导致 ODR 违规。</p></div><p>就像普通函数一样，函数模板特化可以被删除（使用 <code>= delete</code>），如果你希望任何解析到该特化的函数调用产生编译错误。</p><p>通常，你应该尽可能避免函数模板特化，而使用非模板函数。</p><p class="cpp-section cpp-topline" style="clear:both">成员函数的函数模板特化？</p><p>现在考虑以下类模板：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+template &lt;typename T&gt;
+class Storage
+{
+private:
+    T m_value {};
+public:
+    Storage(T value)
+      : m_value { value }
+    {
+    }
+
+    void print()
+    {
+        std::cout &lt;&lt; m_value &lt;&lt; '\n';
+    }
+};
+
+int main()
+{
+    // 定义一些存储单位
+    Storage i { 5 };
+    Storage d { 6.7 };
+
+    // 打印一些值
+    i.print();
+    d.print();
+}
+</code></pre><p>这会打印：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">5
+6.7
+</code></pre><p>假设我们再次想要创建一个 <code>print()</code> 函数的版本，以科学记数法打印 double。但这次 <code>print()</code> 是一个成员函数，所以我们不能定义非成员函数。那么我们应该怎么做呢？</p><p>虽然看起来我们可能需要在这里使用函数模板特化，但那是错误的工具。注意 <code>i.print()</code> 调用 <code>Storage&lt;int&gt;::print()</code> 和 <code>d.print()</code> 调用 <code>Storage&lt;double&gt;::print()</code>。因此，如果我们想要改变这个函数在 <code>T</code> 是 double 时的行为，我们需要特化 <code>Storage&lt;double&gt;::print()</code>，这是一个类模板特化，而不是函数模板特化！</p><p>那么我们应该怎么做呢？我们将在下一课中介绍类模板特化。</p>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="template-non-type-parameters.html" rel="prev"><small>上一课</small><strong>26.2 — 模板非类型参数</strong></a><a class="lesson-nav-index" href="../index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="class-template-specialization.html" rel="next"><small>下一课</small><strong>26.4 — 类模板特化</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

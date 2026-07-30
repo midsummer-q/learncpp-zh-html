@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/object-relationships/" name="learncpp:source-url"/>
+<meta content="d52e9dc3f451a2ba9b67756077ce48e0e9344abf806c3e96e8cd8fc62c328530" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:53:24.301227+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T18:10:52.924944+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>23.1 — Object relationships</title>
+<link href="../assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="../assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="../index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="../index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">23.1 — 对象关系</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 23.1</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/object-relationships/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>生活中充满了对象之间重复出现的模式、关系和层次结构。通过探索和理解这些，我们可以深入了解现实对象的行为方式，从而增强对这些对象的理解。</p><p>例如，假设有一天你走在街上，看到一个亮黄色的物体附着在一个绿色的灌木状物体上。你可能会认出那个亮黄色的东西是一朵花，而那个绿色的灌木状东西是一株植物。即使你以前从未见过这种特定的植物，你也知道绿色的部分是叶子，用来收集阳光。你知道花朵帮助植物繁殖。你还知道，如果你杀死了植物，花朵也会死亡。</p><p>但是，你从未遇到过这种类型的植物，怎么能知道这一切呢？你知道这些是因为你理解植物的抽象概念，并认识到这株植物是该抽象概念的一个实例。你知道大多数植物（部分）由叶子组成，有些还有花。你知道叶子与阳光相互作用（即使你不知道具体如何作用），并且花朵的存在依赖于植物。因为你了解关于植物的一般知识，所以你可以推断出关于这株植物的很多信息。</p><p>类似地，编程也充满了重复出现的模式、关系和层次结构。特别是在编程对象方面，支配现实对象的相同模式也适用于我们自己创建的编程对象。通过更详细地研究这些，我们可以更好地理解如何提高代码的可重用性并编写更易于扩展的类。</p><p>在前面的章节中，我们已经探讨了一些关于重复模式的概念：我们创建了循环和函数，以便能够多次执行特定任务。此外，我们创建了自己的枚举、结构体和类，以便能够实例化给定类型的对象。</p><p>我们还探索了一些原始的层次结构形式，例如数组（允许我们将元素分组到更大的结构中）和递归，其中函数调用自身的衍生版本。</p><p>然而，我们还没有过多关注对象之间的关系，特别是与编程相关的关系。</p><p><strong>对象之间的关系</strong></p><p>在现实生活中，两个对象之间可能存在许多不同类型的关系，我们使用特定的“关系类型”词语来描述这些关系。例如：正方形“是一个”形状。汽车“有一个”方向盘。计算机程序员“使用一个”键盘。花朵“依赖于”蜜蜂进行授粉。学生是班级的“成员”。你的大脑“是”你“的一部分”（至少，如果你已经读到这里，我们可以合理地这样假设）。</p><p>所有这些关系类型在 C++ 中都有有用的类比。</p><p>在本章中，我们将探讨关系类型“部分”、“拥有”、“使用”、“依赖”和“成员”的细微差别，并展示它们如何在 C++ 类的上下文中发挥作用。我们还将探讨一些相关主题，这些主题在其他地方不太容易归类。</p><p>然后，我们将用接下来的两章来探讨“是一个”关系，通过 C++ 的继承模型和虚函数。是的，这是一个大话题。</p><p>好了，背景介绍就到这里。让我们开始吧。</p>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="chapter-22-summary-and-quiz.html" rel="prev"><small>上一课</small><strong>22.x — 第22章 总结与测验</strong></a><a class="lesson-nav-index" href="../index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="composition.html" rel="next"><small>下一课</small><strong>23.2 — 组合</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

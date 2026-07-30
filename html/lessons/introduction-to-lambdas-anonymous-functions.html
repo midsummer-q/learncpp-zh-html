@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/introduction-to-lambdas-anonymous-functions/" name="learncpp:source-url"/>
+<meta content="2c55260a4048c99b062928b0ba7118d1c3ba523dde6cd0dd631c3e12a20ac669" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:52:29.915628+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T18:03:56.815301+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>20.6 — Introduction to lambdas (anonymous functions)</title>
+<link href="../assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="../assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="../index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="../index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">20.6 — Lambda（匿名函数）简介</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 20.6</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/introduction-to-lambdas-anonymous-functions/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>考虑我们在课程 <a href="introduction-to-standard-library-algorithms.html">18.3 -- 标准库算法简介</a>：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;algorithm&gt;
+#include &lt;array&gt;
+#include &lt;iostream&gt;
+#include &lt;string_view&gt;
+
+// // 如果元素匹配，我们的函数将返回 true
+bool containsNut(std::string_view str)
+{
+    // // std::string_view::find 如果没有找到则返回 std::string_view::npos
+    // // 子字符串。否则返回子字符串在 str 中出现的索引
+    // // 在 str 中。
+    return str.find("nut") != std::string_view::npos;
+}
+
+int main()
+{
+    constexpr std::array&lt;std::string_view, 4&gt; arr{ "apple", "banana", "walnut", "lemon" };
+
+    // // 扫描我们的数组，查看是否有任何元素包含 "nut" 子字符串
+    auto found{ std::find_if(arr.begin(), arr.end(), containsNut) };
+
+    if (found == arr.end())
+    {
+        std::cout &lt;&lt; "No nuts\n";
+    }
+    else
+    {
+        std::cout &lt;&lt; "Found " &lt;&lt; *found &lt;&lt; '\n';
+    }
+
+    return 0;
+}
+</code></pre><p>中引入的这段代码。这段代码在一个字符串数组中搜索第一个包含子串“nut”的元素。因此，它产生结果：</p><pre>Found walnut
+</pre><p>虽然它能工作，但可以改进。</p><p>这里问题的根源在于 <code>std::find_if</code> 要求我们传递一个函数指针。因此，我们被迫定义一个只使用一次的函数，必须给它一个名字，并且必须放在全局作用域中（因为函数不能嵌套！）。这个函数也非常短，几乎从一行代码就能看出它的功能，比从名字和注释中更容易理解。</p><p class="cpp-section cpp-topline" style="clear:both">Lambda 是匿名函数</p><p>一个 <strong>lambda 表达式</strong> （也称为 <strong>lambda</strong> 或 <strong>闭包</strong>）允许我们在另一个函数内部定义一个匿名函数。嵌套很重要，因为它既避免了命名空间污染，又允许我们在尽可能靠近使用位置的地方定义函数（提供额外的上下文）。</p><p>Lambda 的语法是 C++ 中比较奇怪的东西之一，需要一些时间来适应。Lambda 的形式如下：</p><pre>[ captureClause ] ( parameters ) -&gt; returnType
+{
+    statements;
+}
+</pre><ul><li>如果不需要捕获，捕获子句可以为空。</li><li>如果不需要参数，参数列表可以为空。除非指定了返回类型，否则也可以完全省略。</li><li>返回类型是可选的，如果省略， <code>auto</code> 将被假定（因此使用类型推导来确定返回类型）。虽然我们之前指出函数返回类型的类型推导应该避免，但在这里使用它是可以的（因为这些函数通常非常简单）。</li></ul><p>还要注意，lambda（因为是匿名的）没有名字，所以我们不需要提供一个。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">顺便说一句……</p><p>这意味着一个简单的 lambda 定义如下：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+  [] {}; // // 一个省略了返回类型、没有捕获且省略了参数的 lambda。
+
+  return 0;
+}
+</code></pre></div><p>让我们用 lambda 重写上面的例子：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;algorithm&gt;
+#include &lt;array&gt;
+#include &lt;iostream&gt;
+#include &lt;string_view&gt;
+
+int main()
+{
+  constexpr std::array&lt;std::string_view, 4&gt; arr{ "apple", "banana", "walnut", "lemon" };
+
+  // // 在我们使用它的地方直接定义函数。
+  auto found{ std::find_if(arr.begin(), arr.end(),
+                           [](std::string_view str) // // 这是我们的 lambda，没有捕获子句
+                           {
+                             return str.find("nut") != std::string_view::npos;
+                           }) };
+
+  if (found == arr.end())
+  {
+    std::cout &lt;&lt; "No nuts\n";
+  }
+  else
+  {
+    std::cout &lt;&lt; "Found " &lt;&lt; *found &lt;&lt; '\n';
+  }
+
+  return 0;
+}
+</code></pre><p>这就像函数指针的情况一样工作，并产生相同的结果：</p><pre>Found walnut
+</pre><p>注意我们的 lambda 与我们的 <code>containsNut</code> 函数有多么相似。它们都有相同的参数和函数体。lambda 没有捕获子句（我们将在下一课中解释什么是捕获子句），因为它不需要。并且我们省略了 lambda 中的尾随返回类型（为了简洁），但由于 <code>operator!=</code> 按值返回一个 <code>bool</code>，我们的 lambda 也会返回一个 <code>bool</code> </p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>遵循在最小作用域中定义事物并尽可能靠近首次使用的最佳实践，当我们需要一个简单的、一次性的函数作为参数传递给其他函数时，lambda 优于普通函数。</p></div><p class="cpp-section cpp-topline" style="clear:both">Lambda 的类型</p><p>在上面的例子中，我们在需要的地方直接定义了 lambda。这种 lambda 的使用有时被称为 <strong>函数字面量</strong>。</p><p>然而，在使用的同一行编写 lambda 有时会使代码更难阅读。就像我们可以用字面量（或函数指针）初始化一个变量以供以后使用一样，我们也可以用 lambda 定义初始化一个 lambda 变量，然后稍后使用它。一个命名的 lambda 加上一个好的函数名可以使代码更易读。</p><p>例如，在下面的代码片段中，我们使用 <code>std::all_of</code> 来检查数组的所有元素是否都是偶数：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">// // 不好：我们必须阅读 lambda 才能理解发生了什么。
+return std::all_of(array.begin(), array.end(), [](int i){ return ((i % 2) == 0); });
+</code></pre><p>我们可以如下改进可读性：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">// // 好：相反，我们可以将 lambda 存储在一个命名变量中，并将其传递给函数。
+auto isEven{
+  [](int i)
+  {
+    return (i % 2) == 0;
+  }
+};
+
+return std::all_of(array.begin(), array.end(), isEven);
+</code></pre><p>注意最后一行读起来多么好：“返回 <em>所有</em> 元素在 <em>数组</em> 是 <em>偶数</em>”</p><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">关键提示</p><p>将 lambda 存储在变量中提供了一种给 lambda 起一个有用名字的方法，这有助于使代码更易读。</p><p>将 lambda 存储在变量中也提供了一种多次使用该 lambda 的方法。</p></div><p>但是 lambda 的类型是什么？ <code>isEven</code>？</p><p>事实证明，lambda 没有我们可以显式使用的类型。当我们编写 lambda 时，编译器会为 lambda 生成一个唯一的类型，该类型不会暴露给我们。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">进阶读者</p><p>实际上，lambda 不是函数（这是它们避免 C++ 不支持嵌套函数限制的部分原因）。它们是一种特殊的对象，称为仿函数。仿函数是包含重载的 <code>operator()</code> 使它们可以像函数一样被调用的对象。</p></div><p>虽然我们不知道 lambda 的类型，但有几种方法可以在定义后存储 lambda。如果 lambda 的捕获子句为空（方括号 [] 之间没有任何内容），我们可以使用常规函数指针。 <code>std::function</code> 或者通过 <code>auto</code> 关键字进行类型推导也可以（即使 lambda 有非空的捕获子句）。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;functional&gt;
+
+int main()
+{
+  // // 一个常规函数指针。仅适用于空的捕获子句（空 []）。
+  double (*addNumbers1)(double, double){
+    [](double a, double b) {
+      return a + b;
+    }
+  };
+
+  addNumbers1(1, 2);
+
+  // // 使用 std::function。lambda 可以有非空的捕获子句（下一课讨论）。
+  std::function addNumbers2{ // // 注意：在 C++17 之前，使用 std::function&lt;double(double, double)&gt; 代替
+    [](double a, double b) {
+      return a + b;
+    }
+  };
+
+  addNumbers2(3, 4);
+
+  // // 使用 auto。以真实类型存储 lambda。
+  auto addNumbers3{
+    [](double a, double b) {
+      return a + b;
+    }
+  };
+
+  addNumbers3(5, 6);
+
+  return 0;
+}
+</code></pre><p>使用 lambda 实际类型的唯一方法是通过 <code>auto</code>。 <code>auto</code> 还有一个好处，即与 <code>std::function</code>。</p><p>如果我们想将 lambda 传递给函数怎么办？有 4 种选择：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;functional&gt;
+#include &lt;iostream&gt;
+
+// // 情况 1：使用 `std::function` 参数
+void repeat1(int repetitions, const std::function&lt;void(int)&gt;&amp; fn)
+{
+    for (int i{ 0 }; i &lt; repetitions; ++i)
+        fn(i);
+}
+
+// // 情况 2：使用带有类型模板参数的函数模板
+template &lt;typename T&gt;
+void repeat2(int repetitions, const T&amp; fn)
+{
+    for (int i{ 0 }; i &lt; repetitions; ++i)
+        fn(i);
+}
+
+// // 情况 3：使用缩写函数模板语法 (C++20)
+void repeat3(int repetitions, const auto&amp; fn)
+{
+    for (int i{ 0 }; i &lt; repetitions; ++i)
+        fn(i);
+}
+
+// // 情况 4：使用函数指针（仅适用于没有捕获的 lambda）
+void repeat4(int repetitions, void (*fn)(int))
+{
+    for (int i{ 0 }; i &lt; repetitions; ++i)
+        fn(i);   
+}
+
+int main()
+{
+    auto lambda = [](int i)
+    {
+        std::cout &lt;&lt; i &lt;&lt; '\n';
+    };
+
+    repeat1(3, lambda);
+    repeat2(3, lambda);
+    repeat3(3, lambda);
+    repeat4(3, lambda);
+
+    return 0;
+}
+</code></pre><p>在情况 1 中，我们的函数参数是 <code>std::function</code>。这很好，因为我们可以显式地看到 <code>std::function</code> 的参数和返回类型。然而，这要求在调用函数时隐式转换 lambda，这会增加一些开销。这种方法还有一个好处，即如果需要，可以分离为声明（在头文件中）和定义（在 .cpp 文件中）。</p><p>在情况 2 中，我们使用带有类型模板参数 <code>T</code>的函数模板。当调用函数时，将实例化一个函数，其中 <code>T</code> 匹配 lambda 的实际类型。这更高效，但 <code>T</code> 的参数和返回类型不明显。</p><p>在情况 3 中，我们使用 C++20 的 <code>auto</code> 来调用简化的函数模板语法。这会生成与情况 2 相同的函数模板。</p><p>在情况 4 中，函数参数是一个函数指针。由于没有捕获的 lambda 会隐式转换为函数指针，我们可以将没有捕获的 lambda 传递给这个函数。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>当将 lambda 存储在变量中时，使用 <code>auto</code> 作为变量的类型。</p><p>当将 lambda 传递给函数时：</p><ul><li>如果支持 C++20，使用 <code>auto</code> 作为参数的类型。</li><li>否则，使用带有类型模板参数或 <code>std::function</code> 参数的函数（如果 lambda 没有捕获，则使用函数指针）。</li></ul></div><p class="cpp-section cpp-topline" style="clear:both">泛型 lambda</p><p>大多数情况下，lambda 参数遵循与常规函数参数相同的规则。</p><p>一个显著的例外是，自 C++14 起，我们允许对参数使用 <code>auto</code> （注意：在 C++20 中，常规函数也可以对参数使用 <code>auto</code> ）。当 lambda 有一个或多个 <code>auto</code> 参数时，编译器会根据对 lambda 的调用推断所需的参数类型。</p><p>因为具有一个或多个 <code>auto</code> 参数的 lambda 可能适用于多种类型，它们被称为 <strong>泛型 lambda</strong>。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">进阶读者</p><p>当在 lambda 的上下文中使用时， <code>auto</code> 只是模板参数的简写。</p></div><p>让我们看一个泛型 lambda 的例子：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;algorithm&gt;
+#include &lt;array&gt;
+#include &lt;iostream&gt;
+#include &lt;string_view&gt;
+
+int main()
+{
+  constexpr std::array months{ // // 在 C++17 之前使用 std::array&lt;const char*, 12&gt;
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December"
+  };
+
+  // // 搜索两个连续且以相同字母开头的月份。
+  const auto sameLetter{ std::adjacent_find(months.begin(), months.end(),
+                                      [](const auto&amp; a, const auto&amp; b) {
+                                        return a[0] == b[0];
+                                      }) };
+
+  // // 确保找到了两个月。
+  if (sameLetter != months.end())
+  {
+    // // std::next 返回 sameLetter 之后的下一个迭代器
+    std::cout &lt;&lt; *sameLetter &lt;&lt; " and " &lt;&lt; *std::next(sameLetter)
+              &lt;&lt; " start with the same letter\n";
+  }
+
+  return 0;
+}
+</code></pre><p>输出：</p><pre>June and July start with the same letter
+</pre><p>在上面的例子中，我们使用 <code>auto</code> 参数按 <code>const</code> 引用。由于所有字符串类型都允许通过 <code>operator[]</code>访问其单个字符，我们不需要关心用户传入的是 <code>std::string</code>、C风格字符串还是其他类型。这使我们能够编写一个可以接受其中任何一种的lambda，这意味着如果我们以后更改 <code>months</code> 的类型，我们不必重写lambda。</p><p>然而， <code>auto</code> 并不总是最佳选择。考虑：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;algorithm&gt;
+#include &lt;array&gt;
+#include &lt;iostream&gt;
+#include &lt;string_view&gt;
+
+int main()
+{
+  constexpr std::array months{ // // 在 C++17 之前使用 std::array&lt;const char*, 12&gt;
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December"
+  };
+
+  // // 统计有多少个月份由 5 个字母组成
+  const auto fiveLetterMonths{ std::count_if(months.begin(), months.end(),
+                                       [](std::string_view str) {
+                                         return str.length() == 5;
+                                       }) };
+
+  std::cout &lt;&lt; "There are " &lt;&lt; fiveLetterMonths &lt;&lt; " months with 5 letters\n";
+
+  return 0;
+}
+</code></pre><p>输出：</p><pre>There are 2 months with 5 letters
+</pre><p>在这个例子中，使用 <code>auto</code> 会推断出类型为 <code>const char*</code>。C风格字符串不容易处理（除了使用 <code>operator[]</code>）。在这种情况下，我们更倾向于将参数显式定义为 <code>std::string_view</code>，这使我们能够更轻松地处理底层数据（例如，即使传入的是C风格数组，我们也可以询问字符串视图的长度）。</p><p class="cpp-section cpp-topline" style="clear:both">Constexpr lambda</p><p>从C++17开始，如果lambda的结果满足常量表达式的要求，则lambda隐式为constexpr。这通常需要两件事：</p><ul><li>lambda必须没有捕获，或者所有捕获都必须是constexpr。</li><li>lambda调用的函数必须是constexpr。注意，许多标准库算法和数学函数直到C++20或C++23才成为constexpr。</li></ul><p>在上面的例子中，我们的lambda在C++17中不会隐式constexpr，但在C++20中会（因为 <code>std::count_if</code> 在C++20中成为constexpr）。这意味着在C++20中我们可以将 <code>fiveLetterMonths</code> 设为constexpr：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">  constexpr auto fiveLetterMonths{ std::count_if(months.begin(), months.end(),
+                                       [](std::string_view str) {
+                                         return str.length() == 5;
+                                       }) };
+</code></pre><p class="cpp-section cpp-topline" style="clear:both">泛型lambda和静态变量</p><p>在课程 <a href="function-template-instantiation.html">11.7 -- 函数模板实例化</a>中，我们讨论过，当函数模板包含静态局部变量时，从该模板实例化的每个函数都会获得自己独立的静态局部变量。如果这不是预期的，可能会引起问题。</p><p>泛型lambda的工作方式相同：对于每个不同的类型， <code>auto</code> 解析到的每个类型都会生成一个唯一的lambda。</p><p>下面的例子展示了一个泛型lambda如何变成两个不同的lambda：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;algorithm&gt;
+#include &lt;array&gt;
+#include &lt;iostream&gt;
+#include &lt;string_view&gt;
+
+int main()
+{
+  // // 打印一个值并统计 @print 被调用了多少次。
+  auto print{
+    [](auto value) {
+      static int callCount{ 0 };
+      std::cout &lt;&lt; callCount++ &lt;&lt; ": " &lt;&lt; value &lt;&lt; '\n';
+    }
+  };
+
+  print("hello"); // // 0: hello
+  print("world"); // // 1: world
+
+  print(1); // 0: 1
+  print(2); // 1: 2
+
+  print("ding dong"); // 2: 叮咚
+
+  return 0;
+}
+</code></pre><p>输出</p><pre>0: hello
+1: world
+0: 1
+1: 2
+2: ding dong
+</pre><p>在上面的例子中，我们定义了一个lambda，然后用两个不同的参数（一个字符串字面量参数和一个整数参数）调用它。这会生成两个不同版本的lambda（一个带有字符串字面量参数，另一个带有整数参数）。</p><p>大多数情况下，这无关紧要。然而，请注意，如果泛型lambda使用静态持续时间变量，这些变量在生成的lambda之间不共享。</p><p>我们可以在上面的例子中看到这一点，其中每种类型（字符串字面量和整数）都有自己唯一的计数！尽管我们只编写了一次lambda，但生成了两个lambda——每个都有自己的 <code>callCount</code>版本。要在两个生成的lambda之间共享一个计数器，我们必须在lambda外部定义一个全局变量或 <code>static</code> 局部变量。正如您从之前的课程中了解到的，全局变量和静态局部变量都可能导致问题，并使代码更难理解。在下一课讨论lambda捕获后，我们将能够避免这些变量。</p><p class="cpp-section cpp-topline" style="clear:both">返回类型推导和尾随返回类型</p><p>如果使用返回类型推导，lambda的返回类型从lambda内部的 <code>return</code>语句推导，并且lambda中的所有返回语句必须返回相同的类型（否则编译器不知道优先选择哪一个）。</p><p>例如：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+  auto divide{ [](int x, int y, bool intDivision) { // 注意：未指定返回类型
+    if (intDivision)
+      return x / y; // 返回类型是 int
+    else
+      return static_cast&lt;double&gt;(x) / y; // 错误：返回类型与之前的返回类型不匹配
+  } };
+
+  std::cout &lt;&lt; divide(3, 2, true) &lt;&lt; '\n';
+  std::cout &lt;&lt; divide(3, 2, false) &lt;&lt; '\n';
+
+  return 0;
+}
+</code></pre><p>这会产生编译错误，因为第一个返回语句的返回类型（int）与第二个返回语句的返回类型（double）不匹配。</p><p>在返回不同类型的情况下，我们有两个选择：</p><ol start="1"><li>进行显式转换以使所有返回类型匹配，或者</li><li>为lambda显式指定返回类型，并让编译器进行隐式转换。</li></ol><p>第二种情况通常是更好的选择：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+  // 注意：显式指定此返回 double
+  auto divide{ [](int x, int y, bool intDivision) -&gt; double {
+    if (intDivision)
+      return x / y; // 将对结果进行隐式转换为 double
+    else
+      return static_cast&lt;double&gt;(x) / y;
+  } };
+
+  std::cout &lt;&lt; divide(3, 2, true) &lt;&lt; '\n';
+  std::cout &lt;&lt; divide(3, 2, false) &lt;&lt; '\n';
+
+  return 0;
+}
+</code></pre><p>这样，如果您决定更改返回类型，通常只需更改lambda的返回类型，而无需修改lambda体。</p><p class="cpp-section cpp-topline" style="clear:both">标准库函数对象</p><p>对于常见操作（例如加法、取反或比较），您不需要编写自己的lambda，因为标准库提供了许多基本的可调用对象可供使用。这些定义在 <a href="https://en.cppreference.com/w/cpp/utility/functional#Operator_function_objects">&lt;functional&gt;</a> 头文件中。</p><p>在下面的例子中：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;algorithm&gt;
+#include &lt;array&gt;
+#include &lt;iostream&gt;
+
+bool greater(int a, int b)
+{
+  // 如果 @a 大于 @b，则将 @a 排在 @b 之前。
+  return a &gt; b;
+}
+
+int main()
+{
+  std::array arr{ 13, 90, 99, 5, 40, 80 };
+
+  // 将 greater 传递给 std::sort
+  std::sort(arr.begin(), arr.end(), greater);
+
+  for (int i : arr)
+  {
+    std::cout &lt;&lt; i &lt;&lt; ' ';
+  }
+
+  std::cout &lt;&lt; '\n';
+
+  return 0;
+}
+</code></pre><p>输出</p><pre>99 90 80 40 13 5
+</pre><p>与其将我们的 <code>greater</code> 函数转换为 lambda（这可能会稍微模糊其含义），我们可以改用 <code>std::greater</code>：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;algorithm&gt;
+#include &lt;array&gt;
+#include &lt;iostream&gt;
+#include &lt;functional&gt; // for std::greater
+
+int main()
+{
+  std::array arr{ 13, 90, 99, 5, 40, 80 };
+
+  // 将 std::greater 传递给 std::sort
+  std::sort(arr.begin(), arr.end(), std::greater{}); // 注意：需要花括号来实例化对象
+
+  for (int i : arr)
+  {
+    std::cout &lt;&lt; i &lt;&lt; ' ';
+  }
+
+  std::cout &lt;&lt; '\n';
+
+  return 0;
+}
+</code></pre><p>输出</p><pre>99 90 80 40 13 5
+</pre><p class="cpp-section cpp-topline" style="clear:both">总结</p><p>与使用循环的解决方案相比，lambda 和算法库可能看起来不必要地复杂。然而，这种组合可以在几行代码中实现一些非常强大的操作，并且比编写自己的循环更具可读性。除此之外，算法库具有强大且易于使用的并行性，这是循环无法提供的。升级使用库函数的源代码比升级使用循环的代码更容易。</p><p>Lambda 很棒，但它们并不能在所有情况下取代常规函数。对于非平凡和可重用的场景，优先使用常规函数。</p><p class="cpp-section cpp-topline" style="clear:both">小测验时间</p><div class="quiz" style="clear:both"><p class="quiz-header">问题 #1</p><p>创建一个 <code>struct Student</code> 存储学生的姓名和分数。创建一个学生数组，并使用 <a href="https://en.cppreference.com/w/cpp/algorithm/max_element"><code>std::max_element</code></a> 找到分数最高的学生，然后打印该学生的姓名。 <code>std::max_element</code> 接受列表的 <code>begin</code> 和 <code>end</code> ，以及一个接受两个参数并返回 <code>true</code> 的函数，如果第一个参数小于第二个参数。</p><p>给定以下数组</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">std::array&lt;Student, 8&gt; arr{
+  { { "Albert", 3 },
+    { "Ben", 5 },
+    { "Christine", 2 },
+    { "Dan", 8 }, // Dan 得分最高（8 分）。
+    { "Enchilada", 4 },
+    { "Francis", 1 },
+    { "Greg", 3 },
+    { "Hagrid", 5 } }
+};
+</code></pre><p>你的程序应该打印</p><pre>Dan is the best student
+</pre><p><a aria-controls="cpp_hint_id_0" aria-expanded="false" class="hint_link_show" data-hide-label="隐藏提示" data-hint-target="cpp_hint_id_0" data-show-label="显示提示" href="#cpp_hint_id_0">显示提示</a></p><div class="wphint" hidden="" id="cpp_hint_id_0">提示：<p></p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;algorithm&gt;
+#include &lt;array&gt;
+#include &lt;iostream&gt;
+#include &lt;string_view&gt;
+
+struct Student
+{
+  std::string_view name{};
+  int points{};
+};
+
+int main()
+{
+  constexpr std::array&lt;Student, 8&gt; arr{
+    { { "Albert", 3 },
+      { "Ben", 5 },
+      { "Christine", 2 },
+      { "Dan", 8 },
+      { "Enchilada", 4 },
+      { "Francis", 1 },
+      { "Greg", 3 },
+      { "Hagrid", 5 } }
+  };
+
+  const auto best{
+    std::max_element(arr.begin(), arr.end(), /* lambda */) // 返回一个迭代器
+  };
+
+  std::cout &lt;&lt; best-&gt;name &lt;&lt; " is the best student\n"; // 必须解引用迭代器以获取元素
+
+  return 0;
+}
+</code></pre></div><p><a aria-controls="cpp_solution_id_0" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_0" href="#cpp_solution_id_0">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_0"><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;algorithm&gt;
+#include &lt;array&gt;
+#include &lt;iostream&gt;
+#include &lt;string_view&gt;
+
+struct Student
+{
+  std::string_view name{};
+  int points{};
+};
+
+int main()
+{
+  constexpr std::array&lt;Student, 8&gt; arr{
+    { { "Albert", 3 },
+      { "Ben", 5 },
+      { "Christine", 2 },
+      { "Dan", 8 },
+      { "Enchilada", 4 },
+      { "Francis", 1 },
+      { "Greg", 3 },
+      { "Hagrid", 5 } }
+  };
+
+  const auto best { // 返回一个迭代器
+    std::max_element(arr.begin(), arr.end(), [](const auto&amp; a, const auto&amp; b) {
+      return a.points &lt; b.points;
+    })
+  };
+
+  std::cout &lt;&lt; best-&gt;name &lt;&lt; " is the best student\n"; // 必须解引用迭代器以获取元素
+
+  return 0;
+}
+</code></pre></div></div><div class="quiz" style="clear:both"><p class="quiz-header">问题 #2</p><p>使用 <code>std::sort</code> 和以下代码中的 lambda，按平均温度升序对季节进行排序。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;algorithm&gt;
+#include &lt;array&gt;
+#include &lt;iostream&gt;
+#include &lt;string_view&gt;
+
+struct Season
+{
+  std::string_view name{};
+  double averageTemperature{};
+};
+
+int main()
+{
+  std::array&lt;Season, 4&gt; seasons{
+    { { "Spring", 285.0 },
+      { "Summer", 296.0 },
+      { "Fall", 288.0 },
+      { "Winter", 263.0 } }
+  };
+
+  /*
+   * 在此处使用 std::sort
+   */
+
+  for (const auto&amp; season : seasons)
+  {
+    std::cout &lt;&lt; season.name &lt;&lt; '\n';
+  }
+
+  return 0;
+}
+</code></pre><p>程序应该打印</p><pre>Winter
+Spring
+Fall
+Summer
+</pre><p><a aria-controls="cpp_solution_id_1" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_1" href="#cpp_solution_id_1">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_1"><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;algorithm&gt;
+#include &lt;array&gt;
+#include &lt;iostream&gt;
+#include &lt;string_view&gt;
+
+struct Season
+{
+  std::string_view name{};
+  double averageTemperature{};
+};
+
+int main()
+{
+  std::array&lt;Season, 4&gt; seasons{
+    { { "Spring", 285.0 },
+      { "Summer", 296.0 },
+      { "Fall", 288.0 },
+      { "Winter", 263.0 } }
+  };
+
+  // 我们可以比较两个参数的 averageTemperature 来
+  // 对数组进行排序。
+  std::sort(seasons.begin(), seasons.end(),
+            [](const auto&amp; a, const auto&amp; b) {
+              return a.averageTemperature &lt; b.averageTemperature;
+            });
+
+  for (const auto&amp; season : seasons)
+  {
+    std::cout &lt;&lt; season.name &lt;&lt; '\n';
+  }
+
+  return 0;
+}
+</code></pre></div></div>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="ellipsis-and-why-to-avoid-them.html" rel="prev"><small>上一课</small><strong>20.5 — 省略号（以及为何避免使用它们）</strong></a><a class="lesson-nav-index" href="../index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="lambda-captures.html" rel="next"><small>下一课</small><strong>20.7 — Lambda 捕获</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

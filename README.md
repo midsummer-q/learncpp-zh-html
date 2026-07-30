@@ -12,12 +12,13 @@
     │   ├── images/
     │   ├── scripts/
     │   └── stylesheets/
-    ├── index.html
-    └── 其他课程页面
+    ├── lessons/
+    │   └── 其他课程页面
+    └── index.html
 ```
 
 - `html/index.html`：课程入口页面。
-- `html/*.html`：各章节和附录的中文翻译页面。
+- `html/lessons/*.html`：各章节和附录的中文翻译页面。
 - `html/assets/stylesheets/`：页面样式。
 - `html/assets/scripts/`：页面交互脚本。
 - `html/assets/images/`：课程正文使用的本地图片。

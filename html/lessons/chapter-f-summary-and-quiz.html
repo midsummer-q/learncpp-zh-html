@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/chapter-f-summary-and-quiz/" name="learncpp:source-url"/>
+<meta content="65970e61f87143930d2a401b33cf82a9872a566cff96c72c88dbe6ac246c6b84" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:49:01.009769+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T17:35:15.790722+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>F.X — Chapter F summary and quiz</title>
+<link href="../assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="../assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="../index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="../index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">F.X — 第F章总结与测验</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 F.X</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/chapter-f-summary-and-quiz/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>一个 <strong>constexpr</strong> 函数是允许在常量表达式中调用的函数。要使函数成为 constexpr 函数，我们只需在返回类型前使用 <code>constexpr</code> 关键字。Constexpr 函数仅在用于需要常量表达式的上下文时保证在编译时求值。否则，它们可能在编译时（如果符合条件）或运行时求值。Constexpr 函数是隐式内联的，编译器必须看到 constexpr 函数的完整定义才能在编译时调用它。</p><p>一个 <strong>consteval 函数</strong> 是必须在编译时求值的函数。Consteval 函数在其他方面遵循与 constexpr 函数相同的规则。</p><p class="cpp-section cpp-topline" style="clear:both">小测验时间</p><p class="cpp-quiz-question" style="clear:both">问题 #1</p><p>添加 <code>const</code> 和/或 <code>constexpr</code> 到以下程序：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+// 从用户获取塔高并返回
+double getTowerHeight()
+{
+	std::cout &lt;&lt; "Enter the height of the tower in meters: ";
+	double towerHeight{};
+	std::cin &gt;&gt; towerHeight;
+	return towerHeight;
+}
+
+// 返回经过“seconds”秒后球离地面的高度
+double calculateBallHeight(double towerHeight, int seconds)
+{
+	double gravity{ 9.8 };
+
+	// 使用公式：[ s = u * t + (a * t^2) / 2 ]，这里 u（初速度）= 0
+	double distanceFallen{ (gravity * (seconds * seconds)) / 2.0 };
+	double currentHeight{ towerHeight - distanceFallen };
+
+	return currentHeight;
+}
+
+// 打印球离地高度
+void printBallHeight(double ballHeight, int seconds)
+{
+	if (ballHeight &gt; 0.0)
+		std::cout &lt;&lt; "At " &lt;&lt; seconds &lt;&lt; " seconds, the ball is at height: " &lt;&lt; ballHeight &lt;&lt; " meters\n";
+	else
+		std::cout &lt;&lt; "At " &lt;&lt; seconds &lt;&lt; " seconds, the ball is on the ground.\n";
+}
+
+// 计算当前球高并打印
+// 这是一个辅助函数，使操作更简单
+void printCalculatedBallHeight(double towerHeight, int seconds)
+{
+	double ballHeight{ calculateBallHeight(towerHeight, seconds) };
+	printBallHeight(ballHeight, seconds);
+}
+
+int main()
+{
+	double towerHeight{ getTowerHeight() };
+
+	printCalculatedBallHeight(towerHeight, 0);
+	printCalculatedBallHeight(towerHeight, 1);
+	printCalculatedBallHeight(towerHeight, 2);
+	printCalculatedBallHeight(towerHeight, 3);
+	printCalculatedBallHeight(towerHeight, 4);
+	printCalculatedBallHeight(towerHeight, 5);
+
+	return 0;
+}
+</code></pre><p><a aria-controls="cpp_solution_id_0" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_0" href="#cpp_solution_id_0">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_0"><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+// 此函数不应设为 constexpr，因为输出和输入只能在运行时进行。
+// 执行输出和输入的 `operator&lt;&lt;` 和 `operator&gt;&gt;` 版本不支持 constexpr。
+double getTowerHeight()
+{
+	std::cout &lt;&lt; "Enter the height of the tower in meters: ";
+	double towerHeight{};
+	std::cin &gt;&gt; towerHeight;
+	return towerHeight;
+}
+
+// 返回经过“seconds”秒后离地面的高度
+// 此函数设为 constexpr，因为它仅根据输入计算一个值并返回。
+// 算术运算可以在编译时完成，并且没有调用非 constexpr 函数。
+// 提醒：constexpr 函数可以在编译时或运行时求值。
+//   如果其参数是 constexpr，则可以在编译时调用。
+//   在这种情况下，它在运行时被调用，因为 towerHeight 的参数不是 constexpr。
+// 如果一个函数可以设为 constexpr，就应该设为 constexpr。
+// 记住：函数参数不是 constexpr，即使在 constexpr 函数中也是如此
+constexpr double calculateBallHeight(double towerHeight, int seconds)
+{
+	constexpr double gravity{ 9.8 }; // constexpr，因为它是编译时常量
+
+	// 使用公式：[ s = u * t + (a * t^2) / 2 ]，这里 u（初速度）= 0
+	// 这些变量不能是 constexpr，因为它们的初始化器不是常量表达式
+	const double distanceFallen{ (gravity * (seconds * seconds)) / 2.0 };
+	const double currentHeight{ towerHeight - distanceFallen };
+
+	return currentHeight;
+}
+
+// 此函数不应设为 constexpr，因为输出和输入只能在运行时进行。
+// 执行输出和输入的 `operator&lt;&lt;` 和 `operator&gt;&gt;` 版本不支持 constexpr。
+void printBallHeight(double ballHeight, int seconds)
+{
+	if (ballHeight &gt; 0.0)
+		std::cout &lt;&lt; "At " &lt;&lt; seconds &lt;&lt; " seconds, the ball is at height: " &lt;&lt; ballHeight &lt;&lt; " meters\n";
+	else
+		std::cout &lt;&lt; "At " &lt;&lt; seconds &lt;&lt; " seconds, the ball is on the ground.\n";
+}
+
+// 此函数不应设为 constexpr，因为输出和输入只能在运行时进行。
+// 执行输出和输入的 `operator&lt;&lt;` 和 `operator&gt;&gt;` 版本不支持 constexpr。
+void printCalculatedBallHeight(double towerHeight, int seconds)
+{
+	// height 只能是 const（不能是 constexpr），因为它的初始化器不是常量表达式
+	const double ballHeight{ calculateBallHeight(towerHeight, seconds) };
+	printBallHeight(ballHeight, seconds);
+}
+
+int main()
+{
+	// towerHeight 只能是 const（不能是 constexpr），因为它的初始化器不是常量表达式
+	const double towerHeight{ getTowerHeight() };
+
+	printCalculatedBallHeight(towerHeight, 0);
+	printCalculatedBallHeight(towerHeight, 1);
+	printCalculatedBallHeight(towerHeight, 2);
+	printCalculatedBallHeight(towerHeight, 3);
+	printCalculatedBallHeight(towerHeight, 4);
+	printCalculatedBallHeight(towerHeight, 5);
+
+	return 0;
+}
+</code></pre></div>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="constexpr-functions-part-4.html" rel="prev"><small>上一课</small><strong>F.4 — Constexpr 函数（第 4 部分）</strong></a><a class="lesson-nav-index" href="../index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="introduction-to-compound-data-types.html" rel="next"><small>下一课</small><strong>12.1 — 复合数据类型简介</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

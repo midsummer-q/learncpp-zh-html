@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/control-flow-introduction/" name="learncpp:source-url"/>
+<meta content="d28b794ae9456e2b11119f50500e5fe611e36ddb1acc9ae3b20a55ba616bbc7f" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:47:20.717234+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T17:24:51.409005+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>8.1 — Control flow introduction</title>
+<link href="../assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="../assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="../index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="../index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">8.1 — 控制流简介</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 8.1</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/control-flow-introduction/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>当程序运行时，CPU 从 <code>main()</code>的顶部开始执行，按顺序执行若干语句（默认情况下），然后在 <code>main()</code>的末尾终止程序。CPU 执行的特定语句序列称为程序的 <strong>执行路径</strong> （或 <strong>路径</strong>，简称）。</p><p>考虑以下程序：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+    std::cout &lt;&lt; "Enter an integer: ";
+    
+    int x{};
+    std::cin &gt;&gt; x;
+
+    std::cout &lt;&lt; "You entered " &lt;&lt; x &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>该程序的执行路径依次包括第 5、7、8、10 和 12 行。这是一个 <strong>直线程序</strong>的例子。直线程序每次运行时都走相同的路径（以相同顺序执行相同语句）。</p><p>然而，这通常不是我们想要的。例如，如果我们要求用户输入，而用户输入了无效内容，理想情况下我们希望让用户重新选择。这在直线程序中是不可能的。实际上，用户可能反复输入无效内容，因此我们需要让他们重新选择的次数在运行时才能知道。</p><p>幸运的是，C++ 提供了许多不同的 <strong>控制流语句</strong> （也称为 <strong>流程控制语句</strong>），这些语句允许程序员改变程序的正常执行路径。你已经见过一个例子：if 语句（在课程 <a href="introduction-to-if-statements.html">4.10 -- if 语句简介</a>中介绍），它允许我们仅在条件表达式为真时执行一条语句。</p><p>当控制流语句导致执行点改变到非顺序语句时，这称为 <strong>分支</strong>。</p><p class="cpp-section cpp-topline" style="clear:both"></p><div class="cpp-table-wrapper"><table class="cpp-table"><tbody><tr><th>类别</th><th>含义</th><th>在 C++ 中通过以下实现</th></tr><tr><td>条件语句</td><td>仅当满足某个条件时才执行一段代码序列。</td><td>if, else, switch</td></tr><tr><td>跳转</td><td>告诉 CPU 开始在其他位置执行语句。</td><td>goto, break, continue</td></tr><tr><td>函数调用</td><td>跳转到其他位置并返回。</td><td>函数调用, return</td></tr><tr><td>循环</td><td>重复执行某段代码零次或多次，直到满足某个条件。</td><td>while, do-while, for, 范围 for</td></tr><tr><td>终止</td><td>终止程序。</td><td>std::exit(), std::abort()</td></tr><tr><td>异常</td><td>一种特殊的控制流结构，用于错误处理。</td><td>try, throw, catch</td></tr></tbody></table></div><p>我们将在本章详细涵盖所有这些类别，但异常除外（哈），我们将用一整章（<a href="https://www.learncpp.com#Chapter27">第 27 章</a>)。</p><p>在本章之前，你能让程序做的事情数量相当有限。能够控制程序的流程（特别是使用循环）使得无数有趣的事情成为可能！你将不再局限于玩具程序——你将能够编写具有实际用途的程序。</p><p>真正的乐趣从这里开始。那么，让我们开始吧！</p>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="chapter-7-summary-and-quiz.html" rel="prev"><small>上一课</small><strong>7.x — 第7章总结与测验</strong></a><a class="lesson-nav-index" href="../index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="if-statements-and-blocks.html" rel="next"><small>下一课</small><strong>8.2 — If 语句和块</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/order-of-construction-of-derived-classes/" name="learncpp:source-url"/>
+<meta content="e9dce45648cd4a8709457c1d493f8888d02ae5b90d2920d79330c19c910084f2" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:53:44.648265+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T18:12:40.814607+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>24.3 — Order of construction of derived classes</title>
+<link href="../assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="../assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="../index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="../index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">24.3 — 派生类的构造顺序</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 24.3</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/order-of-construction-of-derived-classes/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>在上一节关于 <a href="https://www.learncpp.com/cpp-tutorial/112-basic-inheritance-in-c/">在C++基础继承中</a>，你学习了类可以从其他类继承成员和函数。在本课中，我们将更深入地了解实例化派生类时发生的构造顺序。</p><p>首先，让我们介绍一些新类，它们将帮助我们说明一些重要点。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">class Base
+{
+public:
+    int m_id {};
+
+    Base(int id=0)
+        : m_id { id }
+    {
+    }
+
+    int getId() const { return m_id; }
+};
+
+class Derived: public Base
+{
+public:
+    double m_cost {};
+
+    Derived(double cost=0.0)
+        : m_cost { cost }
+    {
+    }
+
+    double getCost() const { return m_cost; }
+};
+</code></pre><p>在这个例子中，类Derived派生自类Base。</p><p><img src="../assets/images/7efa05a78acc4b8cf184478afed04e80e693b74f54935329d184d420bfdd3531.gif"/></p><p>因为Derived继承了Base的变量和函数，你可能认为Base的成员被复制到了Derived中。然而，事实并非如此。相反，我们可以将Derived视为一个两部分类：一部分是Derived，一部分是Base。</p><p><img src="../assets/images/eed727cfab6566a02dc9c5ed053bd24faa49af9f6ec1e48d0ceb6ff89d642656.gif"/></p><p>你已经见过很多实例化普通（非派生）类时发生的情况的例子：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int main()
+{
+    Base base;
+
+    return 0;
+}
+</code></pre><p>Base是一个非派生类，因为它不从任何其他类继承。C++为Base分配内存，然后调用Base的默认构造函数进行初始化。</p><p>现在让我们看看实例化派生类时会发生什么：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int main()
+{
+    Derived derived;
+
+    return 0;
+}
+</code></pre><p>如果你自己尝试，你不会注意到与之前实例化非派生类Base的例子有任何区别。但在幕后，事情略有不同。如上所述，Derived实际上由两部分组成：一个Base部分和一个Derived部分。当C++构造派生对象时，它是分阶段进行的。首先，构造最基类（位于继承树顶部）。然后按顺序构造每个子类，直到最后构造最子类（位于继承树底部）。</p><p>因此，当我们实例化一个Derived实例时，首先构造Derived的Base部分（使用Base默认构造函数）。Base部分完成后，构造Derived部分（使用Derived默认构造函数）。此时，没有更多的派生类，所以我们就完成了。</p><p>这个过程实际上很容易说明。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+class Base
+{
+public:
+    int m_id {};
+
+    Base(int id=0)
+        : m_id { id }
+    {
+        std::cout &lt;&lt; "Base\n";
+    }
+
+    int getId() const { return m_id; }
+};
+
+class Derived: public Base
+{
+public:
+    double m_cost {};
+
+    Derived(double cost=0.0)
+        : m_cost { cost }
+    {
+        std::cout &lt;&lt; "Derived\n";
+    }
+
+    double getCost() const { return m_cost; }
+};
+
+int main()
+{
+    std::cout &lt;&lt; "Instantiating Base\n";
+    Base base;
+
+    std::cout &lt;&lt; "Instantiating Derived\n";
+    Derived derived;
+
+    return 0;
+}
+</code></pre><p>该程序产生以下结果：</p><pre>Instantiating Base
+Base
+Instantiating Derived
+Base
+Derived
+</pre><p>如你所见，当我们构造Derived时，Derived的Base部分首先被构造。这很有道理：逻辑上，子类不能没有父类而存在。这也是安全的方式：子类经常使用父类的变量和函数，但父类对子类一无所知。先实例化父类确保这些变量在派生类创建并准备使用它们时已经初始化。</p><p><strong>继承链的构造顺序</strong></p><p>有时类派生自其他类，而这些类本身又派生自其他类。例如：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+class A
+{
+public:
+    A()
+    {
+        std::cout &lt;&lt; "A\n";
+    }
+};
+
+class B: public A
+{
+public:
+    B()
+    {
+        std::cout &lt;&lt; "B\n";
+    }
+};
+
+class C: public B
+{
+public:
+    C()
+    {
+        std::cout &lt;&lt; "C\n";
+    }
+};
+
+class D: public C
+{
+public:
+    D()
+    {
+        std::cout &lt;&lt; "D\n";
+    }
+};
+</code></pre><p>记住C++总是先构造“第一个”或“最基”的类。然后按顺序遍历继承树，构造每个后续的派生类。</p><p>这是一个简短的程序，说明了整个继承链上的创建顺序。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int main()
+{
+    std::cout &lt;&lt; "Constructing A: \n";
+    A a;
+
+    std::cout &lt;&lt; "Constructing B: \n";
+    B b;
+
+    std::cout &lt;&lt; "Constructing C: \n";
+    C c;
+
+    std::cout &lt;&lt; "Constructing D: \n";
+    D d;
+}
+</code></pre><p>这段代码输出如下：</p><pre>Constructing A:
+A
+Constructing B:
+A
+B
+Constructing C:
+A
+B
+C
+Constructing D:
+A
+B
+C
+D
+</pre><p><strong>总结</strong></p><p>C++分阶段构造派生类，从最基类（位于继承树顶部）开始，到最子类（位于继承树底部）结束。当每个类被构造时，调用该类的适当构造函数来初始化该部分类。</p><p>你会注意到，本节中的示例类都使用了基类默认构造函数（为简单起见）。在下一课中，我们将更深入地研究构造函数在构造派生类过程中的作用（包括如何显式选择派生类要使用的基类构造函数）。</p>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="basic-inheritance-in-c.html" rel="prev"><small>上一课</small><strong>24.2 — C++ 中的基本继承</strong></a><a class="lesson-nav-index" href="../index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="constructors-and-initialization-of-derived-classes.html" rel="next"><small>下一课</small><strong>24.4 — 派生类的构造函数与初始化</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

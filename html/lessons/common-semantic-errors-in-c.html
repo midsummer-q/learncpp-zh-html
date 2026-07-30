@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/common-semantic-errors-in-c/" name="learncpp:source-url"/>
+<meta content="acb29cd0e185a1361d0aa08e44fb4ee90818d8ad19d69b706104f17615b7c4c9" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:47:58.596639+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T17:28:37.154583+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>9.3 — Common semantic errors in C++</title>
+<link href="../assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="../assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="../index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="../index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">9.3 — C++ 中常见的语义错误</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 9.3</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/common-semantic-errors-in-c/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>在课程 <a href="syntax-and-semantic-errors.html">3.1 -- 语法错误和语义错误</a>，我们介绍了 <code>syntax errors</code>，当你编写的代码不符合 C++ 语言的语法规则时就会发生。编译器会通知你这类错误，因此它们很容易被发现，并且通常很容易修复。</p><p>我们还介绍了 <code>semantic errors</code>，当你编写的代码没有达到预期效果时就会发生。编译器通常不会捕获语义错误（尽管在某些情况下，智能编译器可能会生成警告）。</p><p>语义错误可能导致与 <code>undefined behavior</code>相同的大多数症状，例如导致程序产生错误结果、导致异常行为、破坏程序数据、导致程序崩溃——或者可能没有任何影响。</p><p>编写程序时，几乎不可避免地会犯语义错误。你可能仅仅通过使用程序就会注意到其中一些错误：例如，如果你正在编写一个迷宫游戏，而你的角色能够穿墙而过。测试你的程序（<a href="introduction-to-testing-your-code.html">9.1 -- Introduction to testing your code</a>）也有助于发现语义错误。</p><p>但还有一件事可以提供帮助——那就是了解哪些类型的语义错误最常见，这样你就可以在这些情况下多花一点时间确保正确。</p><p>在本课中，我们将介绍 C++ 中发生的一堆最常见的语义错误类型（其中大多数在某种程度上与流程控制有关）。</p><p class="cpp-section cpp-topline" style="clear:both">条件逻辑错误</p><p>最常见的语义错误类型之一是条件逻辑错误。 <strong>条件逻辑错误</strong> 发生在程序员错误地编写了条件语句或循环条件的逻辑时。这里有一个简单的例子：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+    std::cout &lt;&lt; "Enter an integer: ";
+    int x{};
+    std::cin &gt;&gt; x;
+
+    if (x &gt;= 5) // 哎呀，我们使用了 operator&gt;= 而不是 operator&gt;
+        std::cout &lt;&lt; x &lt;&lt; " is greater than 5\n";
+
+    return 0;
+}
+</code></pre><p>以下是展示条件逻辑错误的程序运行结果：</p><pre>Enter an integer: 5
+5 is greater than 5
+</pre><p>当用户输入 <code>5</code>时，条件表达式 <code>x &gt;= 5</code> 求值为 <code>true</code>，因此执行了关联的语句。</p><p>这是另一个例子，使用 for 循环：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+    std::cout &lt;&lt; "Enter an integer: ";
+    int x{};
+    std::cin &gt;&gt; x;
+
+    // 哎呀，我们使用了 operator&gt; 而不是 operator&lt;
+    for (int count{ 1 }; count &gt; x; ++count)
+    {
+        std::cout &lt;&lt; count &lt;&lt; ' ';
+    }
+
+    std::cout &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>这个程序本应打印 1 到用户输入的数字之间的所有数字。但实际输出是：</p><pre>Enter an integer: 5
+</pre><p>它什么也没打印。这是因为进入 for 循环时， <code>count &gt; x</code> 等于 <code>false</code>，所以循环从未迭代。</p><p class="cpp-section cpp-topline" style="clear:both">无限循环</p><p>在课程 <a href="introduction-to-loops-and-while-statements.html">8.8 -- 循环和 while 语句简介</a>，我们介绍了无限循环，并展示了这个例子：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+ 
+int main()
+{
+    int count{ 1 };
+    while (count &lt;= 10) // 这个条件永远不会为假
+    {
+        std::cout &lt;&lt; count &lt;&lt; ' '; // 所以这一行会重复执行
+    }
+ 
+    std::cout &lt;&lt; '\n'; // 这一行永远不会执行
+
+    return 0; // 这一行永远不会执行
+}
+</code></pre><p>在这种情况下，我们忘记递增 <code>count</code>，所以循环条件永远不会为假，循环将继续打印：</p><pre>1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+</pre><p>……直到用户关闭程序。</p><p>这是另一个老师喜欢在测验中问的例子。以下代码有什么问题？</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+    for (unsigned int count{ 5 }; count &gt;= 0; --count)
+    {
+        if (count == 0)
+            std::cout &lt;&lt; "blastoff! ";
+        else
+          std::cout &lt;&lt; count &lt;&lt; ' ';
+    }
+
+    std::cout &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>该程序本应打印 <code>5 4 3 2 1 blastoff!</code>，确实如此，但它并没有停在那里。实际上，它打印：</p><pre>5 4 3 2 1 blastoff! 4294967295 4294967294 4294967293 4294967292 4294967291
+</pre><p>然后继续递减。程序永远不会终止，因为 <code>count &gt;= 0</code> 永远不可能等于 <code>false</code> 当 <code>count</code> 是一个无符号整数。</p><p class="cpp-section cpp-topline" style="clear:both">差一错误</p><p>一种 <strong>差一</strong> 错误是指循环多执行一次或少执行一次的错误。这里有一个我们在第 <a href="for-statements.html">8.10 -- For 语句</a>：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+    for (int count{ 1 }; count &lt; 5; ++count)
+    {
+        std::cout &lt;&lt; count &lt;&lt; ' ';
+    }
+
+    std::cout &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>课中介绍的例子： <code>1 2 3 4 5</code>程序员本意是让这段代码打印<code>&lt;</code> 而不是 <code>&lt;=</code>。然而，使用了错误的关系运算符（ <code>1 2 3 4</code>。</p><p class="cpp-section cpp-topline" style="clear:both">），导致循环比预期少执行一次，打印出</p><p>从课程 <a href="logical-operators.html">6.8 -- 逻辑运算符</a>，以下程序犯了一个运算符优先级错误：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+    int x{ 5 };
+    int y{ 7 };
+
+    if (!x &gt; y) // 哎呀：运算符优先级问题
+        std::cout &lt;&lt; x &lt;&lt; " is not greater than " &lt;&lt; y &lt;&lt; '\n';
+    else
+        std::cout &lt;&lt; x &lt;&lt; " is greater than " &lt;&lt; y &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>因为 <code>logical NOT</code> 的优先级高于 <code>operator&gt;</code>，条件表达式被评估为如同写成 <code>(!x) &gt; y</code>，这不是程序员的意图。</p><p>因此，该程序输出：</p><pre>5 is greater than 7
+</pre><p>当在同一表达式中混合逻辑或和逻辑与时，也可能发生这种情况（逻辑与的优先级高于逻辑或）。使用显式括号来避免这类错误。</p><p class="cpp-section cpp-topline" style="clear:both">浮点类型的精度问题</p><p>以下浮点变量没有足够的精度来存储整个数字：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+    float f{ 0.123456789f };
+    std::cout &lt;&lt; f &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>由于精度不足，数字被略微舍入：</p><pre>0.123457
+</pre><p>在课程 <a href="relational-operators-and-floating-point-comparisons.html">6.7——关系运算符与浮点数比较</a>，我们讨论了如何使用 <code>operator==</code> 和 <code>operator!=</code> 在浮点数中可能会因小的舍入误差而出现问题（以及如何处理）。下面是一个例子：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+    double d{ 0.1 + 0.1 + 0.1 + 0.1 + 0.1 + 0.1 + 0.1 + 0.1 + 0.1 + 0.1 }; // 应该求和为 1.0
+
+    if (d == 1.0)
+        std::cout &lt;&lt; "equal\n";
+    else
+        std::cout &lt;&lt; "not equal\n";
+
+    return 0;
+}
+</code></pre><p>该程序打印出：</p><pre>not equal
+</pre><p>你对浮点数进行的算术运算越多，它积累的小舍入误差就越多。</p><p class="cpp-section cpp-topline" style="clear:both">整数除法</p><p>在以下示例中，我们本意是进行浮点除法，但由于两个操作数都是整数，我们最终执行了整数除法：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+    int x{ 5 };
+    int y{ 3 };
+
+    std::cout &lt;&lt; x &lt;&lt; " divided by " &lt;&lt; y &lt;&lt; " is: " &lt;&lt; x / y &lt;&lt; '\n'; // 整数除法
+
+    return 0;
+}
+</code></pre><p>这会打印：</p><pre>5 divided by 3 is: 1
+</pre><p>在课程 <a href="arithmetic-operators.html">6.2 -- 算术运算符</a>，我们展示了可以使用 static_cast 将其中一个整数操作数转换为浮点值，以进行浮点除法。</p><p class="cpp-section cpp-topline" style="clear:both">意外的空语句</p><p>在课程 <a href="common-if-statement-problems.html">8.3 -- 常见的 if 语句问题</a>，我们介绍了 <code>null statements</code>，即不执行任何操作的语句。</p><p>在下面的程序中，我们只想在获得用户许可的情况下炸毁世界：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+void blowUpWorld()
+{
+    std::cout &lt;&lt; "Kaboom!\n";
+} 
+
+int main()
+{
+    std::cout &lt;&lt; "Should we blow up the world again? (y/n): ";
+    char c{};
+    std::cin &gt;&gt; c;
+
+    if (c == 'y');     // 这里意外的空语句
+        blowUpWorld(); // 所以这将始终执行，因为它不是 if 语句的一部分
+ 
+    return 0;
+}
+</code></pre><p>然而，由于一个意外的 <code>null statement</code>，对 <code>blowUpWorld()</code> 的函数调用总是被执行，所以我们无论如何都会炸毁它：</p><pre>Should we blow up the world again? (y/n): n
+Kaboom!
+</pre><p class="cpp-section cpp-topline" style="clear:both">在需要复合语句时未使用</p><p>上述程序的另一个变体，总是炸毁世界：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+void blowUpWorld()
+{
+    std::cout &lt;&lt; "Kaboom!\n";
+} 
+
+int main()
+{
+    std::cout &lt;&lt; "Should we blow up the world again? (y/n): ";
+    char c{};
+    std::cin &gt;&gt; c;
+
+    if (c == 'y')
+        std::cout &lt;&lt; "Okay, here we go...\n";
+        blowUpWorld(); // 将始终执行。应该放在复合语句内部。
+ 
+    return 0;
+}
+</code></pre><p>该程序打印出：</p><pre>Should we blow up the world again? (y/n): n
+Kaboom!
+</pre><p>一个 <code>dangling else</code> （在课程 <a href="common-if-statement-problems.html">8.3 -- 常见的 if 语句问题</a>中介绍）也属于这一类。</p><p class="cpp-section cpp-topline" style="clear:both">在条件中使用赋值而不是相等</p><p>因为赋值运算符（<code>=</code>）和相等运算符（<code>==</code>）相似，我们可能本意是使用相等，但意外地使用了赋值：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+void blowUpWorld()
+{
+    std::cout &lt;&lt; "Kaboom!\n";
+} 
+
+int main()
+{
+    std::cout &lt;&lt; "Should we blow up the world again? (y/n): ";
+    char c{};
+    std::cin &gt;&gt; c;
+
+    if (c = 'y') // 使用了赋值运算符而不是相等运算符
+        blowUpWorld();
+ 
+    return 0;
+}
+</code></pre><p>该程序打印出：</p><pre>Should we blow up the world again? (y/n): n
+Kaboom!
+</pre><p>赋值运算符返回其左操作数。 <code>c = 'y'</code> 先执行，将 <code>y</code> 切换到 <code>c</code> 赋值并返回 <code>c</code>。然后 <code>if (c)</code> 被求值。由于 <code>c</code> 现在非零，它被隐式转换为 <code>bool</code> 值 <code>true</code>，并且与 if 语句关联的语句被执行。</p><p>因为在条件内进行赋值几乎从未被预期，现代编译器通常会在遇到这种情况时发出警告。然而，如果你没有解决所有警告的习惯，这些警告很容易被忽略。</p><p class="cpp-section cpp-topline" style="clear:both">调用函数时忘记使用函数调用运算符</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int getValue()
+{
+    return 5;
+}
+
+int main()
+{
+    std::cout &lt;&lt; getValue &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>虽然你可能期望这个程序输出 <code>5</code>，但它很可能会输出 <code>1</code> （在某些编译器上，它会输出一个十六进制的内存地址）。</p><p>而不是使用 <code>getValue()</code> （这会调用函数并产生一个 <code>int</code> 返回值），我们使用了 <code>getValue</code> 而没有使用函数调用运算符。在许多情况下，这会产生一个值，该值会被转换为 <code>bool</code> 值 <code>true</code>)。</p><p>在上面的例子中，正是这个 <code>bool</code> 值 <code>true</code> 被输出，它打印出 <code>1</code>。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">进阶读者</p><p>使用函数名而不调用它通常会产生一个函数指针，该指针保存函数的地址。这样的函数指针会隐式转换为一个 <code>bool</code> 值。由于这个指针永远不应具有地址 <code>0</code>，所以该 <code>bool</code> 值将始终为 <code>true</code>。</p><p>我们在第 <a href="function-pointers.html">20.1 -- 函数指针</a>。</p></div><p class="cpp-section cpp-topline" style="clear:both">还有什么？</p><p>以上内容代表了新C++程序员最容易犯的最常见语义错误类型，但还有很多其他类型。读者们，如果你们认为还有其他常见的陷阱，请在评论中留言。</p>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="code-coverage.html" rel="prev"><small>上一课</small><strong>9.2 — 代码覆盖率</strong></a><a class="lesson-nav-index" href="../index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="detecting-and-handling-errors.html" rel="next"><small>下一课</small><strong>9.4 — 检测和处理错误</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

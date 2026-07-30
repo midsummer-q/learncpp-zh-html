@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/basic-exception-handling/" name="learncpp:source-url"/>
+<meta content="0e51a137f47241180d3c99c2b6cff964d9b690f210fcecbd3ec79578336a71ab" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:54:41.085012+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T18:18:28.816731+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>27.2 — Basic exception handling</title>
+<link href="../assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="../assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="../index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="../index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">27.2 — 基本异常处理</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 27.2</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/basic-exception-handling/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>在上一节关于 <a href="https://www.learncpp.com/cpp-tutorial/151-the-need-for-exceptions/">异常的必要性</a>中，我们讨论了使用返回码如何导致控制流和错误流交织在一起，从而限制了二者。C++ 中的异常通过三个协同工作的关键字实现： <strong>抛出</strong>， <strong>尝试</strong>、和 <strong>catch</strong>。</p><p class="cpp-section cpp-topline" style="clear:both">抛出异常</p><p>我们在现实生活中经常使用信号来指示特定事件的发生。例如，在美式足球比赛中，如果球员犯规，裁判会向地面扔出旗帜并吹哨停止比赛。然后执行罚则。一旦罚则处理完毕，比赛通常恢复正常。</p><p>在C++中， <strong>throw 语句</strong> 用于指示异常或错误情况的发生（想象一下扔出罚旗）。指示异常发生通常也称为 <strong>引发</strong> 异常。</p><p>要使用 throw 语句，只需使用 throw 关键字，后跟任何数据类型的一个值，用于指示发生了错误。通常，该值是一个错误码、问题描述或自定义异常类。</p><p>以下是一些示例：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">throw -1; // 抛出一个字面整数值
+throw ENUM_INVALID_INDEX; // 抛出一个枚举值
+throw "Can not take square root of negative number"; // 抛出一个字面 C 风格 (const char*) 字符串
+throw dX; // 抛出一个先前定义的 double 变量
+throw MyException("Fatal Error"); // 抛出一个 MyException 类的对象
+</code></pre><p>这些语句中的每一个都充当一个信号，表明发生了某种需要处理的问题。</p><p class="cpp-section cpp-topline" style="clear:both">寻找异常</p><p>抛出异常只是异常处理过程的一部分。让我们回到美式足球的类比：一旦裁判扔出罚旗，接下来会发生什么？球员注意到发生了犯规并停止比赛。足球比赛的正常流程被打断。</p><p>在 C++ 中，我们使用 <strong>尝试</strong> 关键字定义一个语句块（称为 <strong>try 块</strong>）。try 块充当观察者，寻找 try 块内任何语句抛出的异常。</p><p>以下是一个 try 块的示例：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">try
+{
+    // 可能抛出你想要处理的异常的语句放在这里
+    throw -1; // 这里是一个简单的 throw 语句
+}
+</code></pre><p>注意，try 块并不定义如何处理异常。它只是告诉程序：“嘿，如果这个 try 块内的任何语句抛出异常，抓住它！”</p><p class="cpp-section cpp-topline" style="clear:both">处理异常</p><p>最后，回到美式足球的类比：在判罚并停止比赛后，裁判评估罚则并执行它。换句话说，必须处理罚则后才能恢复正常比赛。</p><p>实际处理异常是 catch 块的工作。 <strong>catch</strong> 关键字用于定义一个代码块（称为 <strong>catch 块</strong>），它处理单一数据类型的异常。</p><p>以下是一个捕获整数异常的 catch 块示例：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">catch (int x)
+{
+    // 在这里处理 int 类型的异常
+    std::cerr &lt;&lt; "We caught an int exception with value" &lt;&lt; x &lt;&lt; '\n';
+}
+</code></pre><p>try 块和 catch 块协同工作——try 块检测其内部语句抛出的任何异常，并将其路由到匹配类型的 catch 块进行处理。一个 try 块后面必须紧跟至少一个 catch 块，但可以有多个按顺序列出的 catch 块。</p><p>一旦异常被 try 块捕获并路由到匹配的 catch 块进行处理，该异常就被视为已处理。匹配的 catch 块执行后，程序恢复正常执行，从最后一个 catch 块之后的第一条语句开始。</p><p>catch 参数的工作方式类似于函数参数，参数在后续的 catch 块中可用。基本类型的异常可以按值捕获，但非基本类型的异常应通过 const 引用捕获，以避免不必要的复制（并在某些情况下防止切片）。</p><p>与函数类似，如果参数在 catch 块中不使用，可以省略变量名：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">catch (double) // 注意：没有变量名，因为我们在下面的 catch 块中不使用它
+{
+    // 在这里处理 double 类型的异常
+    std::cerr &lt;&lt; "We caught an exception of type double\n";
+}
+</code></pre><p>这有助于防止编译器关于未使用变量的警告。</p><p>异常不进行类型转换（因此 int 异常不会转换为匹配 double 参数的 catch 块）。</p><p class="cpp-section cpp-topline" style="clear:both">将 throw、try 和 catch 放在一起</p><p>以下是一个使用 throw、try 和多个 catch 块的完整程序：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+int main()
+{
+    try
+    {
+        // 可能抛出你想要处理的异常的语句放在这里
+        throw -1; // 这里是一个简单的例子
+    }
+    catch (double) // 没有变量名，因为我们在下面的 catch 块中不使用异常本身
+    {
+        // 任何在上述 try 块内抛出的 double 类型异常都会被发送到这里
+        std::cerr &lt;&lt; "We caught an exception of type double\n";
+    }
+    catch (int x)
+    {
+        // 任何在以上 try 块内抛出的 int 类型异常都会被发送到这里
+        std::cerr &lt;&lt; "We caught an int exception with value: " &lt;&lt; x &lt;&lt; '\n';
+    }
+    catch (const std::string&amp;) // 通过 const 引用捕获类
+    {
+        // 任何在以上 try 块内抛出的 std::string 类型异常都会被发送到这里
+        std::cerr &lt;&lt; "We caught an exception of type std::string\n";
+    }
+
+    // 异常被以上任意 catch 块处理后，执行从这里继续
+    std::cout &lt;&lt; "Continuing on our merry way\n";
+
+    return 0;
+}
+</code></pre><p>在作者的机器上，运行上述 try/catch 块产生以下结果：</p><pre>We caught an int exception with value -1
+Continuing on our merry way
+</pre><p>使用 throw 语句引发了一个值为 -1 的异常，类型为 int。该 throw 语句被封闭的 try 块捕获，并路由到处理 int 类型异常的适当 catch 块。该 catch 块打印了相应的错误消息。</p><p>异常处理完毕后，程序在 catch 块之后继续正常执行，打印“Continuing on our merry way”。</p><p class="cpp-section cpp-topline" style="clear:both">回顾异常处理</p><p>异常处理实际上非常简单，以下两段涵盖了您需要记住的大部分内容：</p><p>当异常被引发（使用 <strong>抛出</strong>)，运行中的程序会找到最近的封闭 <strong>尝试</strong> 块（必要时向上传播栈以找到封闭的 try 块——我们将在下一课中更详细地讨论这一点），以查看是否有任何 <strong>catch</strong> 附加到 try 块的处理程序可以处理该类型的异常。如果可以，执行跳转到 catch 块的顶部，该异常被视为已处理。</p><p>如果在最近的封闭 try 块中没有合适的 catch 处理程序，程序会继续在后续的封闭 try 块中查找 catch 处理程序。如果在程序结束前找不到合适的 catch 处理程序，程序将因运行时异常错误而失败。</p><p>请注意，在将异常与 catch 块匹配时，程序不会执行隐式转换或提升！例如，char 异常不会与 int catch 块匹配。int 异常不会与 float catch 块匹配。但是，从派生类到其父类的转换会被执行。</p><p>基本上就是这样。本章的其余部分将专门展示这些原则的实际应用示例。</p><p class="cpp-section cpp-topline" style="clear:both">异常被立即处理</p><p>下面是一个简短的程序，演示了异常如何被立即处理：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+    try
+    {
+        throw 4.5; // 抛出 double 类型的异常
+        std::cout &lt;&lt; "This never prints\n";
+    }
+    catch (double x) // 处理 double 类型的异常
+    {
+        std::cerr &lt;&lt; "We caught a double of value: " &lt;&lt; x &lt;&lt; '\n';
+    }
+
+    return 0;
+}
+</code></pre><p>这个程序再简单不过了。过程如下：throw 语句是第一个执行的语句——它引发了一个 double 类型的异常。执行 <em>立即</em> 转移到最近的封闭 try 块，即本程序中唯一的 try 块。然后检查 catch 处理程序，看是否有匹配的。我们的异常是 double 类型，所以我们寻找一个 double 类型的 catch 处理程序。我们有一个，所以它被执行。</p><p>因此，该程序的结果如下：</p><pre>We caught a double of value: 4.5
+</pre><p>注意，“This never prints”从未被打印，因为异常导致执行路径立即跳转到 double 的异常处理程序。</p><p class="cpp-section cpp-topline" style="clear:both">一个更现实的例子</p><p>让我们看一个不那么学术化的例子：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;cmath&gt; // for sqrt() function
+#include &lt;iostream&gt;
+
+int main()
+{
+    std::cout &lt;&lt; "Enter a number: ";
+    double x {};
+    std::cin &gt;&gt; x;
+
+    try // 查找 try 块内发生的异常并将其路由到附带的 catch 块
+    {
+        // 如果用户输入了负数，这是一个错误条件
+        if (x &lt; 0.0)
+            throw "Can not take sqrt of negative number"; // 抛出 const char* 类型的异常
+
+        // 否则，打印答案
+        std::cout &lt;&lt; "The sqrt of " &lt;&lt; x &lt;&lt; " is " &lt;&lt; std::sqrt(x) &lt;&lt; '\n';
+    }
+    catch (const char* exception) // 捕获 const char* 类型的异常
+    {
+        std::cerr &lt;&lt; "Error: " &lt;&lt; exception &lt;&lt; '\n';
+    }
+}
+</code></pre><p>在这段代码中，用户被要求输入一个数字。如果他们输入一个正数，if 语句不会执行，不会抛出异常，并打印该数字的平方根。因为在这种情况下没有抛出异常，catch 块内的代码永远不会执行。结果类似这样：</p><pre>Enter a number: 9
+The sqrt of 9 is 3
+</pre><p>如果用户输入一个负数，我们抛出一个 const char<em>类型的异常。因为我们在 try 块内并且找到了匹配的异常处理程序，控制立即转移到 const char</em> 异常处理程序。结果是：</p><pre>Enter a number: -4
+Error: Can not take sqrt of negative number
+</pre><p>到现在为止，你应该已经掌握了异常的基本概念。在下一课中，我们将做更多的示例来展示异常的灵活性。</p><p class="cpp-section cpp-topline" style="clear:both">catch 块通常做什么</p><p>如果一个异常被路由到 catch 块，即使 catch 块是空的，它也被视为“已处理”。然而，通常你会希望 catch 块做一些有用的事情。catch 块在捕获异常时有四种常见操作：</p><p>首先，catch 块可以打印错误（到控制台或日志文件），然后允许函数继续执行。</p><p>其次，catch 块可以向调用者返回一个值或错误码。</p><p>第三，catch 块可以抛出另一个异常。由于 catch 块在 try 块之外，这种情况下新抛出的异常不会被前面的 try 块处理——而是由下一个封闭的 try 块处理。</p><p>第四，main() 中的 catch 块可用于捕获致命错误并以干净的方式终止程序。</p>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="the-need-for-exceptions.html" rel="prev"><small>上一课</small><strong>27.1 — 异常的必要性</strong></a><a class="lesson-nav-index" href="../index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="exceptions-functions-and-stack-unwinding.html" rel="next"><small>下一课</small><strong>27.3 — 异常、函数与栈展开</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

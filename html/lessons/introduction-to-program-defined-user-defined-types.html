@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/introduction-to-program-defined-user-defined-types/" name="learncpp:source-url"/>
+<meta content="151fead9f3670e3ff79674daa30e9acd4a5e7e2930139bb26e7346ebc4064745" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:49:35.016526+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T17:39:11.922613+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>13.1 — Introduction to program-defined (user-defined) types</title>
+<link href="../assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="../assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="../index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="../index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">13.1 — 程序定义（用户自定义）类型简介</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 13.1</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/introduction-to-program-defined-user-defined-types/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>由于基本类型是核心 C++ 语言的一部分，因此它们可以立即使用。例如，如果我们想定义一个类型为 <code>int</code> 或 <code>double</code>的变量，只需这样做：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int x; // 定义基本类型'int'的变量
+double d; // 定义基本类型'double'的变量
+</code></pre><p>对于作为基本类型简单扩展的复合类型（包括函数、指针、引用和数组），也是如此：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">void fcn(int) {}; // 定义类型为void(int)的函数
+int* ptr; // 定义复合类型'指向int的指针'的变量
+int&amp; ref { x }; // 定义复合类型'int的引用'的变量（用x初始化）
+int arr[5]; // 定义包含5个整数的数组，类型为int[5]（我们将在后续章节中介绍）
+</code></pre><p>这之所以有效，是因为 C++ 语言已经知道这些类型的类型名称（和符号）的含义——我们不需要提供或导入任何定义。</p><p>然而，考虑类型别名的情况（在课程 <a href="typedefs-and-type-aliases.html">10.7课——Typedefs和类型别名</a>中介绍），它允许我们为现有类型定义一个新名称。由于类型别名在程序中引入了一个新标识符，因此必须先定义类型别名才能使用它：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+using Length = int; // 定义标识符为'Length'的类型别名
+
+int main()
+{
+    Length x { 5 }; // 由于上面定义了'length'，这里可以使用它
+    std::cout &lt;&lt; x &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>如果我们省略了 <code>Length</code>的定义，编译器将不知道 <code>Length</code> 是什么，并且当我们尝试使用该类型定义变量时会报错。 <code>Length</code> 的定义不会创建对象——它只是告诉编译器 <code>Length</code> 是什么，以便以后可以使用它。</p><p class="cpp-section cpp-topline" style="clear:both">什么是用户自定义/程序定义类型？</p><p>回到上一章的引言（<a href="introduction-to-compound-data-types.html">12.1 -- 复合数据类型简介</a>），我们介绍了想要存储一个分数的挑战，该分数具有概念上关联的分子和分母。在那节课中，我们讨论了使用两个独立的整数分别存储分数的分子和分母所带来的一些挑战。</p><p>如果 C++ 有一个内置的分数类型，那就完美了——但它没有。而且还有数百种其他可能有用的类型，C++ 没有包含它们，因为不可能预见到每个人可能需要什么（更不用说实现和测试这些了）。</p><p>相反，C++ 以不同的方式解决此类问题：允许创建全新的自定义类型，我们可以在程序中使用它们！这种类型称为 <strong>用户自定义类型</strong>。然而，正如我们将在本课后面讨论的那样，我们更倾向于使用术语 <strong>程序定义类型</strong> 来表示我们为在自己的程序中使用而创建的任何此类类型。</p><p>C++ 有两种不同类别的复合类型可用于创建程序定义类型：</p><ul><li>枚举类型（包括无作用域枚举和有作用域枚举）</li><li>类类型（包括结构体、类和联合体）。</li></ul><p class="cpp-section cpp-topline" style="clear:both">定义程序定义类型</p><p>就像类型别名一样，程序定义类型也必须先定义并命名才能使用。程序定义类型的定义称为 <strong>类型定义</strong>。</p><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">关键提示</p><p>程序定义类型在使用前必须有一个名称和定义。其他复合类型则不需要。</p><p>函数不被视为用户自定义类型（即使它们在使用前需要名称和定义），因为被命名和定义的是函数本身，而不是函数的类型。我们自己定义的函数称为用户自定义函数。</p></div><p>虽然我们还没有介绍结构体是什么，但这里有一个示例，展示了自定义 Fraction 类型的定义以及使用该类型实例化一个对象：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">// 定义一个名为Fraction的程序定义类型，以便编译器理解Fraction是什么
+// （我们将在本章后面解释什么是结构体以及如何使用它们）
+// 这仅定义了Fraction类型的外观，并未创建任何对象
+struct Fraction
+{
+	int numerator {};
+	int denominator {};
+};
+
+// 现在我们可以使用Fraction类型了
+int main()
+{
+	Fraction f { 3, 4 }; // 这实际上实例化了一个名为f的Fraction对象
+
+	return 0;
+}
+</code></pre><p>在这个示例中，我们使用 <code>struct</code> 关键字定义了一个名为 <code>Fraction</code> 的新程序定义类型（在全局作用域中，因此可以在文件的其余部分任何地方使用）。这不会分配任何内存——它只是告诉编译器 <code>Fraction</code> 是什么样子，以便我们以后可以分配 <code>Fraction</code> 类型的对象。然后，在 <code>main()</code>内部，我们实例化（并初始化）一个类型为 <code>Fraction</code> 的变量，名为 <code>f</code>。</p><p>程序定义类型定义必须以分号结尾。未在类型定义末尾包含分号是一个常见的程序员错误，并且可能难以调试，因为编译器可能会在类型定义之后的某一行报错。 <em>之后</em> 之后</p><div class="cpp-note cpp-lightredbackground"><p class="cpp-note-title cpp-bottomline">警告</p><p>不要忘记在类型定义末尾加上分号。</p></div><p>我们将在下一课中展示更多定义和使用程序定义类型的示例（<a href="unscoped-enumerations.html">13.2 -- 无作用域枚举</a>），并在第 <a href="introduction-to-structs-members-and-member-selection.html">13.7 课——结构体、成员和成员选择简介中介绍结构体。</a>。</p><p class="cpp-section cpp-topline" style="clear:both">命名程序定义类型</p><p>按照惯例，程序定义类型以大写字母开头命名，并且不使用后缀（例如 <code>Fraction</code>，而不是 <code>fraction</code>， <code>fraction_t</code>，或 <code>Fraction_t</code>)。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>将程序定义类型以大写字母开头命名，并且不要使用后缀。</p></div><p>新手程序员有时会发现像下面这样的变量定义令人困惑，因为类型名和变量名很相似：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">Fraction fraction {}; // 实例化一个类型为Fraction的变量fraction
+</code></pre><p>这与其他任何变量定义没有区别：类型（<code>Fraction</code>）在前（因为 Fraction 是大写的，我们知道它是一个程序定义类型），然后是变量名（<code>fraction</code>），最后是可选的初始化器。由于 C++ 区分大小写，这里没有命名冲突！</p><p class="cpp-section cpp-topline" style="clear:both">在多文件程序中使用程序定义类型</p><p>每个使用程序定义类型的代码文件都需要在使用之前看到完整的类型定义。前向声明是不够的。这是必需的，以便编译器知道为该类型的对象分配多少内存。</p><p>为了将类型定义传播到需要它们的代码文件中，程序定义类型通常定义在头文件中，然后通过 #include 包含到任何需要该类型定义的代码文件中。这些头文件通常与程序定义类型同名（例如，名为 Fraction 的程序定义类型将定义在 Fraction.h 中）。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>仅在单个代码文件中使用的程序定义类型应定义在该代码文件中，尽可能靠近首次使用的位置。</p><p>在多个代码文件中使用的程序定义类型应定义在与程序定义类型同名的头文件中，然后根据需要 #include 到每个代码文件中。</p></div><p>以下是将我们的 Fraction 类型移动到头文件（名为 Fraction.h）以便可以包含到多个代码文件中的示例：</p><p>Fraction.h：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#ifndef FRACTION_H
+#define FRACTION_H
+
+// 定义一个新类型名为Fraction
+// 这仅定义了Fraction的外观，并未创建任何对象
+// 注意这是一个完整定义，而非前向声明
+struct Fraction
+{
+	int numerator {};
+	int denominator {};
+};
+
+#endif
+</code></pre><p>Fraction.cpp：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include "Fraction.h" // include our Fraction definition in this code file
+
+// 现在我们可以使用Fraction类型了
+int main()
+{
+	Fraction f{ 3, 4 }; // 这实际上创建了一个名为f的Fraction对象
+
+	return 0;
+}
+</code></pre><p class="cpp-section cpp-topline" style="clear:both">类型定义部分豁免于单一定义规则（ODR）</p><p>在课程 <a href="forward-declarations.html#ODR">2.7 -- 前向声明和定义</a>，我们讨论了单一定义规则如何要求每个函数和全局变量在每个程序中只有一个定义。要在不包含定义的文件中使用给定的函数或全局变量，我们需要一个前向声明（通常通过头文件传播）。这是因为对于函数和非 constexpr 变量，声明足以满足编译器，然后链接器可以将所有内容连接起来。</p><p>然而，以类似方式使用前向声明对类型不起作用，因为编译器通常需要看到完整的定义才能使用给定的类型。我们必须能够将完整的类型定义传播到每个需要它的代码文件。</p><p>为了允许这一点，类型部分豁免于单一定义规则：允许给定的类型在多个代码文件中定义。</p><p>你已经使用过这个功能（可能没有意识到）：如果你的程序有两个代码文件都 <code>#include &lt;iostream&gt;</code>，那么你正在将所有的输入/输出类型定义导入到两个文件中。</p><p>有两个值得注意的注意事项。首先，每个代码文件仍然只能有一个类型定义（这通常不是问题，因为头文件保护会防止这种情况）。其次，给定类型的所有类型定义必须相同，否则会导致未定义行为。</p><p class="cpp-section cpp-topline" style="clear:both">术语：用户定义类型 vs 程序定义类型</p><p>术语“用户定义类型”有时在非正式对话中出现，并且在 C++ 语言标准中也被提及（但未定义）。在非正式对话中，该术语倾向于表示“在你自己的程序中定义的类型”（例如上面的 Fraction 类型示例）。</p><p>C++ 语言标准以非传统的方式使用术语“用户定义类型”。在语言标准中，“用户定义类型”是指由你、标准库或实现（例如编译器为支持语言扩展而定义的类型）定义的任何类类型或枚举类型。可能违反直觉的是，这意味着 <code>std::string</code> （标准库中定义的类类型）被认为是一种用户定义类型！</p><p>为了提供额外的区分，C++20 语言标准有帮助地定义了术语“程序定义类型”，指的是未作为标准库、实现或核心语言一部分定义的类类型和枚举类型。换句话说，“程序定义类型”只包括由我们（或第三方库）定义的类类型和枚举类型。</p><p>因此，当只讨论我们为在自己的程序中使用而定义的类类型和枚举类型时，我们更倾向于使用术语“程序定义”，因为它有更精确的定义。</p><div class="cpp-table-wrapper"><table class="cpp-table"><tbody><tr><th>类型</th><th>含义</th><th>技术含义</th></tr><tr><td>基本类型</td><td>内置于核心 C++ 语言的基本类型</td><td>int, std::nullptr_t</td></tr><tr><td>复合类型</td><td>根据其他类型定义的类型</td><td>int&amp;, double*, std::string, Fraction</td></tr><tr><td>用户定义类型</td><td>类类型或枚举类型<br/>（包括标准库或实现中定义的）<br/>（非正式使用时，通常指程序定义的类型）</td><td>std::string, Fraction</td></tr><tr><td>程序定义</td><td>类类型或枚举类型<br/>（排除标准库或实现中定义的类型）</td><td>Fraction</td></tr></tbody></table></div>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="chapter-12-summary-and-quiz.html" rel="prev"><small>上一课</small><strong>12.x — 第12章总结与测验</strong></a><a class="lesson-nav-index" href="../index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="unscoped-enumerations.html" rel="next"><small>下一课</small><strong>13.2 — 无作用域枚举</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/pure-virtual-functions-abstract-base-classes-and-interface-classes/" name="learncpp:source-url"/>
+<meta content="5abaead4ca9e004706439666308a2a8e79208e6ae828ec46e5d8f80a3688859c" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:54:13.069671+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T18:15:52.300654+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>25.7 — Pure virtual functions, abstract base classes, and interface classes</title>
+<link href="../assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="../assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="../index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="../index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">25.7 — 纯虚函数、抽象基类和接口类</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 25.7</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/pure-virtual-functions-abstract-base-classes-and-interface-classes/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p><strong>纯虚（抽象）函数和抽象基类</strong></p><p>到目前为止，我们编写的所有虚函数都有函数体（定义）。然而，C++ 允许你创建一种特殊的虚函数，称为 <strong>纯虚函数</strong> （或 <strong>抽象函数</strong>），它根本没有函数体！纯虚函数仅仅作为一个占位符，旨在由派生类重新定义。</p><p>要创建纯虚函数，我们不为函数定义函数体，而是将函数赋值为 0。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;string_view&gt;
+
+class Base
+{
+public:
+    std::string_view sayHi() const { return "Hi"; } // 一个普通的非虚函数    
+
+    virtual std::string_view getName() const { return "Base"; } // 一个普通的虚函数
+
+    virtual int getValue() const = 0; // 一个纯虚函数
+
+    int doSomething() = 0; // 编译错误：不能将非虚函数设置为 0
+};
+</code></pre><p>当我们向类中添加纯虚函数时，我们实际上是在说：“由派生类来实现这个函数”。</p><p>使用纯虚函数有两个主要后果：首先，任何包含一个或多个纯虚函数的类都会成为 <strong>抽象基类</strong>，这意味着它不能被实例化！考虑一下，如果我们能创建 Base 的实例会发生什么：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int main()
+{
+    Base base {}; // 我们不能实例化抽象基类，但为了示例，假设这是允许的
+    base.getValue(); // 这会做什么？
+
+    return 0;
+}
+</code></pre><p>由于没有 getValue() 的定义，base.getValue() 会解析成什么？</p><p>其次，任何派生类必须为该函数定义函数体，否则该派生类也将被视为抽象基类。</p><p><strong>纯虚函数示例</strong></p><p>让我们看一个纯虚函数实际应用的例子。在之前的课程中，我们编写了一个简单的 Animal 基类，并从中派生了 Cat 和 Dog 类。以下是代码的最终版本：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;string&gt;
+#include &lt;string_view&gt;
+
+class Animal
+{
+protected:
+    std::string m_name {};
+
+    // // 我们将此构造函数设为 protected，因为
+    // // 我们不希望人们直接创建 Animal 对象，
+    // // 但我们仍然希望派生类能够使用它。
+    Animal(std::string_view name)
+        : m_name{ name }
+    {
+    }
+
+public:
+    const std::string&amp; getName() const { return m_name; }
+    virtual std::string_view speak() const { return "???"; }
+    
+    virtual ~Animal() = default;
+};
+
+class Cat: public Animal
+{
+public:
+    Cat(std::string_view name)
+        : Animal{ name }
+    {
+    }
+
+    std::string_view speak() const override { return "Meow"; }
+};
+
+class Dog: public Animal
+{
+public:
+    Dog(std::string_view name)
+        : Animal{ name }
+    {
+    }
+
+    std::string_view speak() const override { return "Woof"; }
+};
+</code></pre><p>我们通过将构造函数设为 protected 来防止分配 Animal 类型的对象。然而，仍然可以创建没有重新定义函数 speak() 的派生类。</p><p>例如：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;string_view&gt;
+
+class Animal
+{
+protected:
+    std::string m_name {};
+
+    // // 我们将此构造函数设为 protected，因为
+    // // 我们不希望人们直接创建 Animal 对象，
+    // // 但我们仍然希望派生类能够使用它。
+    Animal(std::string_view name)
+        : m_name{ name }
+    {
+    }
+
+public:
+    const std::string&amp; getName() const { return m_name; }
+    virtual std::string_view speak() const { return "???"; }
+    
+    virtual ~Animal() = default;
+};
+
+class Cow : public Animal
+{
+public:
+    Cow(std::string_view name)
+        : Animal{ name }
+    {
+    }
+
+    // 我们忘记重新定义 speak
+};
+
+int main()
+{
+    Cow cow{"Betsy"};
+    std::cout &lt;&lt; cow.getName() &lt;&lt; " says " &lt;&lt; cow.speak() &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>这将打印：</p><pre>Betsy says ???
+</pre><p>发生了什么？我们忘记重新定义函数 speak()，因此 cow.Speak() 解析为 Animal.speak()，这不是我们想要的。</p><p>解决这个问题的一个更好的方法是使用纯虚函数：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;string&gt;
+#include &lt;string_view&gt;
+
+class Animal // 这个 Animal 是一个抽象基类
+{
+protected:
+    std::string m_name {};
+
+public:
+    Animal(std::string_view name)
+        : m_name{ name }
+    {
+    }
+
+    const std::string&amp; getName() const { return m_name; }
+    virtual std::string_view speak() const = 0; // 注意 speak 现在是一个纯虚函数
+    
+    virtual ~Animal() = default;
+};
+</code></pre><p>这里需要注意几点。首先，speak() 现在是一个纯虚函数。这意味着 Animal 现在是一个抽象基类，不能被实例化。因此，我们不再需要将构造函数设为 protected（尽管这样做也无妨）。其次，因为我们的 Cow 类是从 Animal 派生的，但我们没有定义 Cow::speak()，所以 Cow 也是一个抽象基类。现在当我们尝试编译这段代码时：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;string_view&gt;
+
+class Animal // 这个 Animal 是一个抽象基类
+{
+protected:
+    std::string m_name {};
+
+public:
+    Animal(std::string_view name)
+        : m_name{ name }
+    {
+    }
+
+    const std::string&amp; getName() const { return m_name; }
+    virtual std::string_view speak() const = 0; // 注意 speak 现在是一个纯虚函数
+    
+    virtual ~Animal() = default;
+};
+
+class Cow: public Animal
+{
+public:
+    Cow(std::string_view name)
+        : Animal{ name }
+    {
+    }
+
+    // 我们忘记重新定义 speak
+};
+
+int main()
+{
+    Cow cow{ "Betsy" };
+    std::cout &lt;&lt; cow.getName() &lt;&lt; " says " &lt;&lt; cow.speak() &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>编译器会报错，因为 Cow 是一个抽象基类，我们不能创建抽象基类的实例：</p><pre>prog.cc:35:9: error: variable type 'Cow' is an abstract class
+   35 |     Cow cow{ "Betsy" };
+      |         ^
+prog.cc:17:30: note: unimplemented pure virtual method 'speak' in 'Cow'
+   17 |     virtual std::string_view speak() const = 0; // note that speak is now a pure virtual function
+      |                              ^
+</pre><p>这告诉我们，只有当 Cow 为 speak() 提供了函数体时，我们才能实例化 Cow。</p><p>让我们继续这样做：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;string_view&gt;
+
+class Animal // 这个 Animal 是一个抽象基类
+{
+protected:
+    std::string m_name {};
+
+public:
+    Animal(std::string_view name)
+        : m_name{ name }
+    {
+    }
+
+    const std::string&amp; getName() const { return m_name; }
+    virtual std::string_view speak() const = 0; // 注意 speak 现在是一个纯虚函数
+    
+    virtual ~Animal() = default;
+};
+
+class Cow: public Animal
+{
+public:
+    Cow(std::string_view name)
+        : Animal(name)
+    {
+    }
+
+    std::string_view speak() const override { return "Moo"; }
+};
+
+int main()
+{
+    Cow cow{ "Betsy" };
+    std::cout &lt;&lt; cow.getName() &lt;&lt; " says " &lt;&lt; cow.speak() &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>现在这个程序将编译并打印：</p><pre>Betsy says Moo
+</pre><p>当我们有一个函数想要放在基类中，但只有派生类知道它应该返回什么时，纯虚函数就很有用。纯虚函数使得基类不能被实例化，并且派生类在实例化之前必须定义这些函数。这有助于确保派生类不会忘记重新定义基类期望它们定义的函数。</p><p>与普通虚函数一样，纯虚函数可以通过基类的引用（或指针）调用：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int main()
+{
+    Cow cow{ "Betsy" };
+    Animal&amp; a{ cow };
+
+    std::cout &lt;&lt; a.speak(); // 解析为 Cow::speak()，打印 "Moo"
+
+    return 0;
+}
+</code></pre><p>在上面的例子中， <code>a.speak()</code> 解析为 <code>Cow::speak()</code> 通过虚函数解析。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">提醒</p><p>任何包含纯虚函数的类也应该有一个虚析构函数。</p></div><p><strong>带定义的纯虚函数</strong></p><p>事实证明，我们可以创建带有定义的纯虚函数：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;string&gt;
+#include &lt;string_view&gt;
+
+class Animal // 这个 Animal 是一个抽象基类
+{
+protected:
+    std::string m_name {};
+
+public:
+    Animal(std::string_view name)
+        : m_name{ name }
+    {
+    }
+
+    const std::string&amp; getName() { return m_name; }
+    virtual std::string_view speak() const = 0; // = 0 表示这个函数是纯虚的
+    
+    virtual ~Animal() = default;
+};
+
+std::string_view Animal::speak() const  // 尽管它有定义
+{
+    return "buzz";
+}
+</code></pre><p>在这种情况下，speak() 仍然被视为纯虚函数，因为“= 0”（即使它已经有了定义），并且 Animal 仍然被视为抽象基类（因此不能被实例化）。任何继承自 Animal 的类都需要提供自己的 speak() 定义，否则它也将被视为抽象基类。</p><p>当为纯虚函数提供定义时，定义必须单独提供（不能内联）。</p><div class="cpp-note cpp-lightyellowbackground"><p class="cpp-note-title cpp-bottomline">适用于 Visual Studio 用户</p><p>Visual Studio 允许纯虚函数声明作为定义，例如：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">virtual std::string_view speak() const = 0
+{
+  return "buzz";
+}
+</code></pre><p>这不符合 C++ 标准，并且无法禁用。</p></div><p>这种范式在你希望基类为函数提供默认实现，但仍然强制任何派生类提供自己的实现时很有用。然而，如果派生类对基类提供的默认实现感到满意，它可以直接调用基类实现。例如：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;string_view&gt;
+
+class Animal // 这个 Animal 是一个抽象基类
+{
+protected:
+    std::string m_name {};
+
+public:
+    Animal(std::string_view name)
+        : m_name(name)
+    {
+    }
+
+    const std::string&amp; getName() const { return m_name; }
+    virtual std::string_view speak() const = 0; // 注意 speak 是一个纯虚函数
+    
+    virtual ~Animal() = default;
+};
+
+std::string_view Animal::speak() const
+{
+    return "buzz"; // 一些默认实现
+}
+
+class Dragonfly: public Animal
+{
+
+public:
+    Dragonfly(std::string_view name)
+        : Animal{name}
+    {
+    }
+
+    std::string_view speak() const override// 这个类不再是抽象的，因为我们定义了这个函数
+    {
+        return Animal::speak(); // 使用 Animal 的默认实现
+    }
+};
+
+int main()
+{
+    Dragonfly dfly{"Sally"};
+    std::cout &lt;&lt; dfly.getName() &lt;&lt; " says " &lt;&lt; dfly.speak() &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>上面的代码打印：</p><pre>Sally says buzz
+</pre><p>这种能力并不常用。</p><p>析构函数可以设为纯虚函数，但必须给出定义，以便在派生对象析构时能够被调用。</p><p><strong>接口类</strong></p><p>一种 <strong>接口类</strong> 是一个没有成员变量的类，并且其中 <em>所有</em> 的函数都是纯虚函数！当你想要定义派生类必须实现的功能，但将派生类如何实现该功能的细节完全留给派生类自己决定时，接口非常有用。</p><p>接口类通常以 I 开头命名。下面是一个示例接口类：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;string_view&gt;
+
+class IErrorLog
+{
+public:
+    virtual bool openLog(std::string_view filename) = 0;
+    virtual bool closeLog() = 0;
+
+    virtual bool writeError(std::string_view errorMessage) = 0;
+
+    virtual ~IErrorLog() {} // 创建一个虚析构函数，以防我们删除 IErrorLog 指针，从而调用正确的派生析构函数
+};
+</code></pre><p>任何继承自 IErrorLog 的类都必须提供所有三个函数的实现才能被实例化。你可以派生一个名为 FileErrorLog 的类，其中 openLog() 打开磁盘上的文件，closeLog() 关闭文件，writeError() 将消息写入文件。你可以派生另一个名为 ScreenErrorLog 的类，其中 openLog() 和 closeLog() 什么都不做，而 writeError() 在屏幕上的弹出消息框中打印消息。</p><p>现在，假设你需要编写一些使用错误日志的代码。如果你编写代码时直接包含 FileErrorLog 或 ScreenErrorLog，那么你实际上就被限制只能使用那种错误日志（至少在不重新编写程序的情况下）。例如，下面的函数实际上强制 mySqrt() 的调用者使用 FileErrorLog，而这可能不是他们想要的。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;cmath&gt; // for sqrt()
+
+double mySqrt(double value, FileErrorLog&amp; log)
+{
+    if (value &lt; 0.0)
+    {
+        log.writeError("Tried to take square root of value less than 0");
+        return 0.0;
+    }
+
+    return std::sqrt(value);
+}
+</code></pre><p>实现这个函数的一个更好的方法是使用 IErrorLog：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;cmath&gt; // for sqrt()
+double mySqrt(double value, IErrorLog&amp; log)
+{
+    if (value &lt; 0.0)
+    {
+        log.writeError("Tried to take square root of value less than 0");
+        return 0.0;
+    }
+
+    return std::sqrt(value);
+}
+</code></pre><p>现在调用者可以传入任何 <em>任何</em> 符合 IErrorLog 接口的类。如果他们希望错误输出到文件，可以传入 FileErrorLog 的实例。如果他们希望输出到屏幕，可以传入 ScreenErrorLog 的实例。或者，如果他们想做你甚至没有想到的事情，比如在出错时给某人发送电子邮件，他们可以从 IErrorLog 派生一个新类（例如 EmailErrorLog）并使用它的实例！通过使用 IErrorLog，你的函数变得更加独立和灵活。</p><p>不要忘记为你的接口类包含一个虚析构函数，这样当删除指向接口的指针时，会调用正确的派生析构函数。</p><p>接口类变得非常流行，因为它们易于使用、易于扩展且易于维护。事实上，一些现代语言，如 Java 和 C#，已经添加了“interface”关键字，允许程序员直接定义接口类，而无需显式地将所有成员函数标记为抽象。此外，尽管 Java 和 C# 不允许对普通类使用多重继承，但它们允许你多重继承任意数量的接口。由于接口没有数据也没有函数体，它们避免了多重继承的许多传统问题，同时仍然提供了很大的灵活性。</p><p><strong>纯虚函数和虚表</strong></p><p>为了保持一致性，抽象类仍然有虚表。抽象类的构造函数或析构函数可以调用虚函数，并且需要解析到正确的函数（在同一个类中，因为派生类要么尚未构造，要么已经被销毁）。</p><p>对于具有纯虚函数的类，虚表条目通常要么包含空指针，要么指向一个打印错误的通用函数（有时这个函数名为 __purecall）。</p>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="the-virtual-table.html" rel="prev"><small>上一课</small><strong>25.6 — 虚函数表</strong></a><a class="lesson-nav-index" href="../index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="virtual-base-classes.html" rel="next"><small>下一课</small><strong>25.8 — 虚基类</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

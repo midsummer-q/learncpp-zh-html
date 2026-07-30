@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/explicit-type-conversion-casting-and-static-cast/" name="learncpp:source-url"/>
+<meta content="2d53cf263669de778bdc456997de805dbde63e3a2bd6f41799b142180170a6eb" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:48:18.557504+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T17:30:33.639163+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>10.6 — Explicit type conversion (casting) and static_cast</title>
+<link href="../assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="../assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="../index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="../index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">10.6 — 显式类型转换（强制转换）与 static_cast</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 10.6</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/explicit-type-conversion-casting-and-static-cast/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>在课程 <a href="implicit-type-conversion.html">10.1 -- 隐式类型转换</a>我们讨论了编译器可以使用隐式类型转换将值从一种数据类型转换为另一种数据类型。当你希望将值从一种数据类型数值提升到更宽的数据类型时，使用隐式类型转换是可以的。</p><p>许多 C++ 新手会尝试这样写：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">double d = 10 / 4; // 进行整数除法，用值2.0初始化d
+</code></pre><p>因为 <code>10</code> 和 <code>4</code> 都是 <code>int</code>类型，因此执行整数除法，表达式求值为 <code>int</code> 值 <code>2</code>。然后该值经过数值转换为 <code>double</code> 值 <code>2.0</code> ，再用于初始化变量 <code>d</code>。很可能这不是预期的结果。</p><p>在使用字面量操作数的情况下，将一个或两个整数字面量替换为 double 字面量将导致浮点除法：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">double d = 10.0 / 4.0; // 进行浮点数除法，用值2.5初始化d
+</code></pre><p>但如果你使用的是变量而不是字面量呢？考虑这种情况：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int x { 10 };
+int y { 4 };
+double d = x / y; // 进行整数除法，用值2.0初始化d
+</code></pre><p>由于这里使用了整数除法，变量 <code>d</code> 最终将得到值 <code>2.0</code>。我们如何告诉编译器在这种情况下我们想要使用浮点除法而不是整数除法？字面量后缀不能用于变量。我们需要某种方法将一个（或两个）变量操作数转换为浮点类型，以便使用浮点除法。</p><p>幸运的是，C++ 提供了许多不同的 <strong>类型转换运算符</strong> （通常称为 <strong>强制转换</strong>），程序员可以使用它们让编译器执行类型转换。由于强制转换是程序员的显式请求，这种形式的类型转换通常称为 <strong>显式类型转换</strong> （与隐式类型转换相对，隐式类型转换是编译器自动执行的类型转换）。</p><p class="cpp-section cpp-topline" style="clear:both">类型转换</p><p>C++ 支持 5 种不同类型的强制转换： <code>static_cast</code>， <code>dynamic_cast</code>， <code>const_cast</code>， <code>reinterpret_cast</code>和 C 风格强制转换。前四种有时被称为 <strong>命名强制转换</strong>。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">进阶读者</p><div class="cpp-table-wrapper"><table class="cpp-table"><tbody><tr><th>强制转换</th><th>描述</th><th>安全？</th></tr><tr><td>静态转换</td><td>在相关类型之间执行编译时类型转换。</td><td>是</td></tr><tr><td>dynamic_cast</td><td>在多态（继承）层次结构中对指针或引用执行运行时类型转换。</td><td>是</td></tr><tr><td>const_cast</td><td>添加或移除 const。</td><td>仅用于添加 const</td></tr><tr><td>重新解释转换</td><td>将一种类型的位级表示重新解释为另一种类型。</td><td>否</td></tr><tr><td>C 风格强制转换</td><td>执行 <code>static_cast</code>， <code>const_cast</code>，或 <code>reinterpret_cast</code>。</td><td>否</td></tr></tbody></table></div></div><p>每种强制转换的工作方式相同。作为输入，强制转换接受一个表达式（求值为值或对象）和一个目标类型。作为输出，强制转换返回转换的结果。</p><p>由于它们是最常用的强制转换，我们将在本课中介绍 C 风格强制转换和 <code>static_cast</code> </p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">相关内容</p><p>我们在 <code>dynamic_cast</code> 在课程 <a href="dynamic-casting.html">25.10 -- 动态强制转换</a>，在我们介绍了其他先决主题之后。</p></div><p><code>const_cast</code> 和 <code>reinterpret_cast</code> 通常应避免使用，因为它们仅在极少数情况下有用，如果使用不当可能会造成危害。</p><div class="cpp-note cpp-lightredbackground"><p class="cpp-note-title cpp-bottomline">警告</p><p>在 for 循环条件中进行数值比较时，避免使用 <code>const_cast</code> 和 <code>reinterpret_cast</code> 除非你有非常充分的理由使用它们。</p></div><p class="cpp-section cpp-topline" style="clear:both">C风格类型转换</p><p>在标准C编程中，类型转换通过 <code>operator()</code>完成，将要转换到的类型名称放在括号内，要转换的值紧跟在右括号右侧。在C++中，这种类型的转换称为 <strong>C风格类型转换</strong>。你可能仍然会在从C转换而来的代码中看到它们。</p><p>例如：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+    int x { 10 };
+    int y { 4 };
+
+    std::cout &lt;&lt; (double)x / y &lt;&lt; '\n'; // C风格将x转换为double
+
+    return 0;
+}
+</code></pre><p>在上面的程序中，我们使用C风格转换告诉编译器转换 <code>x</code> 转换为 <code>double</code>。因为左操作数 <code>operator/</code> 现在求值为浮点值，右操作数也将被转换为浮点值，除法将使用浮点除法而不是整数除法。</p><p>C++还提供了C风格转换的另一种形式，称为 <strong>函数风格转换</strong>，它类似于函数调用：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">    std::cout &lt;&lt; double(x) / y &lt;&lt; '\n'; //  // 函数风格将x转换为double
+</code></pre><p>函数风格转换使得更容易看出正在转换什么（因为它看起来像一个标准函数参数）。</p><p>在现代C++中通常避免使用C风格转换有几个重要原因。</p><p>首先，尽管C风格转换看起来是一个单一的转换，但它实际上可以根据使用方式执行多种不同的转换。这可能包括静态转换、常量转换或重新解释转换（我们上面提到过你应该避免后两种）。C风格转换没有明确说明实际执行的是哪种转换，这不仅使你的代码更难理解，而且为无意中的误用打开了大门（你认为你在实现一个简单的转换，结果却做了危险的事情）。这通常会导致一个直到运行时才发现的错误。</p><p>此外，因为C风格转换只是一个类型名、括号和变量或值，它们既难以识别（使代码更难阅读），也更难搜索。</p><p>相比之下，命名转换易于发现和搜索，明确它们的作用，能力有限，并且如果你试图误用它们会产生编译错误。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>避免使用C风格转换。</p></div><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">进阶读者</p><p>C风格转换尝试按顺序执行以下C++转换：</p><ul><li><code>const_cast</code></li><li><code>static_cast</code></li><li><code>static_cast</code>，然后是 <code>const_cast</code></li><li><code>reinterpret_cast</code></li><li><code>reinterpret_cast</code>，然后是 <code>const_cast</code></li></ul><p>有一件事你可以用C风格转换做而C++转换不能：C风格转换可以将派生对象转换为不可访问的基类（例如，因为它是私有继承的）。</p></div><p class="cpp-section cpp-topline" style="clear:both"><code>static_cast</code> 应用于转换大多数值</p><p>C++中最常用的转换是 <strong>静态转换</strong> 运算符，通过 <code>static_cast</code> 关键字。 <code>static_cast</code> 用于当我们想要显式地将一个类型的值转换为另一个类型的值时。</p><p>你之前见过 <code>static_cast</code> 用于将 <code>char</code> 转换为 <code>int</code> 以便 <code>std::cout</code> 将其打印为整数而不是字符：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+    char c { 'a' };
+    std::cout &lt;&lt; static_cast&lt;int&gt;(c) &lt;&lt; '\n'; // 打印97而不是a
+
+    return 0;
+}
+</code></pre><p>要执行静态转换，我们从 <code>static_cast</code> 关键字开始，然后将要转换到的类型放在尖括号内。然后在括号内，放置其值将被转换的表达式。注意语法看起来多么像对名为 <code>static_cast&lt;type&gt;()</code> 的函数调用，其值将被转换的表达式作为参数提供！将值静态转换为另一种类型的值会返回一个临时对象，该对象已用转换后的值直接初始化。</p><p>下面是我们如何使用 <code>static_cast</code> 来解决我们在本课引言中介绍的问题：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+    int x { 10 };
+    int y { 4 };
+
+    // 将x静态转换为double，以便进行浮点数除法
+    std::cout &lt;&lt; static_cast&lt;double&gt;(x) / y &lt;&lt; '\n'; // 打印2.5
+
+    return 0;
+}
+</code></pre><p><code>static_cast&lt;double&gt;(x)</code> 返回一个临时的 <code>double</code> 对象，包含转换后的值 <code>10.0</code>。这个临时对象然后被用作浮点除法的左操作数。</p><p>有两个重要的属性 <code>static_cast</code>。</p><p>首先， <code>static_cast</code> 提供编译时类型检查。如果我们尝试将一个值转换为一个类型，而编译器不知道如何执行该转换，我们将得到一个编译错误。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">    // C风格字符串字面量不能转换为int，因此以下转换无效
+    int x { static_cast&lt;int&gt;("Hello") }; // 无效：会产生编译错误
+</code></pre><p>其次， <code>static_cast</code> （有意地）不如C风格转换强大，因为它会阻止某些危险的转换（例如那些需要重新解释或丢弃const的转换）。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>推荐使用 <code>static_cast</code> 当你需要将一个值从一种类型转换为另一种类型时。</p></div><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">进阶读者</p><p>由于 static_cast 使用直接初始化，目标类类型的任何显式构造函数在初始化要返回的临时对象时都会被考虑。我们在课程 <a href="converting-constructors-and-the-explicit-keyword.html">14.16 -- 转换构造函数与 explicit 关键字</a>。</p></div><p class="cpp-section cpp-topline" style="clear:both">使用 <code>static_cast</code> 中讨论了显式构造函数。</p><p>使窄化转换显式化</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int i { 48 };
+char ch = i; // 隐式窄化转换
+</code></pre><p>当执行潜在不安全的（窄化）隐式类型转换时，编译器通常会发出警告。例如，考虑以下代码片段： <code>int</code> 将一个 <code>char</code> （2 或 4 字节）转换为 <code>char</code> （1 字节）是潜在不安全的（因为编译器无法判断整数值是否会溢出</p><p>的范围），因此编译器通常会打印一条警告。如果我们使用列表初始化，编译器会产生一个错误。 <code>char</code>：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int i { 48 };
+
+// 从int显式转换为char，以便将char赋值给变量ch
+char ch { static_cast&lt;char&gt;(i) };
+</code></pre><p>为了解决这个问题，我们可以使用 static_cast 显式地将我们的整数转换为 <code>char</code> 当我们这样做时，我们明确告诉编译器这个转换是有意的，并且我们接受后果（例如，如果发生溢出，则溢出 <code>char</code>的范围）。由于这个 static_cast 的输出类型是 <code>ch</code> ，变量</p><p>的初始化不会产生任何类型不匹配，因此没有警告或错误。 <code>double</code> 到 <code>int</code> 这是另一个例子，编译器通常会抱怨将</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int i { 100 };
+i = i / 2.5;
+</code></pre><p>转换为</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int i { 100 };
+i = static_cast&lt;int&gt;(i / 2.5);
+</code></pre><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">相关内容</p><p>可能导致数据丢失： <a href="temporary-class-objects.html">为了告诉编译器我们明确打算这样做：</a>。</p></div><p class="cpp-section cpp-topline" style="clear:both">我们在课程</p><p>14.13 -- 临时类对象 <code>x</code> 中讨论了 static_cast 与类类型相关的更多用途。 <code>int</code>转换与初始化临时对象</p><ol start="1"><li><code>static_cast&lt;int&gt;(x)</code>假设我们有一些变量 <code>int</code> 对象 <em>需要转换为</em> 替换为 <code>x</code>。</li><li><code>int { x }</code>。有两种常规方法可以做到这一点： <code>int</code> 对象 <em>，它返回一个临时</em> 替换为 <code>x</code>。</li></ol><p>直接初始化 <code>int ( x )</code>，它创建一个临时 <code>int</code> 直接列表初始化 <code>x</code> 我们应该避免</p><p>，这是一种 C 风格转换。它会返回一个临时 <code>static_cast</code> 直接初始化，值为</p><ol start="1"><li><code>int { x }</code> （正如我们从语法中预期的那样），但它也有 C 风格转换部分提到的其他缺点（例如允许执行危险转换的可能性）。</li></ol><p>在</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+    int x { 10 };
+    int y { 4 };
+
+    // 我们想要进行浮点数除法，因此其中一个操作数需要是浮点类型
+    std::cout &lt;&lt; double{x} / y &lt;&lt; '\n'; // 如果int是32位则没问题，如果x是64位则窄化
+}
+</code></pre><p>和直接列表初始化的临时对象之间至少有三个显著区别： <code>x</code> 转换为 <code>double</code> 使用列表初始化，它禁止窄化转换。这在初始化变量时很好，因为我们很少有意在这种情况下丢失数据。但在使用转换时，我们假定我们知道自己在做什么，如果我们想进行可能丢失一些数据的转换，我们应该能够这样做。在这种情况下，窄化转换限制可能是一个障碍。 <code>double</code> 让我们展示一个例子，包括它如何导致平台特定问题： <code>int</code>在这个例子中，我们决定将 <code>int</code> 转换为 <code>double</code> 转换为 <code>int</code> 是64位的。</p><ol start="2"><li><code>static_cast</code> 使得我们意图进行转换这一点更加清晰。虽然 <code>static_cast</code> 比直接列表初始化临时对象的方式更冗长，但在这里这是件好事，因为它使转换更容易被发现和搜索。这最终使你的代码更安全、更易于理解。</li><li>临时对象的直接列表初始化只允许单字类型名。由于一个奇怪的语法问题，C++中有几个地方只允许单字类型名（C++标准称这些名字为“简单类型说明符”）。所以虽然 <code>int { x }</code> 是有效的转换语法， <code>unsigned int { x }</code> 则不是。</li></ol><p>你可以在下面的例子中看到这一点，它会产生编译错误：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+    unsigned char c { 'a' };
+    std::cout &lt;&lt; unsigned int { c } &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>有一些简单的方法可以解决这个问题，最简单的是使用单字类型别名：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+    unsigned char c { 'a' };
+    using uint = unsigned int;
+    std::cout &lt;&lt; uint { c } &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>但既然可以直接使用 <code>static_cast</code>？</p><p>，何必费这个麻烦呢？基于所有这些原因，我们通常更倾向于使用 <code>static_cast</code> 而不是临时对象的直接列表初始化。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>优先使用 <code>static_cast</code> 而不是在需要转换时初始化临时对象。</p></div><p class="cpp-section cpp-topline" style="clear:both">小测验时间</p><p class="cpp-quiz-question" style="clear:both">问题 #1</p><p>隐式类型转换和显式类型转换有什么区别？</p><p><a aria-controls="cpp_solution_id_0" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_0" href="#cpp_solution_id_0">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_0"><p>隐式类型转换在期望一种数据类型但提供了另一种数据类型时自动执行。<br/>显式类型转换发生在程序员使用类型转换显式地将一个值从一种类型转换为另一种类型时。</p></div>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="arithmetic-conversions.html" rel="prev"><small>上一课</small><strong>10.5 — 算术转换</strong></a><a class="lesson-nav-index" href="../index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="typedefs-and-type-aliases.html" rel="next"><small>下一课</small><strong>10.7 — Typedefs 和类型别名</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

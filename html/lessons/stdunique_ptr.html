@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/stdunique_ptr/" name="learncpp:source-url"/>
+<meta content="542f5b1b63d6cd39011f3c8d325e29648dc4e5667a8376b2500f8c614e5dec21" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:53:16.302337+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T18:09:42.758720+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>22.5 — std::unique_ptr</title>
+<link href="../assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="../assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="../index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="../index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">22.5 — std::unique_ptr</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 22.5</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/stdunique_ptr/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>在本章开头，我们讨论了在某些情况下使用指针可能导致错误和内存泄漏。例如，当函数提前返回或抛出异常，而指针没有被正确删除时，就可能发生这种情况。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+ 
+void someFunction()
+{
+    auto* ptr{ new Resource() };
+ 
+    int x{};
+    std::cout &lt;&lt; "Enter an integer: ";
+    std::cin &gt;&gt; x;
+ 
+    if (x == 0)
+        throw 0; // 函数提前返回，ptr 不会被删除！
+ 
+    // 在这里对 ptr 进行操作
+ 
+    delete ptr;
+}
+</code></pre><p>现在我们已经介绍了移动语义的基础知识，可以回到智能指针类的主题。虽然智能指针可以提供其他功能，但智能指针的定义性特征是它管理由智能指针用户提供的动态分配资源，并确保动态分配的对象在适当的时间（通常是智能指针超出作用域时）被正确清理。</p><p>因此，智能指针本身永远不应该被动态分配（否则，存在智能指针可能未被正确释放的风险，这意味着它拥有的对象将不会被释放，从而导致内存泄漏）。通过始终在栈上分配智能指针（作为局部变量或类的组合成员），我们保证智能指针在其所在的函数或对象结束时正确超出作用域，从而确保智能指针拥有的对象被正确释放。</p><p>C++11 标准库提供了 4 个智能指针类：std::auto_ptr（在 C++17 中移除）、std::unique_ptr、std::shared_ptr 和 std::weak_ptr。std::unique_ptr 是目前最常用的智能指针类，因此我们将首先介绍它。在接下来的课程中，我们将介绍 std::shared_ptr 和 std::weak_ptr。</p><p class="cpp-section cpp-topline" style="clear:both">std::unique_ptr</p><p>std::unique_ptr 是 C++11 中 std::auto_ptr 的替代品。它应用于管理任何不被多个对象共享的动态分配对象。也就是说，std::unique_ptr 应该完全拥有它管理的对象，而不与其他类共享该所有权。std::unique_ptr 位于 &lt;memory&gt; 头文件中。</p><p>让我们看一个简单的智能指针示例：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;memory&gt; // for std::unique_ptr
+
+class Resource
+{
+public:
+	Resource() { std::cout &lt;&lt; "Resource acquired\n"; }
+	~Resource() { std::cout &lt;&lt; "Resource destroyed\n"; }
+};
+
+int main()
+{
+	// // 分配一个 Resource 对象并由 std::unique_ptr 拥有
+	std::unique_ptr&lt;Resource&gt; res{ new Resource() };
+
+	return 0;
+} // // res 在此处离开作用域，分配的 Resource 被销毁
+</code></pre><p>由于 std::unique_ptr 是在栈上分配的，因此它保证最终会超出作用域，届时它将删除它管理的 Resource。</p><p>与 std::auto_ptr 不同，std::unique_ptr 正确实现了移动语义。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;memory&gt; // for std::unique_ptr
+#include &lt;utility&gt; // for std::move
+
+class Resource
+{
+public:
+	Resource() { std::cout &lt;&lt; "Resource acquired\n"; }
+	~Resource() { std::cout &lt;&lt; "Resource destroyed\n"; }
+};
+
+int main()
+{
+	std::unique_ptr&lt;Resource&gt; res1{ new Resource{} }; // // 在此处创建 Resource
+	std::unique_ptr&lt;Resource&gt; res2{}; // 初始化为 nullptr
+
+	std::cout &lt;&lt; "res1 is " &lt;&lt; (res1 ? "not null\n" : "null\n");
+	std::cout &lt;&lt; "res2 is " &lt;&lt; (res2 ? "not null\n" : "null\n");
+
+	// // res2 = res1; // 无法编译：复制赋值被禁用
+	res2 = std::move(res1); // res2 取得所有权，res1 被设置为 null
+
+	std::cout &lt;&lt; "Ownership transferred\n";
+
+	std::cout &lt;&lt; "res1 is " &lt;&lt; (res1 ? "not null\n" : "null\n");
+	std::cout &lt;&lt; "res2 is " &lt;&lt; (res2 ? "not null\n" : "null\n");
+
+	return 0;
+} // // 当 res2 离开作用域时，Resource 在此处被销毁
+</code></pre><p>这会打印：</p><pre>Resource acquired
+res1 is not null
+res2 is null
+Ownership transferred
+res1 is null
+res2 is not null
+Resource destroyed
+</pre><p>由于 std::unique_ptr 在设计时考虑了移动语义，因此复制初始化和复制赋值被禁用。如果你想转移 std::unique_ptr 管理的内容，必须使用移动语义。在上面的程序中，我们通过 std::move 实现了这一点（它将 res1 转换为右值，从而触发移动赋值而不是复制赋值）。</p><p class="cpp-section cpp-topline" style="clear:both">访问被管理的对象</p><p>std::unique_ptr 重载了 operator* 和 operator-&gt;，可用于返回被管理的资源。operator* 返回对被管理资源的引用，operator-&gt; 返回指针。</p><p>请记住，std::unique_ptr 可能并不总是管理一个对象——要么是因为它是空创建的（使用默认构造函数或传入 nullptr 作为参数），要么是因为它管理的资源已被移动到另一个 std::unique_ptr。因此，在使用这些运算符之前，我们应该检查 std::unique_ptr 是否实际拥有资源。幸运的是，这很容易：std::unique_ptr 有一个到 bool 的转换，如果 std::unique_ptr 正在管理资源，则返回 true。</p><p>下面是一个示例：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;memory&gt; // for std::unique_ptr
+
+class Resource
+{
+public:
+	Resource() { std::cout &lt;&lt; "Resource acquired\n"; }
+	~Resource() { std::cout &lt;&lt; "Resource destroyed\n"; }
+};
+
+std::ostream&amp; operator&lt;&lt;(std::ostream&amp; out, const Resource&amp;)
+{
+	out &lt;&lt; "I am a resource";
+	return out;
+}
+
+int main()
+{
+	std::unique_ptr&lt;Resource&gt; res{ new Resource{} };
+
+	if (res) // // 使用隐式转换为 bool 来确保 res 包含一个 Resource
+		std::cout &lt;&lt; *res &lt;&lt; '\n'; // // 打印 res 所拥有的 Resource
+
+	return 0;
+}
+</code></pre><p>这会打印：</p><pre>Resource acquired
+I am a resource
+Resource destroyed
+</pre><p>在上面的程序中，我们使用重载的 operator* 获取 std::unique_ptr res 拥有的 Resource 对象，然后将其发送到 std::cout 进行打印。</p><p class="cpp-section cpp-topline" style="clear:both">std::unique_ptr 与数组</p><p>与 std::auto_ptr 不同，std::unique_ptr 足够智能，知道是使用标量删除还是数组删除，因此 std::unique_ptr 可以安全地用于标量对象和数组。</p><p>然而，std::array 或 std::vector（或 std::string）几乎总是比使用 std::unique_ptr 管理固定数组、动态数组或 C 风格字符串更好的选择。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>优先使用 std::array、std::vector 或 std::string，而不是使用智能指针管理固定数组、动态数组或 C 风格字符串。</p></div><p class="cpp-section cpp-topline" style="clear:both">std::make_unique</p><p>C++14 附带了一个名为 std::make_unique() 的额外函数。这个模板函数构造一个模板类型的对象，并用传入函数的参数初始化它。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;memory&gt; // for std::unique_ptr and std::make_unique
+#include &lt;iostream&gt;
+
+class Fraction
+{
+private:
+	int m_numerator{ 0 };
+	int m_denominator{ 1 };
+
+public:
+	Fraction(int numerator = 0, int denominator = 1) :
+		m_numerator{ numerator }, m_denominator{ denominator }
+	{
+	}
+
+	friend std::ostream&amp; operator&lt;&lt;(std::ostream&amp; out, const Fraction &amp;f1)
+	{
+		out &lt;&lt; f1.m_numerator &lt;&lt; '/' &lt;&lt; f1.m_denominator;
+		return out;
+	}
+};
+
+
+int main()
+{
+	// // 创建一个动态分配的 Fraction，分子为 3，分母为 5
+	// // 我们也可以在这里很好地使用自动类型推导
+	auto f1{ std::make_unique&lt;Fraction&gt;(3, 5) };
+	std::cout &lt;&lt; *f1 &lt;&lt; '\n';
+
+	// // 创建一个长度为 4 的动态分配的 Fraction 数组
+	auto f2{ std::make_unique&lt;Fraction[]&gt;(4) };
+	std::cout &lt;&lt; f2[0] &lt;&lt; '\n';
+
+	return 0;
+}
+</code></pre><p>上面的代码输出：</p><pre>3/5
+0/1
+</pre><p>使用 std::make_unique() 是可选的，但推荐使用它而不是自己创建 std::unique_ptr。这是因为使用 std::make_unique 的代码更简单，并且需要的输入也更少（当使用自动类型推导时）。此外，在 C++14 中，它解决了一个异常安全问题，该问题可能由于 C++ 未指定函数参数求值顺序而导致。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>使用 std::make_unique() 而不是自己创建 std::unique_ptr 并使用 new。</p></div><p class="cpp-section cpp-topline" style="clear:both"><a name="smartpointerexceptionsafety"></a>异常安全问题的更多细节 <a href="#smartpointerexceptionsafety"><i class="fa fa-link" style="font-size:.8em"></i></a></p><p>对于那些想知道上面提到的“异常安全问题”是什么的人，这里是对该问题的描述。</p><p>考虑这样一个表达式：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">some_function(std::unique_ptr&lt;T&gt;(new T), function_that_can_throw_exception());
+</code></pre><p>编译器在处理这个调用时有很多灵活性。它可能先创建一个新的 T，然后调用 function_that_can_throw_exception()，然后创建管理动态分配的 T 的 std::unique_ptr。如果 function_that_can_throw_exception() 抛出异常，那么已分配的 T 将不会被释放，因为负责释放的智能指针尚未创建。这导致 T 泄漏。</p><p>std::make_unique() 不存在这个问题，因为对象 T 的创建和 std::unique_ptr 的创建都发生在 std::make_unique() 函数内部，那里没有执行顺序的歧义。</p><p>这个问题在 C++17 中已修复，因为函数参数的求值不能再交错进行。</p><p class="cpp-section cpp-topline" style="clear:both">从函数返回 std::unique_ptr</p><p>std::unique_ptr 可以通过值安全地从函数返回：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;memory&gt; // for std::unique_ptr
+
+std::unique_ptr&lt;Resource&gt; createResource()
+{
+     return std::make_unique&lt;Resource&gt;();
+}
+
+int main()
+{
+    auto ptr{ createResource() };
+
+    // // 执行一些操作
+
+    return 0;
+}
+</code></pre><p>在上面的代码中，createResource() 通过值返回一个 std::unique_ptr。如果这个值没有被赋值给任何东西，临时返回值将超出作用域，Resource 将被清理。如果它被赋值（如 main() 中所示），在 C++14 或更早版本中，将使用移动语义将 Resource 从返回值转移到赋值的对象（在上面的示例中为 ptr），而在 C++17 或更新版本中，返回值将被省略。这使得通过 std::unique_ptr 返回资源比返回原始指针安全得多！</p><p>通常，你不应该通过指针（永远）或引用（除非有特定的令人信服的理由）返回 std::unique_ptr。</p><p class="cpp-section cpp-topline" style="clear:both">将 std::unique_ptr 传递给函数</p><p>如果你希望函数获取指针内容的所有权，请按值传递 std::unique_ptr。请注意，由于复制语义已被禁用，你需要使用 std::move 来实际传递变量。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;memory&gt; // for std::unique_ptr
+#include &lt;utility&gt; // for std::move
+
+class Resource
+{
+public:
+	Resource() { std::cout &lt;&lt; "Resource acquired\n"; }
+	~Resource() { std::cout &lt;&lt; "Resource destroyed\n"; }
+};
+
+std::ostream&amp; operator&lt;&lt;(std::ostream&amp; out, const Resource&amp;)
+{
+	out &lt;&lt; "I am a resource";
+	return out;
+}
+
+// // 这个函数获取 Resource 的所有权，这不是我们想要的
+void takeOwnership(std::unique_ptr&lt;Resource&gt; res)
+{
+     if (res)
+          std::cout &lt;&lt; *res &lt;&lt; '\n';
+} // // Resource 在此处被销毁
+
+int main()
+{
+    auto ptr{ std::make_unique&lt;Resource&gt;() };
+
+//    // takeOwnership(ptr); // 这不起作用，需要使用移动语义
+    takeOwnership(std::move(ptr)); // // 好的：使用移动语义
+
+    std::cout &lt;&lt; "Ending program\n";
+
+    return 0;
+}
+</code></pre><p>上面的程序打印：</p><pre>Resource acquired
+I am a resource
+Resource destroyed
+Ending program
+</pre><p>请注意，在这种情况下，Resource 的所有权已转移给 takeOwnership()，因此 Resource 在 takeOwnership() 结束时被销毁，而不是在 main() 结束时。</p><p>然而，大多数情况下，你不会希望函数获取资源的所有权。</p><p>虽然你可以通过 const 引用传递 std::unique_ptr（这将允许函数使用对象而不承担所有权），但更好的做法是直接传递资源本身（通过指针或引用，取决于 null 是否是有效参数）。这允许函数保持对调用者如何管理其资源的中立性。</p><p>要从 std::unique_ptr 获取原始指针，可以使用 get() 成员函数：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;memory&gt; // for std::unique_ptr
+#include &lt;iostream&gt;
+
+class Resource
+{
+public:
+	Resource() { std::cout &lt;&lt; "Resource acquired\n"; }
+	~Resource() { std::cout &lt;&lt; "Resource destroyed\n"; }
+};
+
+std::ostream&amp; operator&lt;&lt;(std::ostream&amp; out, const Resource&amp;)
+{
+	out &lt;&lt; "I am a resource";
+	return out;
+}
+
+// // 该函数只使用资源，因此我们将接受一个指向资源的指针，而不是整个 std::unique_ptr&lt;Resource&gt; 的引用
+void useResource(const Resource* res)
+{
+	if (res)
+		std::cout &lt;&lt; *res &lt;&lt; '\n';
+	else
+		std::cout &lt;&lt; "No resource\n";
+}
+
+int main()
+{
+	auto ptr{ std::make_unique&lt;Resource&gt;() };
+
+	useResource(ptr.get()); // // 注意：这里使用 get() 来获取指向 Resource 的指针
+
+	std::cout &lt;&lt; "Ending program\n";
+
+	return 0;
+} // // Resource 在此处被销毁
+</code></pre><p>上面的程序打印：</p><pre>Resource acquired
+I am a resource
+Ending program
+Resource destroyed
+</pre><p class="cpp-section cpp-topline" style="clear:both">std::unique_ptr 与类</p><p>当然，你可以将 std::unique_ptr 用作类的组合成员。这样，你无需担心确保类的析构函数删除动态内存，因为 std::unique_ptr 会在类对象销毁时自动销毁。</p><p>然而，如果类对象没有被正确销毁（例如，它是动态分配的且未被正确释放），那么 std::unique_ptr 成员也不会被销毁，std::unique_ptr 所管理的对象也不会被释放。</p><p class="cpp-section cpp-topline" style="clear:both">误用 std::unique_ptr</p><p>有两种容易误用 std::unique_ptr 的方式，两者都很容易避免。首先，不要让多个对象管理同一个资源。例如：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">Resource* res{ new Resource() };
+std::unique_ptr&lt;Resource&gt; res1{ res };
+std::unique_ptr&lt;Resource&gt; res2{ res };
+</code></pre><p>虽然这在语法上是合法的，但最终结果将是 res1 和 res2 都会尝试删除 Resource，这将导致未定义行为。</p><p>其次，不要手动删除 std::unique_ptr 所管理的资源。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">Resource* res{ new Resource() };
+std::unique_ptr&lt;Resource&gt; res1{ res };
+delete res;
+</code></pre><p>如果你这样做了，std::unique_ptr 将尝试删除一个已经被删除的资源，再次导致未定义行为。</p><p>注意，std::make_unique() 可以防止上述两种情况意外发生。</p><p class="cpp-section cpp-topline" style="clear:both">小测验时间</p><div class="quiz" style="clear:both"><p class="quiz-header">问题 #1</p><p>将以下程序从使用普通指针改为在适当的地方使用 std::unique_ptr：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+class Fraction
+{
+private:
+	int m_numerator{ 0 };
+	int m_denominator{ 1 };
+
+public:
+	Fraction(int numerator = 0, int denominator = 1) :
+		m_numerator{ numerator }, m_denominator{ denominator }
+	{
+	}
+
+	friend std::ostream&amp; operator&lt;&lt;(std::ostream&amp; out, const Fraction &amp;f1)
+	{
+		out &lt;&lt; f1.m_numerator &lt;&lt; '/' &lt;&lt; f1.m_denominator;
+		return out;
+	}
+};
+
+void printFraction(const Fraction* ptr)
+{
+	if (ptr)
+		std::cout &lt;&lt; *ptr &lt;&lt; '\n';
+	else
+		std::cout &lt;&lt; "No fraction\n";
+}
+
+int main()
+{
+	auto* ptr{ new Fraction{ 3, 5 } };
+
+	printFraction(ptr);
+
+	delete ptr;
+
+	return 0;
+}
+</code></pre><p><a aria-controls="cpp_solution_id_0" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_0" href="#cpp_solution_id_0">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_0"><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;memory&gt; // for std::unique_ptr
+#include &lt;iostream&gt;
+
+class Fraction
+{
+private:
+	int m_numerator{ 0 };
+	int m_denominator{ 1 };
+
+public:
+	Fraction(int numerator = 0, int denominator = 1) :
+		m_numerator{ numerator }, m_denominator{ denominator }
+	{
+	}
+
+	friend std::ostream&amp; operator&lt;&lt;(std::ostream&amp; out, const Fraction &amp;f1)
+	{
+		out &lt;&lt; f1.m_numerator &lt;&lt; '/' &lt;&lt; f1.m_denominator;
+		return out;
+	}
+};
+
+// // 这个函数使用一个 Fraction 对象，所以我们直接传递 Fraction 本身
+// // 这样我们就不必担心调用者可能使用哪种智能指针（如果有的话）
+void printFraction(const Fraction* ptr)
+{
+	if (ptr)
+		std::cout &lt;&lt; *ptr &lt;&lt; '\n';
+	else
+		std::cout &lt;&lt; "No fraction\n";
+}
+
+int main()
+{
+	auto ptr{ std::make_unique&lt;Fraction&gt;(3, 5) };
+
+	printFraction(ptr.get());
+
+	return 0;
+}
+</code></pre></div></div>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="stdmove.html" rel="prev"><small>上一课</small><strong>22.4 — std::move</strong></a><a class="lesson-nav-index" href="../index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="stdshared_ptr.html" rel="next"><small>下一课</small><strong>22.6 — std::shared_ptr</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

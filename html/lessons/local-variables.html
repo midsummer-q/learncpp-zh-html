@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/local-variables/" name="learncpp:source-url"/>
+<meta content="dc2e131c6cff8b940913fc7c1a63ecb8e6ba1227ac936fdd736d268aaeda74e9" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:46:54.768703+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T17:21:43.479438+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>7.3 — Local variables</title>
+<link href="../assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="../assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="../index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="../index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">7.3 — 局部变量</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 7.3</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/local-variables/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>在课程 <a href="introduction-to-local-scope.html">2.5 -- 局部作用域简介</a>中，我们介绍了 <code>local variables</code>，即在函数内部定义的变量（包括函数参数）。</p><p>实际上，C++ 并没有一个单一的属性来定义变量是否为局部变量。相反，局部变量具有几个不同的属性，这些属性将这些变量的行为与其他类型的（非局部）变量区分开来。我们将在本课及后续课程中探讨这些属性。</p><p>在课程 <a href="introduction-to-local-scope.html">2.5 -- 局部作用域简介</a>中，我们还介绍了作用域的概念。标识符的 <code>scope</code> 决定了在源代码中何处可以访问该标识符。当可以访问标识符时，我们说它是 <code>in scope</code>。当无法访问标识符时，我们说它是 <code>out of scope</code>。作用域是编译时属性，尝试在作用域外使用标识符将导致编译错误。</p><p class="cpp-section cpp-topline" style="clear:both">局部变量具有块作用域</p><p>局部变量具有 <strong>块作用域</strong>，这意味着它们 <em>在作用域内</em> 从定义点开始到定义它们的块结束为止。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">相关内容</p><p>如果需要复习块的概念，请回顾课程 <a href="compound-statements-blocks.html">7.1 -- 复合语句（块）</a> </p></div><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int main()
+{
+    int i { 5 }; // i 在此进入作用域
+    double d { 4.0 }; // d 在此进入作用域
+
+    return 0;
+} // d 和 i 在此离开作用域
+</code></pre><p>尽管函数参数不是在函数体内定义的，但对于典型函数，它们可以被视为函数体块作用域的一部分。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int max(int x, int y) // x 和 y 在此进入作用域
+{
+    // 将 x 或 y 中较大的赋值给 max
+    int max{ (x &gt; y) ? x : y }; // max 在此进入作用域
+
+    return max;
+} // max、y 和 x 在此离开作用域
+</code></pre><p class="cpp-section cpp-topline" style="clear:both">作用域内的所有变量名必须唯一</p><p>变量名在给定作用域内必须唯一，否则对名称的任何引用都会产生歧义。考虑以下程序：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">void someFunction(int x)
+{
+    int x{}; // 由于与函数参数名称冲突导致编译失败
+}
+
+int main()
+{
+    return 0;
+}
+</code></pre><p>上述程序无法编译，因为变量 <code>x</code> （在函数体内定义）和函数参数 <code>x</code> 具有相同的名称，并且都在同一个块作用域中。</p><p class="cpp-section cpp-topline" style="clear:both">局部变量具有自动存储期</p><p>变量的 <strong>存储期</strong> （通常简称为 <strong>生存期</strong>）决定了变量何时以及如何被创建（实例化）和销毁的规则。在大多数情况下，变量的存储期直接决定了其 <code>lifetime</code>。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">相关内容</p><p>我们在课程 <a href="introduction-to-local-scope.html">2.5 -- 局部作用域简介</a>。</p></div><p>中讨论了生存期的含义。例如，局部变量具有 <strong>自动存储期</strong>，这意味着它们在定义点被创建，并在定义它们的块结束时被销毁。例如：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int main()
+{
+    int i { 5 }; // i 在此处创建并初始化
+    double d { 4.0 }; // d 在此处创建并初始化
+
+    return 0;
+} // d 和 i 在此处销毁
+</code></pre><p>因此，局部变量有时被称为 <strong>自动变量</strong>。</p><p class="cpp-section cpp-topline" style="clear:both">嵌套块中的局部变量</p><p>局部变量可以在嵌套块中定义。这与函数体块中的局部变量工作方式相同：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int main() // 外部块
+{
+    int x { 5 }; // x 进入作用域并在此处创建
+
+    { // 嵌套块
+        int y { 7 }; // y 进入作用域并在此处创建
+    } // y 离开作用域并在此处销毁
+
+    // y 不能在此处使用，因为它在此块中已超出作用域
+
+    return 0;
+} // x 离开作用域并在此处销毁
+</code></pre><p>在上面的例子中，变量 <code>y</code> 定义在嵌套块内。它的作用域从定义点开始到嵌套块结束，其生存期也是如此。由于变量 <code>y</code> 的作用域仅限于定义它的内部块，因此它在外部块的任何地方都不可访问。</p><p>请注意，嵌套块被视为定义它们的外部块作用域的一部分。因此，在外部块中定义的变量 <em>可以</em> 可以在嵌套块内部看到：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{ // 外部块
+
+    int x { 5 }; // x 进入作用域并在此处创建
+
+    { // 嵌套块
+        int y { 7 }; // y 进入作用域并在此处创建
+
+        // x 和 y 都在此作用域内
+        std::cout &lt;&lt; x &lt;&lt; " + " &lt;&lt; y &lt;&lt; " = " &lt;&lt; x + y &lt;&lt; '\n';
+    } // y 离开作用域并在此处销毁
+
+    // y 不能在此处使用，因为它在此块中已超出作用域
+
+    return 0;
+} // x 离开作用域并在此处销毁
+</code></pre><p class="cpp-section cpp-topline" style="clear:both">局部变量没有链接性</p><p>标识符还有另一个属性，称为 <em>链接性</em>。标识符的 <strong>链接性</strong> 决定了在不同作用域中相同标识符的声明是否引用同一个对象（或函数）。</p><p>局部变量没有链接性。每个没有链接性的标识符的声明都引用一个唯一的对象或函数。</p><p>例如：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int main()
+{
+    int x { 2 }; // 局部变量，无链接
+
+    {
+        int x { 3 }; // 此 x 的声明指向与之前 x 不同的对象
+    }
+
+    return 0;
+}
+</code></pre><p>作用域和链接性可能看起来有些相似。然而，作用域决定了单个标识符的声明在代码中哪里可以被看到和使用。链接性决定了相同标识符的多个声明是否引用同一个对象。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">相关内容</p><p>我们在第 <a href="variable-shadowing-name-hiding.html">7.5 课——变量遮蔽（名称隐藏）中讨论了当嵌套块中出现同名变量时会发生什么。</a>。</p></div><p>在局部变量的上下文中，链接性并不是很有趣，但我们将在接下来的几课中更多地讨论它。</p><p class="cpp-section cpp-topline" style="clear:both">变量应该在最小的作用域中定义</p><p>如果一个变量只在嵌套块中使用，它应该在该嵌套块内部定义：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+    // 不要在此处定义 y
+
+    {
+        // y 仅在此块内使用，因此在此处定义它
+        int y { 5 };
+        std::cout &lt;&lt; y &lt;&lt; '\n';
+    }
+
+    // 否则 y 仍可在此处使用，而此处并不需要它
+
+    return 0;
+}
+</code></pre><p>通过限制变量的作用域，你可以降低程序的复杂性，因为活跃变量的数量减少了。此外，它使得更容易看到变量在哪里被使用（或不被使用）。在块内定义的变量只能在该块（或嵌套块）内使用。这可以使程序更容易理解。</p><p>如果变量在外层块中需要，它必须在外层块中声明：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+    int y { 5 }; // 我们在此处声明 y，因为稍后在外层块中需要它
+
+    {
+        int x{};
+        std::cin &gt;&gt; x;
+
+        // 如果我们在实际首次使用之前立即声明 y...
+        if (x == 4)
+            y = 4;
+    } // ...它将在此时销毁
+
+    std::cout &lt;&lt; y; // 并且我们需要 y 在此处存在
+
+    return 0;
+}
+</code></pre><p>上面的例子展示了你可能需要在首次使用之前很久就声明变量的罕见情况之一。</p><p>新手有时会想知道是否值得创建一个嵌套块来有意限制变量的作用域（并强制它提前离开作用域/被销毁）。这样做使该变量更简单，但整体函数因此变得更长更复杂。这种权衡通常不值得。如果创建一个嵌套块似乎有助于有意限制一段代码的作用域，那么这段代码可能更适合放在一个单独的函数中。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>在最小的现有作用域中定义变量。避免创建唯一目的是限制变量作用域的新块。</p></div><p class="cpp-section cpp-topline" style="clear:both">小测验时间</p><div class="quiz" style="clear:both"><p class="quiz-header">问题 #1</p><p>编写一个程序，要求用户输入两个整数，一个名为 <code>smaller</code>，另一个名为 <code>larger</code>。如果用户为第二个整数输入了较小的值，使用一个块和一个临时变量来交换较小和较大的值。然后打印 <code>smaller</code> 和 <code>larger</code> 变量的值。在代码中添加注释，指示每个变量在哪里消亡。注意：打印值时， <code>smaller</code> 应保存较小的输入， <code>larger</code> 应保存较大的输入，无论它们输入的顺序如何。</p><p>程序输出应与以下内容匹配：</p><pre>Enter an integer: 4
+Enter a larger integer: 2
+Swapping the values
+The smaller value is 2
+The larger value is 4
+</pre><p><a aria-controls="cpp_solution_id_0" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_0" href="#cpp_solution_id_0">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_0"><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+    std::cout &lt;&lt; "Enter an integer: ";
+    int smaller{};
+    std::cin &gt;&gt; smaller;
+
+    std::cout &lt;&lt; "Enter a larger integer: ";
+    int larger{};
+    std::cin &gt;&gt; larger;
+
+    // 如果用户做错了
+    if (smaller &gt; larger)
+    {
+        // 交换 smaller 和 larger 的值
+        std::cout &lt;&lt; "Swapping the values\n";
+
+        int temp{ larger };
+        larger = smaller;
+        smaller = temp;
+    } // temp 在此处销毁
+
+    std::cout &lt;&lt; "The smaller value is: " &lt;&lt; smaller &lt;&lt; '\n';
+    std::cout &lt;&lt; "The larger value is: " &lt;&lt; larger &lt;&lt; '\n';
+
+    return 0;
+} // smaller 和 larger 在此处销毁
+</code></pre><p>将来，你可以使用 <code>std::swap()</code> 来自... <code>&lt;utility&gt;</code> 头文件来交换两个变量的值。例如</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int temp{ larger };
+larger = smaller;
+smaller = temp;
+
+// 等同于
+std::swap(larger, smaller);
+</code></pre></div></div><div class="quiz" style="clear:both"><p class="quiz-header">问题 #2</p><p>变量的作用域、持续时间和生命周期有什么区别？默认情况下，局部变量具有什么类型的作用域和持续时间（以及它们意味着什么）？</p><p><a aria-controls="cpp_solution_id_1" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_1" href="#cpp_solution_id_1">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_1"><p>变量的作用域决定了变量在源代码中哪里可以访问。持续时间定义了控制变量何时创建和销毁的规则。变量的生命周期是它创建和销毁之间的实际时间。</p><p>局部变量具有块作用域，这意味着它们可以从定义点开始访问，直到它们所在的块结束。</p><p>局部变量具有自动持续时间，这意味着它们在定义点创建，并在它们所在的块结束时销毁。</p></div><p></p></div>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="user-defined-namespaces-and-the-scope-resolution-operator.html" rel="prev"><small>上一课</small><strong>7.2 — 用户定义命名空间和作用域解析运算符</strong></a><a class="lesson-nav-index" href="../index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="introduction-to-global-variables.html" rel="next"><small>下一课</small><strong>7.4 — 全局变量简介</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

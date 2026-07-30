@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/pointers-and-references-to-the-base-class-of-derived-objects/" name="learncpp:source-url"/>
+<meta content="42a0d10cad4205e31d452b5203c2fc415fc172ca8a122cf6c21fa3ccabe694fe" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:54:01.072840+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T18:14:41.933297+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>25.1 — Pointers and references to the base class of derived objects</title>
+<link href="../assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="../assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="../index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="../index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">25.1 — 指向派生类对象的基类指针和引用</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 25.1</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/pointers-and-references-to-the-base-class-of-derived-objects/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>在上一章中，你学习了如何使用继承从现有类派生新类。在本章中，我们将重点讨论继承中最重要和最强大的方面之一——虚函数。</p><p>但在讨论虚函数是什么之前，让我们先铺垫一下为什么需要它们。</p><p>在关于 <a href="https://www.learncpp.com/cpp-tutorial/113-order-of-construction-of-derived-classes/">派生类的构造</a>一章中，你了解到当你创建一个派生类时，它由多个部分组成：每个继承类一个部分，以及自身的一个部分。</p><p>例如，这里有一个简单的例子：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;string_view&gt;
+
+class Base
+{
+protected:
+    int m_value {};
+
+public:
+    Base(int value)
+        : m_value{ value }
+    {
+    }
+
+    std::string_view getName() const { return "Base"; }
+    int getValue() const { return m_value; }
+};
+
+class Derived: public Base
+{
+public:
+    Derived(int value)
+        : Base{ value }
+    {
+    }
+
+    std::string_view getName() const { return "Derived"; }
+    int getValueDoubled() const { return m_value * 2; }
+};
+</code></pre><p>当我们创建一个 Derived 对象时，它包含一个 Base 部分（首先构造）和一个 Derived 部分（其次构造）。记住，继承意味着两个类之间的 is-a 关系。由于 Derived 是一种 Base，因此 Derived 包含一个 Base 部分是合适的。</p><p><strong>指针、引用和派生类</strong></p><p>很直观，我们可以将 Derived 指针和引用设置为 Derived 对象：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+    Derived derived{ 5 };
+    std::cout &lt;&lt; "derived is a " &lt;&lt; derived.getName() &lt;&lt; " and has value " &lt;&lt; derived.getValue() &lt;&lt; '\n';
+
+    Derived&amp; rDerived{ derived };
+    std::cout &lt;&lt; "rDerived is a " &lt;&lt; rDerived.getName() &lt;&lt; " and has value " &lt;&lt; rDerived.getValue() &lt;&lt; '\n';
+
+    Derived* pDerived{ &amp;derived };
+    std::cout &lt;&lt; "pDerived is a " &lt;&lt; pDerived-&gt;getName() &lt;&lt; " and has value " &lt;&lt; pDerived-&gt;getValue() &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>这将产生以下输出：</p><pre>derived is a Derived and has value 5
+rDerived is a Derived and has value 5
+pDerived is a Derived and has value 5
+</pre><p>然而，由于 Derived 有一个 Base 部分，一个更有趣的问题是 C++ 是否允许我们将 Base 指针或引用设置为 Derived 对象。事实证明，我们可以！</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+    Derived derived{ 5 };
+
+    // // 这两种都是合法的！
+    Base&amp; rBase{ derived }; // // rBase 是左值引用（不是右值引用）
+    Base* pBase{ &amp;derived };
+
+    std::cout &lt;&lt; "derived is a " &lt;&lt; derived.getName() &lt;&lt; " and has value " &lt;&lt; derived.getValue() &lt;&lt; '\n';
+    std::cout &lt;&lt; "rBase is a " &lt;&lt; rBase.getName() &lt;&lt; " and has value " &lt;&lt; rBase.getValue() &lt;&lt; '\n';
+    std::cout &lt;&lt; "pBase is a " &lt;&lt; pBase-&gt;getName() &lt;&lt; " and has value " &lt;&lt; pBase-&gt;getValue() &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>这会产生以下结果：</p><pre>derived is a Derived and has value 5
+rBase is a Base and has value 5
+pBase is a Base and has value 5
+</pre><p>这个结果可能一开始并不完全是你所期望的！</p><p>事实证明，因为 rBase 和 pBase 是 Base 引用和指针，它们只能看到 Base 的成员（或任何 Base 继承的类）。因此，即使 Derived::getName() 为 Derived 对象遮蔽（隐藏）了 Base::getName()，Base 指针/引用也无法看到 Derived::getName()。因此，它们调用 Base::getName()，这就是为什么 rBase 和 pBase 报告它们是 Base 而不是 Derived。</p><p>注意，这也意味着无法使用 rBase 或 pBase 调用 Derived::getValueDoubled()。它们无法看到 Derived 中的任何内容。</p><p>这是另一个稍微复杂一点的例子，我们将在下一课中继续使用：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;string_view&gt;
+#include &lt;string&gt;
+
+class Animal
+{
+protected:
+    std::string m_name;
+
+    // // 我们将此构造函数设为 protected，因为
+    // // 我们不希望人们直接创建 Animal 对象，
+    // // 但我们仍然希望派生类能够使用它。
+    Animal(std::string_view name)
+        : m_name{ name }
+    {
+    }
+    
+    // // 为了防止切片（稍后介绍）
+    Animal(const Animal&amp;) = delete;
+    Animal&amp; operator=(const Animal&amp;) = delete;
+
+public:
+    std::string_view getName() const { return m_name; }
+    std::string_view speak() const { return "???"; }
+};
+
+class Cat: public Animal
+{
+public:
+    Cat(std::string_view name)
+        : Animal{ name }
+    {
+    }
+
+    std::string_view speak() const { return "Meow"; }
+};
+
+class Dog: public Animal
+{
+public:
+    Dog(std::string_view name)
+        : Animal{ name }
+    {
+    }
+
+    std::string_view speak() const { return "Woof"; }
+};
+
+int main()
+{
+    const Cat cat{ "Fred" };
+    std::cout &lt;&lt; "cat is named " &lt;&lt; cat.getName() &lt;&lt; ", and it says " &lt;&lt; cat.speak() &lt;&lt; '\n';
+
+    const Dog dog{ "Garbo" };
+    std::cout &lt;&lt; "dog is named " &lt;&lt; dog.getName() &lt;&lt; ", and it says " &lt;&lt; dog.speak() &lt;&lt; '\n';
+
+    const Animal* pAnimal{ &amp;cat };
+    std::cout &lt;&lt; "pAnimal is named " &lt;&lt; pAnimal-&gt;getName() &lt;&lt; ", and it says " &lt;&lt; pAnimal-&gt;speak() &lt;&lt; '\n';
+
+    pAnimal = &amp;dog;
+    std::cout &lt;&lt; "pAnimal is named " &lt;&lt; pAnimal-&gt;getName() &lt;&lt; ", and it says " &lt;&lt; pAnimal-&gt;speak() &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>这会产生以下结果：</p><pre>cat is named Fred, and it says Meow
+dog is named Garbo, and it says Woof
+pAnimal is named Fred, and it says ???
+pAnimal is named Garbo, and it says ???
+</pre><p>我们在这里看到了同样的问题。因为 pAnimal 是一个 Animal 指针，它只能看到类的 Animal 部分。因此， <code>pAnimal-&gt;speak()</code> 调用的是 Animal::speak() 而不是 Dog::Speak() 或 Cat::speak() 函数。</p><p><strong>指向基类的指针和引用的用途</strong></p><p>现在你可能会说：“上面的例子看起来有点傻。为什么我要将指针或引用设置为派生对象的基类，而我可以直接使用派生对象呢？”事实证明，有很多充分的理由。</p><p>首先，假设你想编写一个打印动物名称和声音的函数。如果不使用指向基类的指针，你必须使用重载函数来编写，像这样：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">void report(const Cat&amp; cat)
+{
+    std::cout &lt;&lt; cat.getName() &lt;&lt; " says " &lt;&lt; cat.speak() &lt;&lt; '\n';
+}
+
+void report(const Dog&amp; dog)
+{
+    std::cout &lt;&lt; dog.getName() &lt;&lt; " says " &lt;&lt; dog.speak() &lt;&lt; '\n';
+}
+</code></pre><p>这并不太难，但考虑一下如果我们有 30 种不同的动物类型而不是 2 种会发生什么。你必须编写 30 个几乎相同的函数！此外，如果你添加了一种新的动物类型，你还必须为它编写一个新函数。考虑到唯一的真正区别是参数的类型，这非常浪费时间。</p><p>然而，因为 Cat 和 Dog 是从 Animal 派生的，Cat 和 Dog 有一个 Animal 部分。因此，我们应该能够做这样的事情：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">void report(const Animal&amp; rAnimal)
+{
+    std::cout &lt;&lt; rAnimal.getName() &lt;&lt; " says " &lt;&lt; rAnimal.speak() &lt;&lt; '\n';
+}
+</code></pre><p>这将允许我们传入任何从 Animal 派生的类，甚至是我们编写函数之后创建的类！每个派生类一个函数，我们得到一个适用于所有从 Animal 派生的类的函数！</p><p>当然，问题是，因为 rAnimal 是一个 Animal 引用， <code>rAnimal.speak()</code> 将调用 Animal::speak() 而不是派生版本的 speak()。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">顺便说一句……</p><p>我们也可以使用模板函数来减少需要编写的重载函数数量：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">template &lt;typename T&gt;
+void report(const T&amp; rAnimal)
+{
+    std::cout &lt;&lt; rAnimal.getName() &lt;&lt; " says " &lt;&lt; rAnimal.speak() &lt;&lt; '\n';
+}
+</code></pre><p>虽然这有效，但它有自己的问题：</p><ol start="1"><li>不清楚类型 <code>T</code> 应该是什么，因为我们丢失了 <code>T</code> 旨在成为 <code>Animal</code>。</li><li>的文档。 <code>T</code> 是一个 <code>Animal</code>。相反，它将接受任何包含 <code>getName()</code> 和 <code>speak()</code> 成员函数的类型的对象，无论是否有意义。</li></ol></div><p>其次，假设你有 3 只猫和 3 只狗，你想将它们放在一个数组中以便于访问。因为数组只能保存一种类型的对象，如果没有指向基类的指针或引用，你必须为每个派生类型创建一个不同的数组，像这样：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;array&gt;
+#include &lt;iostream&gt;
+
+// // 来自上面示例的 Cat 和 Dog
+
+int main()
+{
+    const auto&amp; cats{ std::to_array&lt;Cat&gt;({{ "Fred" }, { "Misty" }, { "Zeke" }}) };
+    const auto&amp; dogs{ std::to_array&lt;Dog&gt;({{ "Garbo" }, { "Pooky" }, { "Truffle" }}) };
+    
+    // C++20 之前
+    // // const std::array&lt;Cat, 3&gt; cats{{ { "Fred" }, { "Misty" }, { "Zeke" } }};
+    // // const std::array&lt;Dog, 3&gt; dogs{{ { "Garbo" }, { "Pooky" }, { "Truffle" } }};
+
+    for (const auto&amp; cat : cats)
+    {
+        std::cout &lt;&lt; cat.getName() &lt;&lt; " says " &lt;&lt; cat.speak() &lt;&lt; '\n';
+    }
+
+    for (const auto&amp; dog : dogs)
+    {
+        std::cout &lt;&lt; dog.getName() &lt;&lt; " says " &lt;&lt; dog.speak() &lt;&lt; '\n';
+    }
+
+    return 0;
+}
+</code></pre><p>现在，考虑一下如果你有 30 种不同类型的动物会发生什么。你需要 30 个数组，每种动物一个！</p><p>然而，因为 Cat 和 Dog 都是从 Animal 派生的，我们应该能够做这样的事情：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;array&gt;
+#include &lt;iostream&gt;
+
+// // 来自上面示例的 Cat 和 Dog
+
+int main()
+{
+    const Cat fred{ "Fred" };
+    const Cat misty{ "Misty" };
+    const Cat zeke{ "Zeke" };
+
+    const Dog garbo{ "Garbo" };
+    const Dog pooky{ "Pooky" };
+    const Dog truffle{ "Truffle" };
+
+    // // 设置一个指向动物的指针数组，并将这些指针指向我们的 Cat 和 Dog 对象
+    const auto animals{ std::to_array&lt;const Animal*&gt;({&amp;fred, &amp;garbo, &amp;misty, &amp;pooky, &amp;truffle, &amp;zeke }) };
+    
+    // // 在 C++20 之前，显式指定数组大小
+    // // const std::array&lt;const Animal*, 6&gt; animals{ &amp;fred, &amp;garbo, &amp;misty, &amp;pooky, &amp;truffle, &amp;zeke };
+    
+    for (const auto animal : animals)
+    {
+        std::cout &lt;&lt; animal-&gt;getName() &lt;&lt; " says " &lt;&lt; animal-&gt;speak() &lt;&lt; '\n';
+    }
+
+    return 0;
+}
+</code></pre><p>虽然这可以编译和执行，但不幸的是，数组“animals”的每个元素都是指向 Animal 的指针，这意味着 <code>animal-&gt;speak()</code> 将调用 Animal::speak() 而不是我们想要的派生类版本的 speak()。输出是</p><pre>Fred says ???
+Garbo says ???
+Misty says ???
+Pooky says ???
+Truffle says ???
+Zeke says ???
+</pre><p>尽管这两种技术都可以节省我们大量的时间和精力，但它们都有同样的问题。指向基类的指针或引用调用函数的基类版本而不是派生版本。如果有什么方法可以让这些基类指针调用派生版本的函数而不是基类版本就好了……</p><p>想猜猜虚函数是干什么用的吗？:)</p><p><strong>小测验时间</strong></p><ol start="1"><li>上面的 Animal/Cat/Dog 示例没有按我们期望的方式工作，因为指向 Animal 的引用或指针无法访问派生版本的 speak() 来返回 Cat 或 Dog 的正确值。解决这个问题的一种方法是让 speak() 函数返回的数据作为 Animal 基类的一部分可访问（就像 Animal 的名字通过成员 m_name 可访问一样）。</li></ol><p>更新上面课程中的 Animal、Cat 和 Dog 类，向 Animal 添加一个名为 m_speak 的新成员。适当地初始化它。以下程序应该能正常工作：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;array&gt;
+#include &lt;iostream&gt;
+
+int main()
+{
+    const Cat fred{ "Fred" };
+    const Cat misty{ "Misty" };
+    const Cat zeke{ "Zeke" };
+
+    const Dog garbo{ "Garbo" };
+    const Dog pooky{ "Pooky" };
+    const Dog truffle{ "Truffle" };
+
+    // // 设置一个指向动物的指针数组，并将这些指针指向我们的 Cat 和 Dog 对象
+    const auto animals{ std::to_array&lt;const Animal*&gt;({ &amp;fred, &amp;garbo, &amp;misty, &amp;pooky, &amp;truffle, &amp;zeke }) };
+    
+    // // 在 C++20 之前，显式指定数组大小
+    // // const std::array&lt;const Animal*, 6&gt; animals{ &amp;fred, &amp;garbo, &amp;misty, &amp;pooky, &amp;truffle, &amp;zeke };
+    
+    for (const auto animal : animals)
+    {
+        std::cout &lt;&lt; animal-&gt;getName() &lt;&lt; " says " &lt;&lt; animal-&gt;speak() &lt;&lt; '\n';
+    }
+
+    return 0;
+}
+</code></pre><p><a aria-controls="cpp_solution_id_0" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_0" href="#cpp_solution_id_0">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_0"><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;array&gt;
+#include &lt;string&gt;
+#include &lt;string_view&gt;
+#include &lt;iostream&gt;
+
+class Animal
+{
+protected:
+    std::string m_name;
+    std::string m_speak;
+
+    // // 我们将此构造函数设为 protected，因为
+    // // 我们不希望人们直接创建 Animal 对象，
+    // // 但我们仍然希望派生类能够使用它。
+    Animal(std::string_view name, std::string_view speak)
+        : m_name{ name }, m_speak{ speak }
+    {
+    }
+    
+    // // 为了防止切片（稍后介绍）
+    Animal(const Animal&amp;) = delete;
+    Animal&amp; operator=(const Animal&amp;) = delete;
+
+public:
+    std::string_view getName() const { return m_name; }
+    std::string_view speak() const { return m_speak; }
+};
+
+class Cat: public Animal
+{
+public:
+    Cat(std::string_view name)
+        : Animal{ name, "Meow" }
+    {
+    }
+};
+
+class Dog: public Animal
+{
+public:
+    Dog(std::string_view name)
+        : Animal{ name, "Woof" }
+    {
+    }
+};
+
+int main()
+{
+    const Cat fred{ "Fred" };
+    const Cat misty{ "Misty" };
+    const Cat zeke{ "Zeke" };
+
+    const Dog garbo{ "Garbo" };
+    const Dog pooky{ "Pooky" };
+    const Dog truffle{ "Truffle" };
+
+    // // 设置一个指向动物的指针数组，并将这些指针指向我们的 Cat 和 Dog 对象
+    const auto animals{ std::to_array&lt;const Animal*&gt;({ &amp;fred, &amp;garbo, &amp;misty, &amp;pooky, &amp;truffle, &amp;zeke }) };
+    
+    // // 在 C++20 之前，显式指定数组大小
+    // // const std::array&lt;const Animal*, 6&gt; animals{ &amp;fred, &amp;garbo, &amp;misty, &amp;pooky, &amp;truffle, &amp;zeke };
+    
+    // // animal 不是引用，因为我们遍历的是指针
+    for (const auto animal : animals)
+    {
+        std::cout &lt;&lt; animal-&gt;getName() &lt;&lt; " says " &lt;&lt; animal-&gt;speak() &lt;&lt; '\n';
+    }
+
+    return 0;
+}
+</code></pre></div><ol start="2"><li>为什么上述解决方案不是最优的？</li></ol><p>提示：思考 Cat 和 Dog 的未来状态，我们希望在更多方面区分 Cat 和 Dog。<br/>提示：思考在初始化时需要设置成员的方式会如何限制你。</p><p><a aria-controls="cpp_solution_id_1" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_1" href="#cpp_solution_id_1">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_1">当前的解决方案由于多种原因不是最优的。<p></p><p>首先，我们需要为每种区分 Cat 和 Dog 的方式向 Animal 添加一个成员。随着时间的推移，我们的 Animal 类可能会变得内存占用很大且复杂！</p><p>其次，这个解决方案仅在基类成员可以在初始化时确定的情况下有效。例如，如果 speak() 为每个 Animal 返回随机结果（例如，调用 Dog::speak() 可能返回 "woof"、"arf" 或 "yip"），这种解决方案就会变得笨拙且失效。</p><p>第三，因为 speak() 是 Animal 的成员，speak() 对 Cat 和 Dog 的行为相同（即，它总是返回 m_speak）。如果我们想要 <code>speak()</code> 让 Cat 和 Dog 有不同的行为（例如，让 Dog 返回随机声音），我们就必须将所有额外的逻辑放在 Animal 中，这使得 Animal 更加复杂。</p></div>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="chapter-24-summary-and-quiz.html" rel="prev"><small>上一课</small><strong>24.x — 第24章 总结与测验</strong></a><a class="lesson-nav-index" href="../index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="virtual-functions.html" rel="next"><small>下一课</small><strong>25.2 — 虚函数与多态</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

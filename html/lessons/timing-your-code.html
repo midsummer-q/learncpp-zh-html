@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/timing-your-code/" name="learncpp:source-url"/>
+<meta content="db2bac81c0e965acff7c8d091cde1689978de7e1c288247b33226905b64fa4a2" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:52:08.012867+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T18:00:59.243015+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>18.4 — Timing your code</title>
+<link href="../assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="../assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="../index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="../index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">18.4 — 为你的代码计时</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 18.4</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/timing-your-code/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>在编写代码时，有时你会遇到不确定哪种方法性能更好的情况。那么如何判断呢？</p><p>一个简单的方法就是为你的代码计时，看看它运行需要多长时间。C++11 在 chrono 库中提供了一些功能来实现这一点。然而，使用 chrono 库有点晦涩。好消息是，我们可以轻松地将所有需要的计时功能封装到一个类中，然后在自己的程序中使用。</p><p>这是这个类：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;chrono&gt; // for std::chrono functions
+
+class Timer
+{
+private:
+	// 类型别名，使访问嵌套类型更容易
+	using Clock = std::chrono::steady_clock;
+	using Second = std::chrono::duration&lt;double, std::ratio&lt;1&gt; &gt;;
+	
+	std::chrono::time_point&lt;Clock&gt; m_beg { Clock::now() };
+
+public:
+	void reset()
+	{
+		m_beg = Clock::now();
+	}
+	
+	double elapsed() const
+	{
+		return std::chrono::duration_cast&lt;Second&gt;(Clock::now() - m_beg).count();
+	}
+};
+</code></pre><p>就是这样！要使用它，我们在 main 函数（或任何我们想要开始计时的地方）顶部实例化一个 Timer 对象，然后每当想知道程序运行到该点花了多长时间时，调用 elapsed() 成员函数。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+    Timer t;
+
+    // 要计时的代码放在这里
+
+    std::cout &lt;&lt; "Time elapsed: " &lt;&lt; t.elapsed() &lt;&lt; " seconds\n";
+
+    return 0;
+}
+</code></pre><p>现在，让我们在一个实际示例中使用它，对一个包含 10000 个元素的数组进行排序。首先，使用我们在前一章中开发的选择排序算法：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;array&gt;
+#include &lt;chrono&gt; // for std::chrono functions
+#include &lt;cstddef&gt; // for std::size_t
+#include &lt;iostream&gt;
+#include &lt;numeric&gt; // for std::iota
+
+const int g_arrayElements { 10000 };
+
+class Timer
+{
+private:
+    // 类型别名，使访问嵌套类型更容易
+    using Clock = std::chrono::steady_clock;
+    using Second = std::chrono::duration&lt;double, std::ratio&lt;1&gt; &gt;;
+
+    std::chrono::time_point&lt;Clock&gt; m_beg{ Clock::now() };
+
+public:
+
+    void reset()
+    {
+        m_beg = Clock::now();
+    }
+
+    double elapsed() const
+    {
+        return std::chrono::duration_cast&lt;Second&gt;(Clock::now() - m_beg).count();
+    }
+};
+
+void sortArray(std::array&lt;int, g_arrayElements&gt;&amp; array)
+{
+
+    // 遍历数组的每个元素
+    // （除了最后一个，因为当我们到达它时它已经排序好了）
+    for (std::size_t startIndex{ 0 }; startIndex &lt; (g_arrayElements - 1); ++startIndex)
+    {
+        // smallestIndex 是本次迭代中遇到的最小元素的索引
+        // 首先假设最小元素是本次迭代的第一个元素
+        std::size_t smallestIndex{ startIndex };
+
+        // 然后在数组的其余部分寻找更小的元素
+        for (std::size_t currentIndex{ startIndex + 1 }; currentIndex &lt; g_arrayElements; ++currentIndex)
+        {
+            // 如果我们找到了一个比之前找到的最小元素还小的元素
+            if (array[currentIndex] &lt; array[smallestIndex])
+            {
+                // 则记录它
+                smallestIndex = currentIndex;
+            }
+        }
+
+        // smallestIndex 现在是剩余数组中最小的元素
+        // 将起始元素与最小元素交换（这将其排序到正确的位置）
+        std::swap(array[startIndex], array[smallestIndex]);
+    }
+}
+
+int main()
+{
+    std::array&lt;int, g_arrayElements&gt; array;
+    std::iota(array.rbegin(), array.rend(), 1); // 用值 10000 到 1 填充数组
+
+    Timer t;
+
+    sortArray(array);
+
+    std::cout &lt;&lt; "Time taken: " &lt;&lt; t.elapsed() &lt;&lt; " seconds\n";
+
+    return 0;
+}
+</code></pre><p>在作者的机器上，三次运行产生的计时分别为 0.0507、0.0506 和 0.0498。所以我们可以说大约 0.05 秒。</p><p>现在，让我们使用标准库中的 std::sort 进行同样的测试。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;algorithm&gt; // for std::sort
+#include &lt;array&gt;
+#include &lt;chrono&gt; // for std::chrono functions
+#include &lt;cstddef&gt; // for std::size_t
+#include &lt;iostream&gt;
+#include &lt;numeric&gt; // for std::iota
+
+const int g_arrayElements { 10000 };
+
+class Timer
+{
+private:
+    // 类型别名，使访问嵌套类型更容易
+    using Clock = std::chrono::steady_clock;
+    using Second = std::chrono::duration&lt;double, std::ratio&lt;1&gt; &gt;;
+
+    std::chrono::time_point&lt;Clock&gt; m_beg{ Clock::now() };
+
+public:
+
+    void reset()
+    {
+        m_beg = Clock::now();
+    }
+
+    double elapsed() const
+    {
+        return std::chrono::duration_cast&lt;Second&gt;(Clock::now() - m_beg).count();
+    }
+};
+
+int main()
+{
+    std::array&lt;int, g_arrayElements&gt; array;
+    std::iota(array.rbegin(), array.rend(), 1); // 用值 10000 到 1 填充数组
+
+    Timer t;
+
+    std::ranges::sort(array); // 自 C++20 起
+    // 如果你的编译器不支持 C++20
+    // std::sort(array.begin(), array.end());
+
+    std::cout &lt;&lt; "Time taken: " &lt;&lt; t.elapsed() &lt;&lt; " seconds\n";
+
+    return 0;
+}
+</code></pre><p>在作者的机器上，这产生了结果：0.000693、0.000692 和 0.000699。所以基本上在 0.0007 左右。</p><p>换句话说，在这种情况下，std::sort 比我们自己编写的选择排序快 100 倍！</p><p class="cpp-section cpp-topline" style="clear:both">可能影响程序性能的因素</p><p>对程序的一次运行进行计时相当直接，但你的结果可能会受到许多因素的显著影响，了解如何正确测量以及哪些因素会影响计时非常重要。</p><p>首先，确保你使用的是发布构建目标，而不是调试构建目标。调试构建目标通常会关闭优化，而优化会对结果产生显著影响。例如，使用调试构建目标，在作者的机器上运行上述 std::sort 示例需要 0.0235 秒——慢了 33 倍！</p><p>其次，你的计时结果可能会受到系统后台运行的其他事情的影响。确保你的系统没有进行任何 CPU、内存或硬盘密集型操作（例如玩游戏、搜索文件、运行防病毒扫描或在后台安装更新）。看似无害的事情，比如空闲的网页浏览器，当活动标签页轮播新的广告横幅并需要解析大量 JavaScript 时，可能会暂时将 CPU 使用率飙升至 100%。在测量之前关闭的应用程序越多，结果中的方差就越小。</p><p>第三，如果你的程序使用随机数生成器，生成的特定随机数序列可能会影响计时。例如，如果你正在对一个填充了随机数的数组进行排序，结果可能会因运行而异，因为排序数组所需的交换次数会因运行而异。为了在多次运行中获得更一致的结果，你可以临时用字面值（而不是 std::random_device 或系统时钟）为随机数生成器设置种子，这样每次运行都会生成相同的数字序列。然而，如果你的程序性能高度依赖于特定的随机序列，这也可能导致整体结果具有误导性。</p><p>第四，确保你没有对等待用户输入进行计时，因为用户输入所需的时间不应成为计时考虑的一部分。如果需要用户输入，考虑提供一些不等待用户的方式（例如命令行、从文件输入、具有绕过输入的代码路径）。</p><p class="cpp-section cpp-topline" style="clear:both">测量性能</p><p>在测量程序性能时，至少收集 3 个结果。如果结果都相似，这些很可能代表了程序在该机器上的实际性能。否则，继续测量，直到你得到一组相似的结果（并了解哪些结果是异常值）。由于系统在某些运行期间在后台执行某些操作，出现一个或多个异常值并不罕见。</p><p>如果你的结果方差很大（并且没有很好地聚类），你的程序很可能受到系统上其他事情的显著影响，或者受到应用程序内随机化的影响。</p><p>由于性能测量受到许多因素的影响（特别是硬件速度，还有操作系统、正在运行的应用程序等），绝对性能测量（例如“程序运行需要 10 秒”）通常除了了解程序在你关心的特定机器上运行得如何之外，没有太大用处。在不同的机器上，同一个程序可能运行 1 秒、10 秒或 1 分钟。如果不实际在不同硬件上进行测量，很难知道。</p><p>然而，在单台机器上，相对性能测量可能很有用。我们可以收集程序几个不同变体的性能结果，以确定哪个变体性能最好。例如，如果变体 1 运行需要 10 秒，变体 2 运行需要 8 秒，那么无论该机器的绝对速度如何，变体 2 在所有类似机器上可能都会更快。</p><p>在测量第二个变体后，一个好的合理性检查是再次测量第一个变体。如果第一个变体的结果与该变体的初始测量结果一致，那么两个变体的结果应该是合理可比的。例如，如果变体 1 运行需要 10 秒，变体 2 运行需要 8 秒，然后我们再次测量变体 1 得到 10 秒，那么我们可以合理得出结论，两个变体的测量都是公平的，并且变体 2 更快。</p><p>然而，如果第一个变体的结果不再与该变体的初始测量结果一致，那么机器上发生了某些影响性能的事情，并且很难判断测量差异是由于变体还是机器本身。在这种情况下，最好丢弃现有结果并重新测量。</p>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="introduction-to-standard-library-algorithms.html" rel="prev"><small>上一课</small><strong>18.3 — 标准库算法简介</strong></a><a class="lesson-nav-index" href="../index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="dynamic-memory-allocation-with-new-and-delete.html" rel="next"><small>下一课</small><strong>19.1 — 使用 new 和 delete 进行动态内存分配</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

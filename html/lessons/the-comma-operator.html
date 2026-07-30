@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/the-comma-operator/" name="learncpp:source-url"/>
+<meta content="ab4b4bb83492db1dd766f9c9a75b30425bf4e08490f9fd7782b585d378f35c55" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:46:32.689324+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T17:21:06.367187+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>6.5 — The comma operator</title>
+<link href="../assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="../assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="../index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="../index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">6.5 — 逗号运算符</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 6.5</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/the-comma-operator/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<div class="cpp-table-wrapper"><p></p><p></p><table class="cpp-table"><tbody><tr><th>运算符</th><th>符号</th><th>形式</th><th>操作</th></tr><tr><td>逗号</td><td>，</td><td>x, y</td><td>先求值 x 再求值 y，返回 y 的值</td></tr></tbody></table></div><p>浮点类型的 <strong>逗号运算符 (,)</strong> 允许你在任何允许单个表达式的地方求值多个表达式。逗号运算符先求值左操作数，然后求值右操作数，最后返回右操作数的结果。</p><p>例如：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+    int x{ 1 };
+    int y{ 2 };
+
+    std::cout &lt;&lt; (++x, ++y) &lt;&lt; '\n'; // 递增 x 和 y，求值为右操作数
+
+    return 0;
+}
+</code></pre><p>首先，逗号运算符的左操作数被求值，这会使 <em>x</em> 从 <em>1</em> 切换到 <em>2</em>递增。接着，右操作数被求值，这会使 <em>y</em> 从 <em>2</em> 切换到 <em>3</em>递增。逗号运算符返回右操作数的结果（<em>3</em>），随后该结果被打印到控制台。</p><p>注意，逗号在所有运算符中优先级最低，甚至低于赋值。因此，下面两行代码执行不同的操作：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">z = (a, b); // 先求值 (a, b) 得到 b 的结果，然后将该值赋给变量 z。
+z = a, b; // 被求值为 "(z = a), b"，因此 z 被赋值为 a 的值，b 被求值并丢弃。
+</code></pre><p>这使得逗号运算符使用起来有些危险。</p><p>几乎在所有情况下，使用逗号运算符编写的语句最好写成单独的语句。例如，上面的代码可以写成：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+    int x{ 1 };
+    int y{ 2 };
+
+    ++x;
+    std::cout &lt;&lt; ++y &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>大多数程序员根本不使用逗号运算符，唯一的例外是在 <em>for 循环</em>中，它的使用相当常见。我们将在未来的课程中讨论 for 循环 <a href="for-statements.html">8.10 -- For 语句</a>。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>避免使用逗号运算符，除非在 <em>for 循环</em>。</p></div><p class="cpp-section">逗号作为分隔符</p><p>在 C++ 中，逗号符号经常用作分隔符，这些用法不会调用逗号运算符。分隔逗号的一些示例：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">void foo(int x, int y) // 分隔逗号用于分隔函数定义中的参数
+{
+    add(x, y); // 分隔逗号用于分隔函数调用中的实参
+    constexpr int z{ 3 }, w{ 5 }; // 分隔逗号用于分隔同一行上定义的多个变量（不要这样做）
+}
+</code></pre><p>没有必要避免使用分隔逗号（除非在声明多个变量时，你不应该这样做）。</p>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="increment-decrement-operators-and-side-effects.html" rel="prev"><small>上一课</small><strong>6.4 — 自增/自减运算符与副作用</strong></a><a class="lesson-nav-index" href="../index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="the-conditional-operator.html" rel="next"><small>下一课</small><strong>6.6 — 条件运算符</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

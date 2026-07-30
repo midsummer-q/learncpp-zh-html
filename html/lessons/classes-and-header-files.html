@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/classes-and-header-files/" name="learncpp:source-url"/>
+<meta content="4cf6dc5e598f183f5c6a821758928ed178bf8769e7c7059660ca2a5670e903c4" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:50:47.090959+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T17:48:33.982072+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>15.2 — Classes and header files</title>
+<link href="../assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="../assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="../index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="../index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">15.2 — 类与头文件</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 15.2</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/classes-and-header-files/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>到目前为止，我们编写的所有类都足够简单，以至于我们能够直接在类定义内部实现成员函数。例如，这里有一个简单的 <code>Date</code> 类，其中所有成员函数都在 <code>Date</code> 类定义内部定义：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+class Date
+{
+private:
+    int m_year{};
+    int m_month{};
+    int m_day{};
+ 
+public:
+    Date(int year, int month, int day)
+        : m_year { year }
+        , m_month { month }
+        , m_day { day}
+    {
+    }
+
+    void print() const { std::cout &lt;&lt; "Date(" &lt;&lt; m_year &lt;&lt; ", " &lt;&lt; m_month &lt;&lt; ", " &lt;&lt; m_day &lt;&lt; ")\n"; }
+
+    int getYear() const { return m_year; }
+    int getMonth() const { return m_month; }
+    int getDay() const { return m_day; }
+};
+
+int main()
+{
+    Date d { 2015, 10, 14 };
+    d.print();
+
+    return 0;
+}
+</code></pre><p>然而，随着类变得越来越长和复杂，将所有成员函数定义放在类内部会使类难以管理和使用。使用一个已经编写好的类只需要理解其公共接口（公共成员函数），而不需要了解类在底层是如何工作的。成员函数的实现会以与使用类无关的细节来干扰公共接口。</p><p>为了解决这个问题，C++ 允许我们通过将成员函数定义在类定义之外，将类的“声明”部分与“实现”部分分离。</p><p>下面是与上面相同的 <code>Date</code> 类，其构造函数和 <code>print()</code> 成员函数定义在类定义之外。注意，这些成员函数的原型仍然存在于类定义内部（因为这些函数需要作为类类型定义的一部分来声明），但实际的实现已被移到了外部：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+class Date
+{
+private:
+    int m_year{};
+    int m_month{};
+    int m_day{};
+
+public:
+    Date(int year, int month, int day); // 构造函数声明
+
+    void print() const; // 打印函数声明
+
+    int getYear() const { return m_year; }
+    int getMonth() const { return m_month; }
+    int getDay() const  { return m_day; }
+};
+
+Date::Date(int year, int month, int day) // 构造函数定义
+    : m_year{ year }
+    , m_month{ month }
+    , m_day{ day }
+{
+}
+
+void Date::print() const // 打印函数定义
+{
+    std::cout &lt;&lt; "Date(" &lt;&lt; m_year &lt;&lt; ", " &lt;&lt; m_month &lt;&lt; ", " &lt;&lt; m_day &lt;&lt; ")\n";
+};
+
+int main()
+{
+    const Date d{ 2015, 10, 14 };
+    d.print();
+
+    return 0;
+}
+</code></pre><p>成员函数可以像非成员函数一样在类定义之外定义。唯一的区别是，我们必须用类类型的名称（在本例中是 <code>Date::</code>）作为成员函数名的前缀，以便编译器知道我们正在定义该类的成员，而不是非成员。</p><p>注意，我们将访问函数保留在类定义内部定义。因为访问函数通常只有一行，在类定义内部定义这些函数只会增加很少的杂乱，而将它们移到类定义外部则会导致许多额外的代码行。因此，访问函数（以及其他简单的单行函数）的定义通常保留在类定义内部。</p><p class="cpp-section cpp-topline" style="clear:both">将类定义放在头文件中</p><p>如果你在源文件（.cpp）中定义了一个类，那么该类只能在该特定源文件中使用。在较大的程序中，我们通常希望在我们编写的多个源文件中使用这些类。</p><p>在课程 <a href="header-files.html">2.11 -- 头文件</a>中，你了解到可以将函数声明放在头文件中。然后你可以将这些函数声明 #include 到多个代码文件中（甚至多个项目中）。类也不例外。类定义可以放在头文件中，然后 #include 到任何想要使用该类类型的其他文件中。</p><p>与函数不同，函数只需要前向声明即可使用，而编译器通常需要看到类（或任何程序定义类型）的完整定义才能使用该类型。这是因为编译器需要了解成员是如何声明的，以确保它们被正确使用，并且它需要能够计算该类型对象的大小以便实例化它们。因此，我们的头文件通常包含类的完整定义，而不仅仅是类的前向声明。</p><p class="cpp-section cpp-topline" style="clear:both">命名你的类头文件和代码文件</p><p>大多数情况下，类定义在与类同名的头文件中，而任何在类外部定义的成员函数都放在与类同名的 .cpp 文件中。</p><p>下面是我们再次分解为 .cpp 和 .h 文件的 Date 类：</p><p>Date.h：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#ifndef DATE_H
+#define DATE_H
+
+class Date
+{
+private:
+    int m_year{};
+    int m_month{};
+    int m_day{};
+ 
+public:
+    Date(int year, int month, int day);
+
+    void print() const;
+
+    int getYear() const { return m_year; }
+    int getMonth() const { return m_month; }
+    int getDay() const { return m_day; }
+};
+
+#endif
+</code></pre><p>Date.cpp：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include "Date.h"
+
+Date::Date(int year, int month, int day) // 构造函数定义
+    : m_year{ year }
+    , m_month{ month }
+    , m_day{ day }
+{
+}
+
+void Date::print() const // 打印函数定义
+{
+    std::cout &lt;&lt; "Date(" &lt;&lt; m_year &lt;&lt; ", " &lt;&lt; m_month &lt;&lt; ", " &lt;&lt; m_day &lt;&lt; ")\n";
+};
+</code></pre><p>现在，任何其他想要使用 <code>Date</code> 类的头文件或代码文件只需 <code>#include "Date.h"</code>。注意 <em>Date.cpp</em> 也需要编译到任何使用 <em>Date.h</em> 的项目中，以便链接器可以将对成员函数的调用连接到它们的定义。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>优先将类定义放在与类同名的头文件中。简单的成员函数（如访问函数、空体的构造函数等）可以在类定义内部定义。</p><p>优先将非简单的成员函数定义在与类同名的源文件中。</p></div><p class="cpp-section cpp-topline" style="clear:both">如果头文件被多次 #include，在头文件中定义类是否会违反单一定义规则？</p><p>类型不受单一定义规则（ODR）中每个程序只能有一个定义的部分的限制。因此，将类定义 #include 到多个翻译单元中是没有问题的。如果有问题，类就不会有太大用处了。</p><p>在单个翻译单元中多次包含类定义仍然是违反 ODR 的。然而，头文件保护（或 <code>#pragma once</code>）将防止这种情况发生。</p><p class="cpp-section cpp-topline" style="clear:both">内联成员函数</p><p>成员函数并不免除 ODR，因此你可能想知道当成员函数定义在头文件中（然后可能被包含到多个翻译单元中）时，我们如何避免 ODR 违规。</p><p>在类定义 <em>在</em> 内部定义的成员函数是隐式内联的。内联函数不受单一定义规则中每个程序一个定义部分的限制。</p><p>在类定义 <em>函数</em> 在类定义外部定义的成员函数不是隐式内联的（因此受单一定义规则中每个程序一个定义部分的限制）。这就是为什么这些函数通常定义在代码文件中（这样在整个程序中它们只有一个定义）。</p><p>或者，在类定义外部定义的成员函数如果使用 <code>inline</code> 关键字使其成为内联函数，则可以保留在头文件中。下面是我们 <em>Date.h</em> 再次声明头文件，其中在类外部定义的成员函数被标记为 <code>inline</code>：</p><p>Date.h：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#ifndef DATE_H
+#define DATE_H
+
+#include &lt;iostream&gt;
+
+class Date
+{
+private:
+    int m_year{};
+    int m_month{};
+    int m_day{};
+ 
+public:
+    Date(int year, int month, int day);
+
+    void print() const;
+
+    int getYear() const { return m_year; }
+    int getMonth() const { return m_month; }
+    int getDay() const { return m_day; }
+};
+
+inline Date::Date(int year, int month, int day) // 现在内联
+    : m_year{ year }
+    , m_month{ month }
+    , m_day{ day }
+{
+}
+
+inline void Date::print() const // 现在内联
+{
+    std::cout &lt;&lt; "Date(" &lt;&lt; m_year &lt;&lt; ", " &lt;&lt; m_month &lt;&lt; ", " &lt;&lt; m_day &lt;&lt; ")\n";
+};
+
+#endif
+</code></pre><p>这 <em>Date.h</em> 可以无问题地包含到多个翻译单元中。</p><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">关键提示</p><p>在类定义内部定义的函数是隐式内联的，这允许它们被 #include 到多个代码文件中而不违反 ODR。</p><p>在类定义外部定义的函数不是隐式内联的。可以通过使用 <code>inline</code> 关键字。</p></div><p class="cpp-section cpp-topline" style="clear:both">成员函数的内联展开</p><p>编译器必须能够看到函数的完整定义才能执行内联展开。大多数情况下，这样的函数（例如访问函数）是在类定义内部定义的。但是，如果你想在类定义外部定义成员函数，但仍然希望它能够被内联展开，你可以将其定义为内联函数，放在类定义的正下方（在同一个头文件中）。这样，任何 #include 该头文件的人都可以访问该函数的定义。</p><p class="cpp-section cpp-topline" style="clear:both">那么为什么不把所有东西都放在头文件中呢？</p><p>你可能会想把所有成员函数定义都放在头文件中，要么在类定义内部，要么作为内联函数放在类定义下方。虽然这样能编译通过，但有几个缺点。</p><p>首先，如上所述，在类定义内部定义成员会使类定义变得杂乱。</p><p>其次，如果你更改了头文件中的任何代码，那么你需要重新编译所有包含该头文件的文件。这可能会产生连锁反应，一个微小的更改导致整个程序需要重新编译。重新编译的成本可能差异很大：一个小项目可能只需要一分钟或更少的时间来构建，而一个大型商业项目可能需要数小时。</p><p>相反，如果你更改了 .cpp 文件中的代码，那么只有那个 .cpp 文件需要重新编译。因此，如果有选择，通常最好将非平凡的代码放在 .cpp 文件中。</p><p>有几种情况可能违反将类定义放在头文件、非平凡成员函数放在代码文件的最佳实践。</p><p>首先，对于只在单个代码文件中使用且不打算重复使用的小类，你可能更愿意将类（以及所有成员函数）直接定义在它被使用的单个 .cpp 文件中。这有助于明确该类仅在该单个文件中使用，不打算更广泛使用。如果你后来发现想要在多个文件中使用它，或者发现类和成员函数定义使源文件变得杂乱，你可以随时将类移到单独的头文件/代码文件中。</p><p>其次，如果一个类只有少量不太可能更改的非平凡成员函数，创建一个只包含一两个定义的 .cpp 文件可能不值得（因为它会使项目变得杂乱）。在这种情况下，最好将成员函数设为 <code>inline</code> 并将它们放在头文件中类定义的下方。</p><p>第三，在现代 C++ 中，类或库越来越多地以“仅头文件”形式分发，这意味着类或库的所有代码都放在一个头文件中。这样做主要是为了更容易分发和使用这些文件，因为头文件只需要被 #include，而代码文件需要显式添加到每个使用它的项目中，以便编译。如果为了分发而有意创建仅头文件的类或库，所有非平凡成员函数都可以设为 <code>inline</code> 并放在头文件中类定义的下方。</p><p>最后，对于模板类，在类外部定义的模板成员函数几乎总是定义在头文件中，位于类定义下方。就像非成员模板函数一样，编译器需要看到完整的模板定义才能实例化它。我们在课程 <a href="class-templates-with-member-functions.html">15.5 -- 带成员函数的类模板</a>。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">作者注</p><p>在未来的课程中，我们的大多数类将定义在单个 .cpp 文件中，所有函数直接在类定义中实现。这样做是为了保持示例简洁并易于自己编译。在实际项目中，类更常见的是放在它们自己的代码文件和头文件中，你应该习惯这样做。</p></div><p class="cpp-section cpp-topline" style="clear:both">成员函数的默认参数</p><p>在课程 <a href="default-arguments.html">11.5 -- 默认参数</a>，我们讨论了非成员函数默认参数的最佳实践：“如果函数有前向声明（尤其是在头文件中），则将默认参数放在那里。否则，将默认参数放在函数定义中。”</p><p>因为成员函数总是作为类定义的一部分声明（或定义），所以成员函数的最佳实践实际上更简单：始终将默认参数放在类定义内部。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>将成员函数的任何默认参数放在类定义内部。</p></div><p class="cpp-section cpp-topline" style="clear:both">库</p><p>在你的程序中，你一直使用标准库中的类，例如 <code>std::string</code>。要使用这些类，你只需要 #include 相关的头文件（例如 <code>#include &lt;string&gt;</code>）。注意，你不需要向项目中添加任何代码文件（例如 <code>string.cpp</code> 或 <code>iostream.cpp</code>）。</p><p>头文件提供了编译器验证你编写的程序语法正确所需的声明。然而，属于 C++ 标准库的类的实现包含在一个预编译文件中，该文件在链接阶段自动链接。你永远看不到代码。</p><p>许多开源软件包提供 .h 和 .cpp 文件供你编译到程序中。然而，大多数商业库只提供 .h 文件和预编译的库文件。有几个原因：1) 链接预编译库比每次需要时重新编译更快，2) 单个预编译库副本可以被多个应用程序共享，而编译后的代码会被编译到每个使用它的可执行文件中（导致文件大小膨胀），3) 知识产权原因（你不希望别人窃取你的代码）。</p><p>我们将在附录中讨论如何将第三方预编译库包含到你的项目中。</p><p>虽然你可能暂时不会创建和分发自己的库，但将类分离到头文件和源文件不仅是良好的形式，而且也使创建自己的自定义库更容易。创建自己的库超出了本教程的范围，但如果你想分发预编译的二进制文件，分离声明和实现是前提条件。</p><p class="cpp-section cpp-topline" style="clear:both">小测验时间</p><p class="cpp-quiz-question" style="clear:both">问题 #1</p><p>感谢读者“learnccp lesson reviewer”提供这些测验问题。</p><p>在类定义外部定义成员函数的目的是什么？<br/>a) 使类定义更短且更易于管理。<br/>b) 将公共接口与实现细节分离。<br/>c) 当在源文件中定义时，最小化实现细节更改时的重新编译时间。<br/>d) 以上所有。</p><p><a aria-controls="cpp_solution_id_0" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_0" href="#cpp_solution_id_0">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_0">d) 以上所有。</div><p>如何在类定义外部定义成员函数？<br/>a) 简单地将函数定义为普通函数，不带任何类前缀。<br/>b) 使用作用域解析运算符（::）在函数前加上类名前缀来定义函数。<br/>c) 在类定义内部声明函数，并在外部使用 friend 关键字定义它。<br/>d) 以上都不是。</p><p><a aria-controls="cpp_solution_id_1" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_1" href="#cpp_solution_id_1">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_1">b) 使用作用域解析运算符（::）在函数前加上类名前缀来定义函数。</div><p>何时应在类定义内部定义简单的成员函数？<br/>a) 总是，以提高性能。<br/>b) 当函数只有一行代码时。<br/>c) 当函数被频繁调用时。<br/>d) 不建议在类定义内部定义任何成员函数。</p><p><a aria-controls="cpp_solution_id_2" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_2" href="#cpp_solution_id_2">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_2">b) 当函数只有一行代码时。</div><p>为了便于在多个文件或项目中重用，类定义应放在哪里？<br/>a) 在与类同名的 .cpp 文件中。<br/>b) 在与类同名的单独头文件中。<br/>c) 在包含头文件的 .cpp 文件中。<br/>d) 代码中的任何位置，只要函数在类外部定义即可。</p><p><a aria-controls="cpp_solution_id_3" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_3" href="#cpp_solution_id_3">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_3">b) 在与类同名的单独头文件中。</div><p>关于类和成员函数的一次定义规则，以下哪项是正确的？<br/>a) 它禁止在头文件中定义类。<br/>b) 它允许在同一文件中多次包含类定义。<br/>c) 在类定义内部定义的成员函数不受一次定义规则的约束。<br/>d) 非平凡的成员函数应始终在头文件中定义。</p><p><a aria-controls="cpp_solution_id_4" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_4" href="#cpp_solution_id_4">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_4">c) 在类定义内部定义的成员函数是隐式内联的，因此不受一次定义规则的约束。</div>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="the-hidden-this-pointer-and-member-function-chaining.html" rel="prev"><small>上一课</small><strong>15.1 — 隐藏的“this”指针与成员函数链式调用</strong></a><a class="lesson-nav-index" href="../index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="nested-types-member-types.html" rel="next"><small>下一课</small><strong>15.3 — 嵌套类型（成员类型）</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

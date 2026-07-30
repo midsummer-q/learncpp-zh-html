@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/introduction-to-cplusplus/" name="learncpp:source-url"/>
+<meta content="72c3b6a14d8fa6319edd4436bd13649bafef3936dfb092edeef86b66a7d8d99b" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:44:02.696806+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T17:18:08.581124+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>0.3 — Introduction to C/C++</title>
+<link href="../assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="../assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="../index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="../index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">0.3 — C/C++ 简介</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 0.3</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/introduction-to-cplusplus/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p class="cpp-section">在 C++ 之前，有 C</p><p>C 语言于 1972 年由 Dennis Ritchie 在贝尔电话实验室开发，主要作为一种系统编程语言（用于编写操作系统的语言）。Ritchie 的主要目标是创建一种极简的语言，易于编译、允许高效访问内存、生成高效的代码，并且是自包含的（不依赖其他程序）。作为一种高级语言，C 被设计为给予程序员很大的控制权，同时允许开发人员编写可在不同平台上运行的程序。</p><p>C 最终如此高效和灵活，以至于在 1973 年，Ritchie 和 Ken Thompson 使用 C 重写了 Unix 操作系统的大部分内容。许多之前的操作系统是用汇编语言编写的。与汇编不同，汇编生成的程序只能在特定 CPU 上运行，而 C 具有出色的可移植性，使得 Unix 可以轻松地在许多不同类型的计算机上重新编译，从而加速了其被采用。C 和 Unix 的命运紧密相连，C 的普及部分归功于 Unix 作为操作系统的成功。</p><p>1978 年，Brian Kernighan 和 Dennis Ritchie 出版了一本名为《C 程序设计语言》的书。这本书通常被称为 K&amp;R（取自作者姓氏的首字母），为语言提供了非正式规范，并成为了事实上的标准。当需要最大可移植性时，程序员会遵循 K&amp;R 中的建议，因为当时大多数编译器都是按照 K&amp;R 标准实现的。</p><p>1983 年，美国国家标准协会（ANSI）成立了一个委员会，为 C 制定正式标准。1989 年（委员会做事总是很慢），他们完成了工作，并发布了 C89 标准，通常称为 ANSI C。1990 年，国际标准化组织（ISO）采纳了 ANSI C（进行了少量修改）。这个版本的 C 被称为 C90。编译器最终变得符合 ANSI C/C90 标准，追求最大可移植性的程序都按照此标准编写。</p><p>1999 年，ISO 委员会发布了一个新版本的 C，非正式名称为 C99。C99 采纳了许多已经作为扩展进入编译器或在 C++ 中实现的特性。</p><p class="cpp-section cpp-topline" style="clear:both">C++</p><p>C++（发音为“see plus plus”）是由 Bjarne Stroustrup 在贝尔实验室开发的，作为 C 的扩展，始于 1979 年。C++ 为 C 语言增加了许多新特性，最好将其视为 C 的超集，尽管这并非严格成立（因为 C99 引入了一些 C++ 中没有的特性）。C++ 相对于 C 最显著的创新是支持面向对象编程。至于什么是“对象”以及它与传统编程方法有何不同，我们将在后面的章节中介绍。</p><p>C++ 于 1998 年由 ISO 委员会标准化。这意味着 ISO 标准委员会批准了一个文件（称为 <strong>标准文档</strong>），它提供了 C++ 语言的正式描述。标准化的目标是帮助确保 C++ 代码在不同的编译器和平台上行为一致。</p><p>该语言的一个小更新于 2003 年发布（非正式名称为 C++03）。</p><p>此后又进行了五次主要更新（非正式名称为 C++11、C++14、C++17、C++20 和 C++23），每次添加了额外的功能。尤其是 C++11 添加了大量新能力，并被广泛认为是该语言的新基线版本。未来预计每三年左右会有一次语言升级。</p><p>由于已批准标准的官方名称很复杂（C++20 的正式名称为 ISO/IEC 14882:2020），标准通常被非正式名称引用，其中包括发布年份的最后两位数字。例如，C++20 指的是 2020 年发布的语言版本。</p><p class="cpp-section cpp-topline" style="clear:both">C 和 C++ 的哲学</p><p>C 和 C++ 的基本设计哲学可以概括为“信任程序员”——这既美妙又危险。C++ 被设计为允许程序员有高度自由去做他们想做的事。然而，这也意味着语言通常不会阻止你做没有意义的事情，因为它会假设你这样做是出于某些它不理解的原因。有许多陷阱，如果新程序员没有意识到，很容易陷入其中。这是为什么在 C/C++ 中知道你不应该做什么几乎和知道你应该做什么一样重要的主要原因之一。</p><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">问：C++ 擅长什么？</p><p>C++ 在需要高性能和对内存及其他资源的精确控制的情况下表现出色。以下是 C++ 擅长的一些应用类型：</p><ul><li>电子游戏</li><li>实时系统（例如交通、制造等）</li><li>高性能金融应用（例如高频交易）</li><li>图形应用和模拟</li><li>生产力/办公应用</li><li>嵌入式软件</li><li>音频和视频处理</li><li>人工智能和神经网络</li></ul><p>C++还拥有大量高质量的第三方库，可以显著缩短开发时间。</p></div><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">问：C++是不是正在消亡？</p><p>不。调查一致显示，C++是第二或第三大流行的编译语言（仅次于Java，有时还有C#，略高于C），并且是第五或第六大流行的总体语言（不包括HTML、SQL和shell脚本语言）。</p><p>由于丰富的教学资源、庞大的社区以及众多大学课程教授，C++是最受欢迎的学习编程语言之一。</p><p>每三年一次的语言更新、大量有用的第三方库以及在一直流行的游戏行业中的主导地位，C++继续蓬勃发展。</p></div><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">问：在开始这些教程之前，我需要先了解C吗？</p><p>不需要！从C++开始完全没问题，我们会在过程中教你所有需要知道的知识（包括需要避免的陷阱）。</p><p>一旦你掌握了C++，如果需要的话，学习标准C应该很容易。如今，C主要用于特定场景：在嵌入式设备上运行的代码，当你需要与只能与C接口的其他语言交互时等等。对于大多数其他情况，推荐使用C++。</p></div>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="introduction-to-programming-languages.html" rel="prev"><small>上一课</small><strong>0.2 — 程序与编程语言简介</strong></a><a class="lesson-nav-index" href="../index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="introduction-to-cpp-development.html" rel="next"><small>下一课</small><strong>0.4 — C++ 开发简介</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

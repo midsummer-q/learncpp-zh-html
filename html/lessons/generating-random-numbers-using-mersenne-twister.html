@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/generating-random-numbers-using-mersenne-twister/" name="learncpp:source-url"/>
+<meta content="8ff09c3054987a1b1f39b77774f8c6a3eeb5d523f1af355c47a73f5ca66a52a5" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:47:47.116724+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T17:27:29.921320+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>8.14 — Generating random numbers using Mersenne Twister</title>
+<link href="../assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="../assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="../index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="../index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">8.14 — 使用梅森旋转算法生成随机数</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 8.14</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/generating-random-numbers-using-mersenne-twister/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>在上一节课 <a href="introduction-to-random-number-generation.html">8.13 -- 随机数生成简介</a>中，我们介绍了随机数生成的概念，并讨论了PRNG算法通常如何用于在程序中模拟随机性。</p><p>在本节课中，我们将探讨如何在程序中生成随机数。要使用C++中的任何随机化功能，我们需要包含标准库的 <code>&lt;random&gt;</code> 头文件。</p><p class="cpp-section cpp-topline" style="clear:both">在C++中使用梅森旋转算法生成随机数</p><p>梅森旋转算法PRNG，除了名字好听之外，可能是所有编程语言中最流行的PRNG。虽然以今天的标准来看它有点老，但它通常能产生高质量的结果，并且性能不错。random库支持两种梅森旋转算法类型：</p><ul><li><code>mt19937</code> 是生成32位无符号整数的梅森旋转算法</li><li><code>mt19937_64</code> 是生成64位无符号整数的梅森旋转算法</li></ul><p>使用梅森旋转算法很简单：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;random&gt; // for std::mt19937
+
+int main()
+{
+	std::mt19937 mt{}; // 实例化一个32位梅森旋转算法
+
+	// 打印一堆随机数
+	for (int count{ 1 }; count &lt;= 40; ++count)
+	{
+		std::cout &lt;&lt; mt() &lt;&lt; '\t'; // 生成一个随机数
+
+		// 如果已经打印了5个数字，开始新的一行
+		if (count % 5 == 0)
+			std::cout &lt;&lt; '\n';
+	}
+
+	return 0;
+}
+</code></pre><p>这会产生以下结果：</p><pre>3499211612      581869302       3890346734      3586334585      545404204
+4161255391      3922919429      949333985       2715962298      1323567403
+418932835       2350294565      1196140740      809094426       2348838239
+4264392720      4112460519      4279768804      4144164697      4156218106
+676943009       3117454609      4168664243      4213834039      4111000746
+471852626       2084672536      3427838553      3437178460      1275731771
+609397212       20544909        1811450929      483031418       3933054126
+2747762695      3402504553      3772830893      4120988587      2163214728
+</pre><p>首先，我们包含&lt;random&gt;头文件，因为所有随机数功能都在那里。接下来，我们通过语句 <code>std::mt19937 mt</code>实例化一个32位梅森旋转算法引擎。然后，每次我们想要生成一个随机的32位无符号整数时，我们调用 <code>mt()</code>。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">顺便说一句……</p><p>由于 <code>mt</code> 是一个变量，你可能想知道 <code>mt()</code> 是什么意思。</p><p>在课程 <a href="introduction-to-stdstring.html">5.7 -- std::string 简介</a>中，我们展示了一个调用函数 <code>name.length()</code>的例子，它调用了 <code>length()</code> 上的 <code>std::string</code> 变量 <code>name</code>。</p><p><code>mt()</code> 是调用函数 <code>mt.operator()</code>的简洁语法，对于这些PRNG类型，该函数被定义为返回序列中的下一个随机结果。使用 <code>operator()</code> 而不是命名函数的好处是，我们不需要记住函数名，而且简洁的语法减少了打字量。</p></div><p class="cpp-section cpp-topline" style="clear:both">使用梅森旋转算法掷骰子</p><p>一个32位PRNG会生成0到4,294,967,295之间的随机数，但我们并不总是需要这个范围内的数字。如果我们的程序模拟的是棋盘游戏或骰子游戏，我们可能希望模拟一个六面骰子的投掷，生成1到6之间的随机数。如果我们的程序是一个地牢冒险游戏，玩家有一把对怪物造成7到11点伤害的剑，那么当玩家击中怪物时，我们希望生成7到11之间的随机数。</p><p>不幸的是，PRNG不能做到这一点。它们只能生成使用完整范围的数字。我们需要某种方法将PRNG输出的数字转换为我们想要的较小范围的值（每个值出现的概率相等）。虽然我们可以自己编写一个函数来实现这一点，但以产生无偏结果的方式来做这件事并不简单。</p><p>幸运的是，random库可以在这里帮助我们，以随机数分布的形式。 <strong>随机数分布</strong> 将PRNG的输出转换为其他数字分布。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">顺便说一句……</p><p>对于统计极客：随机数分布只是一种概率分布，旨在将PRNG值作为输入。</p></div><p>random库有许多随机数分布，其中大多数除非你进行某种统计分析，否则永远不会用到。但有一种随机数分布非常有用： <strong>均匀分布</strong> 是一种随机数分布，它在两个数字X和Y之间（包括边界）以相等的概率产生输出。</p><p>下面是一个与上面类似的程序，使用均匀分布来模拟六面骰子的投掷：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;random&gt; // for std::mt19937 and std::uniform_int_distribution
+
+int main()
+{
+	std::mt19937 mt{};
+
+	// 创建一个可重用的随机数生成器，生成1到6之间的均匀数
+	std::uniform_int_distribution die6{ 1, 6 }; // 对于C++14，使用 std::uniform_int_distribution&lt;&gt; die6{ 1, 6 };
+
+	// 打印一堆随机数
+	for (int count{ 1 }; count &lt;= 40; ++count)
+	{
+		std::cout &lt;&lt; die6(mt) &lt;&lt; '\t'; // 在这里生成一次掷骰子
+
+		// 如果已经打印了10个数字，开始新的一行
+		if (count % 10 == 0)
+			std::cout &lt;&lt; '\n';
+	}
+
+	return 0;
+}
+</code></pre><p>这会产生以下结果：</p><pre>3       1       3       6       5       2       6       6       1       2
+2       6       1       1       6       1       4       5       2       5
+6       2       6       2       1       3       5       4       5       6
+1       4       2       3       1       2       2       6       2       1
+</pre><p>这个例子与上一个相比只有两个值得注意的区别。首先，我们创建了一个均匀分布变量（名为 <code>die6</code>）来生成1到6之间的数字。其次，我们不再调用 <code>mt()</code> 来生成32位无符号整数随机数，而是调用 <code>die6(mt)</code> 来生成1到6之间的值。</p><p class="cpp-section cpp-topline" style="clear:both">上面的程序并不像看起来那么随机</p><p>虽然上面掷骰子示例的结果相当随机，但该程序有一个主要缺陷。运行程序3次，看看你是否能发现它是什么。去吧，我们等着。</p><p><em>危险边缘音乐</em></p><p>如果你多次运行该程序，你会注意到它每次都打印相同的数字！虽然序列中的每个数字相对于前一个数字是随机的，但整个序列根本不是随机的！每次运行程序都会产生完全相同的结果。</p><p>想象一下，你正在编写一个猜数字游戏，用户有10次机会猜一个随机选取的数字，计算机会告诉用户猜高了还是低了。如果计算机每次都选同一个随机数，那么游戏玩过一次之后就没意思了。所以，让我们深入探讨一下为什么会这样，以及如何解决。</p><p>在上一课（<a href="introduction-to-random-number-generation.html">8.13 -- 随机数生成简介</a>我们提到过，PRNG序列中的每个数字都是以确定的方式生成的。并且PRNG的状态是从种子值初始化的。因此，给定任何起始种子数，PRNG总是会从该种子生成相同的数字序列。</p><p>因为我们是对梅森旋转算法进行值初始化，所以每次程序运行时它都用相同的种子初始化。由于种子相同，生成的随机数也相同。</p><p>为了让整个序列在每次程序运行时都随机化，我们需要选择一个不是固定数字的种子。首先想到的答案可能是我们需要一个随机数作为种子！这是个好主意，但如果我们需要随机数来生成随机数，那就陷入了两难境地。事实证明，我们并不真的需要种子是随机数——我们只需要选择一些每次程序运行时都会变化的东西。然后我们可以用PRNG从那个种子生成一个唯一的伪随机数序列。</p><p>有两种常用的方法来实现这一点：</p><ul><li>使用系统时钟</li><li>使用系统的随机设备</li></ul><p class="cpp-section cpp-topline" style="clear:both">使用系统时钟播种</p><p>每次运行程序时，有什么东西是不同的？除非你碰巧在同一时刻运行程序两次，否则答案是当前时间不同。因此，如果我们使用当前时间作为种子值，那么程序每次运行时都会产生一组不同的随机数。C和C++长期以来一直使用当前时间（通过 <code>std::time()</code> 函数）来播种PRNG，所以你可能会在很多现有代码中看到这种做法。</p><p>幸运的是，C++有一个chrono库，包含各种时钟，我们可以用来生成种子值。为了最小化程序快速连续运行时两个时间值相同的可能性，我们希望使用变化尽可能快的时间度量。为此，我们将询问时钟自其可测量的最早时间以来经过了多少时间。这个时间以“滴答”为单位，这是一个非常小的时间单位（通常是纳秒，但也可能是毫秒）。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;random&gt; // for std::mt19937
+#include &lt;chrono&gt; // for std::chrono
+
+int main()
+{
+	// 使用steady_clock播种我们的梅森旋转算法
+	std::mt19937 mt{ static_cast&lt;std::mt19937::result_type&gt;(
+		std::chrono::steady_clock::now().time_since_epoch().count()
+		) };
+
+	// 创建一个可重用的随机数生成器，生成1到6之间的均匀数
+	std::uniform_int_distribution die6{ 1, 6 }; // 对于C++14，使用 std::uniform_int_distribution&lt;&gt; die6{ 1, 6 };
+
+	// 打印一堆随机数
+	for (int count{ 1 }; count &lt;= 40; ++count)
+	{
+		std::cout &lt;&lt; die6(mt) &lt;&lt; '\t'; // 在这里生成一次掷骰子
+
+		// 如果已经打印了10个数字，开始新的一行
+		if (count % 10 == 0)
+			std::cout &lt;&lt; '\n';
+	}
+
+	return 0;
+}
+</code></pre><p>上面的程序与之前相比只有两个变化。首先，我们包含了&lt;chrono&gt;，它让我们能够访问时钟。其次，我们使用时钟的当前时间作为梅森旋转算法的种子值。</p><p>这个程序生成的结果现在每次运行时应该都不同，你可以通过多次运行来实验验证。</p><p>这种方法的缺点是，如果程序在短时间内连续运行多次，每次运行生成的种子不会有太大差异，这可能会从统计角度影响随机结果的质量。对于普通程序来说，这无关紧要，但对于需要高质量、独立结果的程序，这种播种方法可能不够。</p><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">提示</p><p><code>std::chrono::high_resolution_clock</code> 是更受欢迎的选择，而不是 <code>std::chrono::steady_clock</code>。 <code>std::chrono::high_resolution_clock</code> 是使用最精细时间单位的时钟，但它可能使用系统时钟作为当前时间，而系统时钟可以被用户更改或回拨。 <code>std::chrono::steady_clock</code> 可能具有较粗的滴答时间，但它是唯一保证用户无法调整的时钟。</p></div><p class="cpp-section cpp-topline" style="clear:both">使用随机设备播种</p><p>随机库包含一个类型，称为 <code>std::random_device</code> 它是一个实现定义的PRNG。通常我们避免使用实现定义的功能，因为它们没有质量或可移植性的保证，但这是一个例外情况。通常 <code>std::random_device</code> 会向操作系统请求一个伪随机数（具体方式取决于操作系统）。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;random&gt; // for std::mt19937 and std::random_device
+
+int main()
+{
+	std::mt19937 mt{ std::random_device{}() };
+
+	// 创建一个可重用的随机数生成器，生成1到6之间的均匀数
+	std::uniform_int_distribution die6{ 1, 6 }; // 对于C++14，使用 std::uniform_int_distribution&lt;&gt; die6{ 1, 6 };
+
+	// 打印一堆随机数
+	for (int count{ 1 }; count &lt;= 40; ++count)
+	{
+		std::cout &lt;&lt; die6(mt) &lt;&lt; '\t'; // 在这里生成一次掷骰子
+
+		// 如果已经打印了10个数字，开始新的一行
+		if (count % 10 == 0)
+			std::cout &lt;&lt; '\n';
+	}
+
+	return 0;
+}
+</code></pre><p>在上面的程序中，我们用一个临时实例生成的随机数来播种梅森旋转算法。 <code>std::random_device</code>如果你多次运行这个程序，它每次也应该产生不同的结果。</p><p>一个潜在的问题是 <code>std::random_device</code>：它不要求是非确定性的，这意味着它 <em>可能</em>在某些系统上每次运行程序时产生相同的序列，而这正是我们试图避免的。曾经有一个 <a href="https://gcc.gnu.org/bugzilla/show_bug.cgi?id=85494">MinGW中的bug</a> （在GCC 9.2中修复）会完全这样，使得 <code>std::random_device</code> 无用。</p><p>然而，最新版本的主流编译器（GCC/MinGW、Clang、Visual Studio）都支持正确的实现。 <code>std::random_device</code>。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>使用 <code>std::random_device</code> 来播种你的PRNG（除非对于你的目标编译器/架构实现不正确）。</p></div><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">问： <code>std::random_device{}()</code> 是什么意思？</p><p><code>std::random_device{}</code> 创建一个值初始化的临时对象，类型为 <code>std::random_device</code>。这些 <code>()</code> 然后调用 <code>operator()</code> 在该临时对象上，返回一个随机值（我们用它作为梅森旋转算法的初始化器）。</p><p>它等价于调用以下函数，该函数使用你应该更熟悉的语法：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">unsigned int getRandomDeviceValue()
+{
+   std::random_device rd{}; // 创建一个值初始化的std::random_device对象
+   return rd(); // 将operator()的结果返回给调用者
+}
+</code></pre><p>使用 <code>std::random_device{}()</code> 允许我们在不创建命名函数或命名变量的情况下获得相同的结果，因此更加简洁。</p></div><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">问：如果std::random_device本身是随机的，为什么我们不直接使用它而不是梅森旋转算法？</p><p>由于 std::random_device 是由实现定义的，我们无法对其做太多假设。访问它可能代价高昂，或者可能导致程序暂停以等待更多随机数可用。它从中抽取的数字池也可能很快耗尽，从而影响其他通过相同方法请求随机数的应用程序的随机结果。因此，std::random_device 更适合用于为其他 PRNG 提供种子，而不是作为 PRNG 本身使用。</p></div><p class="cpp-section cpp-topline" style="clear:both">只对 PRNG 播种一次</p><p>许多 PRNG 在初始播种后可以重新播种。这本质上是重新初始化随机数生成器的状态，使其从新的种子状态开始生成结果。除非有特定原因，否则通常应避免重新播种，因为这可能导致结果随机性降低，甚至完全不随机。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>只对给定的伪随机数生成器播种一次，并且不要重新播种。</p></div><p>下面是一个新手程序员常犯错误的例子：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;random&gt;
+
+int getCard()
+{
+    std::mt19937 mt{ std::random_device{}() }; // 每次调用函数时都会创建并播种
+    std::uniform_int_distribution card{ 1, 52 };
+    return card(mt);
+}
+
+int main()
+{
+    std::cout &lt;&lt; getCard() &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>在 <code>getCard()</code> 函数中，每次调用该函数时都会创建并播种随机数生成器。这至少是低效的，并且很可能导致随机结果不佳。</p><p class="cpp-section cpp-topline" style="clear:both">梅森旋转算法与种子不足问题</p><p>梅森旋转算法的内部状态需要 19937 位（2493 字节），即 624 个 32 位值或 312 个 64 位值。因此， <code>std::mt19937</code> 分配 624 个整数，而 <code>std::mt19937_64</code> 分配 312 个整数。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">顺便说一句……</p><p>由 <code>std::mt19937</code> 分配的整数被定义为类型 <code>std::uint_fast32_t</code>，根据架构的不同，它可能是 32 位或 64 位整数。如果 <code>std::uint_fast32_t</code> 解析为 64 位整数， <code>std::mt19937</code> 将使用 624 个 64 位整数，使其大小翻倍。</p></div><p>在上面的例子中，我们使用时钟或 std::random_device 为我们的 <code>std::mt19937</code> 播种，我们的种子只是一个整数。这意味着我们实际上是用一个整数初始化 624 个整数，这严重地使梅森旋转算法 PRNG 种子不足。随机库尽力用“随机”数据填充剩余的 623 个值……但它无法创造奇迹。种子不足的 PRNG 生成的结果对于需要最高质量结果的应用来说可能不是最优的。例如，用单个 32 位值为 <code>std::mt19937</code> 播种将永远不会生成数字 <code>42</code> 作为其第一个输出。</p><p>那么如何解决这个问题呢？截至 C++20，没有简单的方法。但我们有一些建议。</p><p>首先，我们来谈谈 <code>std::seed_seq</code> （代表“种子序列”）。在上一课中，我们提到理想情况下我们希望种子数据与 PRNG 的状态位数一样多，否则我们的 PRNG 将种子不足。但在许多情况下（尤其是当我们的 PRNG 状态很大时），我们没有那么多随机化的种子数据位。</p><p><code>std::seed_seq</code> 是一种旨在帮助解决这个问题的类型。我们可以向它传递尽可能多的随机化值，然后它会生成尽可能多的额外无偏种子值来初始化 PRNG 的状态。如果你用一个值（例如来自 <code>std::seed_seq</code> ）初始化 <code>std::random_device</code>，然后用该 <code>std::seed_seq</code> 对象初始化梅森旋转算法， <code>std::seed_seq</code> 将生成 623 个额外的种子数据值。这不会增加随机性，但会给我们更好的 0 和 1 位混合。然而，我们能提供给 <code>std::seed_seq</code>的随机数据越多，它为我们做得越好。所以最简单的想法就是使用 <code>std::random_device</code> 给 <code>std::seed_seq</code> 提供更多数据。如果我们用来自 <code>std::seed_seq</code> 的 8 个值而不是 1 个来初始化 <code>std::random_device</code> ，那么由 <code>std::seed_seq</code> 生成的剩余值应该会好得多：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;random&gt;
+
+int main()
+{
+	std::random_device rd{};
+	std::seed_seq ss{ rd(), rd(), rd(), rd(), rd(), rd(), rd(), rd() }; // 从std::random_device获取8个整数作为种子
+	std::mt19937 mt{ ss }; // 用std::seed_seq初始化我们的梅森旋转算法
+
+	// 创建一个可重用的随机数生成器，生成1到6之间的均匀数
+	std::uniform_int_distribution die6{ 1, 6 }; // 对于C++14，使用 std::uniform_int_distribution&lt;&gt; die6{ 1, 6 };
+
+	// 打印一堆随机数
+	for (int count{ 1 }; count &lt;= 40; ++count)
+	{
+		std::cout &lt;&lt; die6(mt) &lt;&lt; '\t'; // 在这里生成一次掷骰子
+
+		// 如果已经打印了10个数字，开始新的一行
+		if (count % 10 == 0)
+			std::cout &lt;&lt; '\n';
+	}
+
+	return 0;
+}
+</code></pre><p>这非常简单，所以至少这样做没有太多理由不这么做。</p><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">问：为什么不给 std::seed_seq 提供来自 <code>std::random_device</code>？</p><p>的 624 个值？你可以这样做，但这可能很慢，并且有耗尽 <code>std::random_device</code> 使用的随机数池的风险。</p></div><p>你也可以使用其他“随机”输入给 <code>std::seed_seq</code>。我们已经向你展示了如何从时钟获取一个值，所以你可以轻松地将其加入。其他有时使用的东西包括当前线程 ID、特定函数的地址、用户 ID、进程 ID 等。这样做超出了本文的范围，但 <a href="https://www.pcg-random.org/posts/ease-of-use-without-loss-of-power.html">这篇文章</a> 有一些上下文和链接指向 <a href="https://gist.github.com/imneme/540829265469e673d045">randutils.hpp</a> 实现了这一点。</p><p>另一种方法是使用状态更小的不同PRNG。许多好的PRNG使用64或128位状态，可以通过 <code>std::seed_seq</code> 填充8次调用 <code>std::random_device</code>。</p><p class="cpp-section cpp-topline" style="clear:both">预热PRNG</p><p>当PRNG被赋予低质量的种子（或种子不足）时，PRNG的初始结果可能质量不高。因此，一些PRNG受益于“预热”，这是一种丢弃PRNG生成的前N个结果的技术。这允许PRNG的内部状态充分混合，使得后续结果质量更高。通常丢弃几百到几千个初始结果。PRNG的周期越长，应丢弃的初始结果越多。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">顺便说一句……</p><p>Visual Studio实现的 <code>rand()</code> 曾经（或仍然？）有一个bug，导致第一个生成的结果不够随机。你可能会看到旧程序使用 <code>rand()</code> 丢弃一个结果来避免这个问题。</p></div><p>浮点类型的 <code>seed_seq</code> 初始化使用的 <code>std::mt19937</code> 执行了预热，所以我们不需要显式预热 <code>std::mt19937</code> 对象。</p><p class="cpp-section cpp-topline" style="clear:both"><a name="RandomH"></a>跨多个函数或文件的随机数（Random.h） <a href="#RandomH"><i class="fa fa-link" style="font-size:.8em"></i></a></p><p>此内容已移至 <a href="global-random-numbers-random-h.html">8.15 -- 全局随机数 (Random.h)</a>。</p><p class="cpp-section cpp-topline" style="clear:both">调试使用随机数的程序</p><p>使用随机数的程序可能难以调试，因为程序每次运行时可能表现出不同的行为。在这种情况下，错误行为可能发生，也可能不发生。这可能会浪费大量时间。调试时，确保程序每次以相同（错误）的方式执行是有帮助的。这样，你可以根据需要多次运行程序来隔离错误所在。</p><p>因此，在调试时，一种有用的技术是用一个特定的固定值（例如 <code>5</code>）来播种PRNG，该值会导致错误行为发生。如果给定的种子没有导致程序出现错误，继续递增种子值直到找到一个能导致错误的种子。这将确保你的程序每次生成相同的结果，使调试更容易。一旦找到错误，你可以使用正常的播种方法再次开始生成随机结果。</p><p class="cpp-section cpp-topline" style="clear:both">随机数常见问题</p><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">问：救命！我的随机数生成器每次生成相同的随机数序列。</p><p>如果你的随机数生成器每次程序运行时生成相同的随机数序列，你可能没有正确播种（或根本没有播种）。确保你用一个每次程序运行时都会改变的值来播种。</p></div><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">问：救命！我的随机数生成器不断生成相同的数字。</p><p>如果你的随机数生成器每次请求随机数时都生成相同的数字，那么你可能在生成随机数之前重新播种了随机数生成器，或者为每个随机数创建了一个新的随机生成器。</p></div>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="introduction-to-random-number-generation.html" rel="prev"><small>上一课</small><strong>8.13 — 随机数生成简介</strong></a><a class="lesson-nav-index" href="../index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="global-random-numbers-random-h.html" rel="next"><small>下一课</small><strong>8.15 — 全局随机数（Random.h）</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

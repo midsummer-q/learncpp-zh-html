@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/a-strategy-for-debugging/" name="learncpp:source-url"/>
+<meta content="63ec259bd5257397f077602188e711e1e7e53e1c9e62ebe1b8c0272264eec24e" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:45:20.882184+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T17:18:29.656220+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>3.3 — A strategy for debugging</title>
+<link href="../assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="../assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="../index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="../index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">3.3 — 调试策略</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 3.3</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/a-strategy-for-debugging/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>调试程序时，大多数情况下，绝大部分时间会花在试图找出错误实际所在的位置。一旦找到问题，剩下的步骤（修复问题并验证问题已修复）相比之下往往微不足道。</p><p>在本节课中，我们将开始探讨如何发现错误。</p><p class="cpp-section">通过代码检查发现问题</p><p>假设你注意到一个问题，并想追踪该具体问题的原因。在许多情况下（尤其是较小的程序中），我们可以根据错误的性质和程序的结构来大致推断问题可能的位置。</p><p>考虑以下程序片段：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int main()
+{
+    getNames(); // 要求用户输入一组名字
+    sortNames(); // 按字母顺序排序
+    printNames(); // 打印已排序的名字列表
+
+    return 0;
+}
+</code></pre><p>如果你期望这个程序按字母顺序打印名字，但它却按相反顺序打印，那么问题很可能出在 <em>sortNames</em> 函数中。如果你能将问题缩小到某个特定函数，那么仅通过查看代码就可能发现这个问题。</p><p>然而，随着程序变得更为复杂，通过代码检查发现问题也变得更加困难。</p><p>首先，需要查看的代码更多了。查看一个长达数千行程序中的每一行代码可能需要很长时间（更不用说极其枯燥了）。其次，代码本身往往更加复杂，出错的可能性也更多。第三，代码的行为可能不会提供太多线索来说明哪里出了问题。如果你编写了一个输出股票推荐的程序，但它什么也没输出，你可能根本不知道从哪里开始寻找问题。</p><p>最后，错误可能是由错误的假设引起的。通过视觉检查发现由错误假设导致的错误几乎是不可能的，因为在检查代码时你很可能做出同样的错误假设，从而注意不到错误。那么，如果我们有一个无法通过代码检查发现的问题，该如何找到它呢？</p><p class="cpp-section cpp-topline" style="clear:both">通过运行程序发现问题</p><p>幸运的是，如果我们无法通过代码检查发现问题，还有另一种途径：观察程序运行时的行为，并尝试据此诊断问题。这种方法可以概括为：</p><ol><li>弄清楚如何重现问题</li><li>运行程序并收集信息，以缩小问题所在的范围</li><li>重复上一步，直到找到问题</li></ol><p>在本章剩余部分，我们将讨论有助于实现这一方法的技术。</p><p class="cpp-section cpp-topline" style="clear:both">重现问题</p><p>发现问题的第一步也是最重要的一步是能够 <em>重现问题</em>。重现问题意味着让问题以一致的方式出现。原因很简单：除非你能观察到问题发生，否则极难找到问题所在。</p><p>回到我们制冰机的类比——假设有一天你的朋友告诉你制冰机坏了。你去看它，却又正常工作。你会如何诊断问题？那会非常困难。然而，如果你能实际看到制冰机不工作的状况，那么你就能开始更有效地诊断它为什么不工作。</p><p>如果软件问题很明显（例如程序每次运行时都在同一个地方崩溃），那么重现问题可能很简单。但有时重现问题会困难得多。问题可能只出现在某些计算机上，或特定情况下（例如用户输入特定输入时）。在这种情况下，生成一组重现步骤会很有帮助。 <strong>重现步骤</strong> 是一系列清晰精确的步骤，按照这些步骤可以高概率地使问题再次出现。目标是尽可能让问题重新出现，这样我们就可以反复运行程序并寻找线索，确定导致问题的原因。如果问题能在100%的情况下重现，那是最理想的，但低于100%的可重现性也可以接受。一个只有50%时间出现的问题，意味着诊断问题需要两倍的时间，因为有一半时间程序不会表现出问题，也就无法提供有用的诊断信息。</p><p class="cpp-section cpp-topline" style="clear:both">定位问题</p><p>一旦我们能合理地重现问题，下一步就是找出问题在代码中的位置。根据问题的性质，这可能容易也可能困难。为了举例，假设我们不太清楚问题到底在哪里。我们该如何找到它？</p><p>一个类比会很有帮助。我们来玩一个猜高低游戏。我会让你猜一个1到10之间的数字。每猜一次，我会告诉你猜得过高、过低还是正确。这个游戏的一个实例可能如下所示：</p><pre>You: 5
+Me: Too low
+You: 8
+Me: Too high
+You: 6
+Me: Too low
+You: 7
+Me: Correct
+</pre><p>在上述游戏中，你不需要猜每个数字就能找到我想的数字。通过猜测并考虑每次猜测获得的信息，你可以仅用几次猜测就“锁定”正确的数字（如果你使用最优策略，你总能在4次或更少猜测内找到我想的数字）。</p><p>我们可以用类似的过程来调试程序。在最坏的情况下，我们可能完全不知道错误在哪里。然而，我们确实知道问题一定位于程序开始执行到程序展现出我们能观察到的第一个错误症状之间的代码中。这至少排除了第一个可观察症状之后执行的部分。但这仍然可能留下大量代码需要检查。为了诊断问题，我们会根据经验对问题的位置做出一些猜测，目标是快速锁定问题。</p><p>通常，最初让我们注意到问题的原因会给出一个接近实际问题的初步猜测。例如，如果程序应该写入文件却没有写入，那么问题可能出在处理文件写入的代码中（显然！）。然后我们可以使用类似猜高低的策略来尝试隔离问题的实际位置。</p><p>例如：</p><ul><li>如果在程序的某个点，我们能证明问题尚未发生，这类似于在猜高低游戏中得到了“过低”的结果——我们知道问题一定在程序的后面某个位置。例如，如果程序每次都在同一个地方崩溃，并且我们可以证明程序在执行到某个特定点尚未崩溃，那么崩溃一定发生在后面的代码中。</li><li>如果在程序的某个点我们能观察到与问题相关的错误行为，这类似于在猜高低游戏中得到了“过高”的结果，我们知道问题一定在程序的更早位置。例如，假设一个程序打印了某个变量 <em>x</em>。你期望它打印值 <em>2</em>，但它打印了 <em>8</em> 而不是。变量 <em>x</em> 必须具有错误的值。如果在程序执行过程中的某个时刻，我们能看到变量 <em>x</em> 已经有值 <em>8</em>，那么我们就知道问题一定发生在那之前。</li></ul><p>高低类比并不完美——我们有时也可以从考虑中移除整个代码段，而不获得关于实际问题是在该点之前还是之后的任何信息。</p><p>我们将在下一课中展示这三种情况的示例。</p><p>最终，通过足够的猜测和一些好的技巧，我们可以锁定导致问题的确切行！如果我们做了任何错误的假设，这将帮助我们发现问题所在。当你排除了所有其他可能性时，剩下的唯一事物必定是导致问题的原因。那么只需要理解为什么了。</p><p>你想使用哪种猜测策略由你决定——最佳策略取决于 bug 的类型，因此你可能需要尝试多种不同的方法来缩小问题范围。随着你在调试问题方面积累经验，你的直觉将帮助你引导方向。</p><p>那么我们如何“进行猜测”呢？有很多方法可以做到。我们将在下一章中从一些简单的方法开始，然后在此基础上继续，并在未来的章节中探索其他方法。</p>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="the-debugging-process.html" rel="prev"><small>上一课</small><strong>3.2 — 调试过程</strong></a><a class="lesson-nav-index" href="../index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="basic-debugging-tactics.html" rel="next"><small>下一课</small><strong>3.4 — 基本调试策略</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/forward-declarations/" name="learncpp:source-url"/>
+<meta content="de9a4a253618fb1663223a309b5d07ba5c7d046235f9ade27ec65aabd208922e" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:45:00.601192+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T17:18:24.071306+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>2.7 — Forward declarations and definitions</title>
+<link href="../assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="../assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="../index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="../index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">2.7 — 前向声明与定义</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 2.7</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/forward-declarations/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>来看看这个看似无害的示例程序：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+    std::cout &lt;&lt; "The sum of 3 and 4 is: " &lt;&lt; add(3, 4) &lt;&lt; '\n';
+    return 0;
+}
+
+int add(int x, int y)
+{
+    return x + y;
+}
+</code></pre><p>你可能期望这个程序输出结果：</p><pre>The sum of 3 and 4 is: 7
+</pre><p>但实际上，它根本不能编译！Visual Studio 会生成以下编译错误：</p><pre>add.cpp(5) : error C3861: 'add': identifier not found
+</pre><p>该程序无法编译的原因是编译器按顺序处理代码文件的内容。当编译器到达函数调用 <em>add()</em> 的第 5 行时 <em>main</em>它不知道 <em>add</em> 是什么，因为我们尚未定义 <em>add</em> 直到第 9 行！这就产生了错误： <em>未找到标识符</em>。</p><p>旧版 Visual Studio 还会生成一个额外错误：</p><pre>add.cpp(9) : error C2365: 'add'; : redefinition; previous definition was 'formerly unknown identifier'
+</pre><p>这有些误导，因为 <em>add</em> 从未被定义过。尽管如此，一般注意这一点是有用的：单个错误常常会产生许多冗余或相关的错误或警告。有时很难判断第一个错误之后的任何错误或警告是第一个问题的后果，还是需要单独解决的独立问题。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>在处理程序中的编译错误或警告时，先解决列表中的第一个问题，然后重新编译。</p></div><p>要解决这个问题，我们需要处理编译器不知道 add 是什么的事实。有两种常见的方法来解决这个问题。</p><p class="cpp-section cpp-topline" style="clear:both">选项 1：重新排列函数定义</p><p>解决这个问题的一种方法是重新排列函数定义，使得 <em>add</em> 定义在之前 <em>main</em>：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int add(int x, int y)
+{
+    return x + y;
+}
+
+int main()
+{
+    std::cout &lt;&lt; "The sum of 3 and 4 is: " &lt;&lt; add(3, 4) &lt;&lt; '\n';
+    return 0;
+}
+</code></pre><p>这样，当 <em>main</em> 调用 <em>add</em>时，编译器已经知道 <em>add</em> 是。因为这是一个非常简单的程序，所以这种改动相对容易。然而在大型程序中，要搞清楚哪些函数调用了哪些其他函数（以及调用顺序）以便按顺序声明它们，可能会非常繁琐。</p><p>此外，这种方案并非总是可行。假设我们编写的程序中有两个函数 <em>一个</em> 和 <em>B</em>。如果函数 <em>一个</em> 调用函数 <em>B</em>，而函数 <em>B</em> 调用函数 <em>一个</em>，那么就没有办法以让编译器满意的方式排列函数顺序。如果你先定义 <em>一个</em> ，编译器会报错说它不知道 <em>B</em> 是什么。如果你先定义 <em>B</em> ，编译器会报错说它不知道 <em>一个</em> 是什么。</p><p class="cpp-section cpp-topline" style="clear:both">方案二：使用前向声明</p><p>我们也可以通过使用前向声明来解决这个问题。</p><p>一个 <strong>前向声明</strong> 允许我们在实际定义标识符之前告诉编译器某个标识符的存在。 <em>在</em> 实际定义标识符之前。</p><p>对于函数而言，这允许我们在定义函数体之前告诉编译器函数的存在。这样一来，当编译器遇到对该函数的调用时，它就能理解我们在进行函数调用，并能检查我们是否正确地调用了该函数，即使它还不知道该函数如何定义或定义在哪里。</p><p>要为函数编写前向声明，我们使用 <strong>函数声明</strong> 语句（也称为 <strong>函数原型</strong>）。函数声明由函数的返回类型、名称和参数类型组成，以分号结尾。参数名称可以可选地包含。函数体不包含在声明中。</p><p>以下是一个函数声明，适用于 <em>add</em> 函数：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int add(int x, int y); // 函数声明包含返回类型、名称、参数和分号。没有函数体！
+</code></pre><p>现在，这是我们最初无法编译的程序，使用函数声明作为函数的前向声明 <em>add</em>：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int add(int x, int y); // add()的前向声明（使用函数声明）
+
+int main()
+{
+    std::cout &lt;&lt; "The sum of 3 and 4 is: " &lt;&lt; add(3, 4) &lt;&lt; '\n'; // 这之所以有效是因为我们在上面前向声明了add()
+    return 0;
+}
+
+int add(int x, int y) // 即使add()的函数体直到这里才被定义
+{
+    return x + y;
+}
+</code></pre><p>现在，当编译器到达对 <em>add</em> 在 main 中的调用时，它将知道 <em>add</em> 的样子（一个接受两个整数参数并返回整数的函数），并且它不会报错。</p><p>值得注意的是，函数声明不需要指定参数的名称（因为它们不被视为函数声明的一部分）。在上述代码中，你还可以像这样前向声明你的函数：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int add(int, int); // 有效的函数声明
+</code></pre><p>然而，我们更倾向于为参数命名（使用与实际函数相同的名称）。这样，仅通过查看声明你就能理解函数参数的含义。例如，如果你看到声明 <code>void doSomething(int, int, int)</code>，你或许以为自己记得每个参数代表什么，但也可能弄错。</p><p>此外，许多自动化文档生成工具会根据头文件的内容生成文档，而声明通常放在头文件中。我们在第 <a href="header-files.html">2.11 -- 头文件</a>。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>在函数声明中保留参数名称。</p></div><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">提示</p><p>你可以通过复制/粘贴函数头部并添加分号来轻松创建函数声明。</p></div><p class="cpp-section cpp-topline" style="clear:both">为什么使用前向声明？</p><p>你可能会想，如果我们可以通过重新排序函数来使程序工作，为什么还要使用前向声明呢？</p><p>大多数情况下，前向声明用于告知编译器某个在另一个代码文件中定义的函数的存在。这种情况下无法重新排序，因为调用者和被调用者位于完全不同的文件中！我们将在下一课（<a href="programs-with-multiple-code-files.html">2.8 -- 包含多个代码文件的程序</a>)。</p><p>前向声明也可以用于以不依赖顺序的方式定义函数。这允许我们以最大化组织性（例如通过将相关函数聚类）或读者理解度的任意顺序定义函数。</p><p>较少见的情况下，有时我们会遇到两个函数相互调用。这种情况下也无法重新排序，因为无法将函数排序使得每个都在另一个之前。前向声明为我们提供了一种解决这种循环依赖的方法。</p><p class="cpp-section cpp-topline" style="clear:both">忘记函数体</p><p>编程新手常常想知道：如果前向声明了一个函数却没有定义它，会发生什么？</p><p>答案是：视情况而定。如果进行了前向声明，但从未调用该函数，程序将正常编译和运行。但如果进行了前向声明并且调用了该函数，但程序从未定义该函数，程序虽然能编译通过，但链接器会报错，称无法解析该函数调用。</p><p>考虑以下程序：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int add(int x, int y); // add()的前向声明
+
+int main()
+{
+    std::cout &lt;&lt; "The sum of 3 and 4 is: " &lt;&lt; add(3, 4) &lt;&lt; '\n';
+    return 0;
+}
+
+// 注意：函数add没有定义
+</code></pre><p>在这个程序中，我们前向声明了 <em>add</em>，并调用了 <em>add</em>，但从未定义 <em>add</em> 当我们尝试编译这个程序时，Visual Studio 会产生以下信息：</p><pre>Compiling...
+add.cpp
+Linking...
+add.obj : error LNK2001: unresolved external symbol "int __cdecl add(int,int)" (?add@@YAHHH@Z)
+add.exe : fatal error LNK1120: 1 unresolved externals
+</pre><p>如你所见，程序编译通过了，但在链接阶段失败了，因为 <em>int add(int, int)</em> 从未被定义。</p><p class="cpp-section cpp-topline" style="clear:both">其他类型的前向声明</p><p>前向声明最常用于函数。然而，前向声明也可以用于 C++ 中的其他标识符，例如变量和类型。变量和类型的前向声明语法不同，我们将在后续课程中介绍这些内容。</p><p class="cpp-section cpp-topline" style="clear:both">声明 vs. 定义</p><p>在 C++ 中，你经常会听到“声明”和“定义”这两个词，而且它们经常被混用。它们是什么意思呢？现在你已经有了足够的基础知识来理解两者的区别。</p><p>一个 <strong>声明</strong> 告诉 <em>编译器</em> 关于 <em>存在</em> 一个标识符及其关联的类型信息。以下是一些声明的例子：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int add(int x, int y); // 告诉编译器有一个名为"add"的函数，它接收两个int参数并返回一个int。没有函数体！
+int x;                 // 告诉编译器有一个名为x的整型变量
+</code></pre><p>一个 <strong>定义</strong> 是一种声明，它实际实现了（对于函数和类型）或实例化了（对于变量）该标识符。</p><p>以下是一些定义的例子：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">// 因为这个函数有函数体，所以它是函数add()的实现
+int add(int x, int y)
+{
+    int z{ x + y };   // 实例化变量z
+
+    return z;
+}
+
+int x;                // 实例化变量x
+</code></pre><p>在C++中，所有定义都是声明。因此 <code>int x;</code> 既是定义又是声明。</p><p>反过来，并非所有声明都是定义。不是定义的声明被称为 <strong>纯声明</strong>。纯声明的类型包括函数、变量和类型的前向声明。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">术语</p><p>在日常用语中，术语“声明”通常用来表示“纯声明”，而“定义”用来表示“同时作为声明的定义”。因此，我们通常称 <code>int x;</code> 一个定义，即使它既是定义又是声明。</p></div><p>当编译器遇到一个标识符时，它会检查以确保该标识符的使用是有效的（例如，标识符在作用域内，以语法有效的方式使用等）。</p><p>在大多数情况下，声明足以让编译器确保标识符被正确使用。例如，当编译器遇到函数调用 <code>add(5, 6)</code>，如果它已经看到了声明 <code>add(int, int)</code>int <code>add</code> ，那么它可以验证 <code>int</code> 实际上是一个接受两个 <code>add</code> 参数。它实际上不需要看到函数的定义</p><p>（可能存在于其他文件中）。</p><p>然而，在某些情况下，编译器必须能看到完整定义才能使用标识符（例如模板定义和类型定义，我们将在后续课程中讨论这两种情况）。</p><div class="cpp-table-wrapper"><table class="cpp-table"><tbody><tr><th>以下是汇总表：</th><th>术语</th><th>技术含义</th></tr><tr><td>示例</td><td>告知编译器有关标识符及其关联的类型信息。</td><td>void foo(); // 函数前向声明（无函数体）<br/>void goo() {}; // 函数定义（有函数体）<br/>int x; // 变量定义</td></tr><tr><td>定义</td><td>实现函数或实例化变量。<br/>定义同时也是声明。</td><td>void foo() { } // 函数定义（有函数体）<br/>int x; // 变量定义</td></tr><tr><td>纯声明</td><td>不是定义的声明。</td><td>void foo(); // 函数前向声明（无函数体）</td></tr><tr><td>初始化</td><td>为已定义的对象提供初始值。</td><td>int x { 2 }; // x 被初始化为值 2</td></tr></tbody></table></div><p>术语“声明”通常用来指“纯声明”，而“定义”则用于指既是定义又是声明的情况。我们在示例列的注释中使用了这种常见命名法。</p><p class="cpp-section cpp-topline" style="clear:both"><a name="ODR"></a>单一定义规则（ODR） <a href="#ODR"><i class="fa fa-link" style="font-size:.8em"></i></a></p><p>浮点类型的 <strong>单一定义规则</strong> （简称 ODR）是 C++ 中众所周知的规则。ODR 包含三部分：</p><ol start="1"><li>在同一个 <em>文件</em>在同一个文件中，给定作用域内的每个函数、变量、类型或模板只能有一个定义。出现在不同作用域（例如不同函数内定义的局部变量，或不同命名空间内定义的函数）中的定义不违反此规则。</li><li>在同一个 <em>程序</em>中，给定作用域内的每个函数或变量只能有一个定义。这条规则之所以存在，是因为程序可以有多个文件（我们将在下一课中介绍）。对链接器不可见的函数和变量不受此规则限制（将在课程 <a href="internal-linkage.html">7.6 -- 内部链接</a>)。</li><li>类型、模板、内联函数和内联变量允许在不同文件中有重复定义，前提是每个定义完全相同。我们还没有涉及这些内容的大部分，所以现在不用担心——当相关时我们会重新提及。</li></ol><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">相关内容</p><p>我们将在以下课程中进一步讨论 ODR 第三部分的例外情况：</p><ul><li>类型（<a href="introduction-to-program-defined-user-defined-types.html">13.1 -- 程序定义（用户定义）类型简介</a>)。</li><li>函数模板（<a href="function-templates.html">11.6 -- 函数模板</a> 和 <a href="function-template-instantiation.html">11.7 -- 函数模板实例化</a>)。</li><li>内联函数和变量（<a href="inline-functions-and-variables.html">7.9 -- 内联函数和变量</a>)。</li></ul></div><p>违反 ODR 第一部分会导致编译器发出重定义错误。违反 ODR 第二部分会导致链接器发出重定义错误。违反 ODR 第三部分会导致未定义行为。</p><p>下面是一个违反第一部分的例子：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int add(int x, int y)
+{
+     return x + y;
+}
+
+int add(int x, int y) // 违反ODR，我们已经定义了函数add(int, int)
+{
+     return x + y;
+}
+
+int main()
+{
+    int x{};
+    int x{ 5 }; // 违反ODR，我们已经定义了x
+}
+</code></pre><p>在这个例子中，函数 <code>add(int, int)</code> 被定义了两次（在全局作用域中），局部变量 <code>int x</code> 被定义了两次（在 <code>main()</code>的作用域中）。因此，Visual Studio 编译器发出以下编译错误：</p><pre>project3.cpp(9): error C2084: function 'int add(int,int)' already has a body
+project3.cpp(3): note: see previous definition of 'add'
+project3.cpp(16): error C2086: 'int x': redefinition
+project3.cpp(15): note: see declaration of 'x'
+</pre><p>然而，对于 <code>main()</code> 拥有一个定义为 <code>int x</code> 和 <code>add()</code> 还定义了函数参数为 <code>int x</code>。这些定义出现在不同的作用域中（各自函数的作用域内），因此被视为两个不同对象的独立定义，而不是同一对象的定义与重定义。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">进阶读者</p><p>共享同一标识符但具有不同参数集的函数也被视为不同的函数，因此这些定义不违反ODR。我们将在课程中进一步讨论 <a href="introduction-to-function-overloading.html">11.1 -- 函数重载介绍</a>。</p></div><p class="cpp-section cpp-topline" style="clear:both">小测验时间</p><p class="cpp-quiz-question" style="clear:both">问题 #1</p><p>什么是函数原型？</p><p><a aria-controls="cpp_solution_id_0" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_0" href="#cpp_solution_id_0">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_0"><p>函数原型是一个声明语句，包含函数名、返回类型、参数类型，以及可选的参数名。它不包含函数体。它告诉编译器在函数定义之前该函数的存在。</p></div><p class="cpp-quiz-question cpp-topline" style="clear:both">问题 #2</p><p>什么是前向声明？</p><p><a aria-controls="cpp_solution_id_1" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_1" href="#cpp_solution_id_1">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_1"><p>前向声明告诉编译器某个标识符在实际定义之前已经存在。</p></div><p class="cpp-quiz-question cpp-topline" style="clear:both">问题 #3</p><p>如何为函数声明前向声明？</p><p><a aria-controls="cpp_solution_id_2" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_2" href="#cpp_solution_id_2">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_2"><p>对于函数，函数声明/原型即充当前向声明。</p></div><p class="cpp-quiz-question cpp-topline" style="clear:both">问题 #4</p><p>写出这个函数的函数声明（使用带名称的首选形式）：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int doMath(int first, int second, int third, int fourth)
+{
+     return first + second * third / fourth;
+}
+</code></pre><p><a aria-controls="cpp_solution_id_3" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_3" href="#cpp_solution_id_3">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_3"><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">// 不要忘记末尾的分号，因为这些是语句。
+int doMath(int first, int second, int third, int fourth);
+</code></pre></div><p class="cpp-quiz-question cpp-topline" style="clear:both">问题 #5</p><p>对于以下每个程序，说明它们是编译失败、链接失败还是编译链接成功。如果不确定，请尝试编译它们！</p><p>a)</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+int add(int x, int y);
+
+int main()
+{
+    std::cout &lt;&lt; "3 + 4 + 5 = " &lt;&lt; add(3, 4, 5) &lt;&lt; '\n';
+    return 0;
+}
+
+int add(int x, int y)
+{
+    return x + y;
+}
+</code></pre><p><a aria-controls="cpp_solution_id_4" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_4" href="#cpp_solution_id_4">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_4">无法编译。编译器会报错，提示找不到匹配的 <code>add()</code> 接受3个参数的函数。前向声明 <code>add()</code> 只有两个参数。</div><p>b)</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+int add(int x, int y);
+
+int main()
+{
+    std::cout &lt;&lt; "3 + 4 + 5 = " &lt;&lt; add(3, 4, 5) &lt;&lt; '\n';
+    return 0;
+}
+
+int add(int x, int y, int z)
+{
+    return x + y + z;
+}
+</code></pre><p><a aria-controls="cpp_solution_id_5" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_5" href="#cpp_solution_id_5">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_5">无法编译。编译器会报错，提示找不到匹配的 <code>add()</code> 接受3个参数的函数。前向声明 <code>add()</code> 只有两个参数，而函数定义 <code>add()</code> 有3个参数的函数定义尚未被看到。</div><p>c)</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+int add(int x, int y);
+
+int main()
+{
+    std::cout &lt;&lt; "3 + 4 = " &lt;&lt; add(3, 4) &lt;&lt; '\n';
+    return 0;
+}
+
+int add(int x, int y, int z)
+{
+    return x + y + z;
+}
+</code></pre><p><a aria-controls="cpp_solution_id_6" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_6" href="#cpp_solution_id_6">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_6">链接失败。编译器会将add的前向声明与main()中add()的函数调用匹配。然而，从未实现接受两个参数的add()函数（我们只实现了一个接受3个参数的），因此链接器会报错。</div><p>d)</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+int add(int x, int y, int z);
+
+int main()
+{
+    std::cout &lt;&lt; "3 + 4 + 5 = " &lt;&lt; add(3, 4, 5) &lt;&lt; '\n';
+    return 0;
+}
+
+int add(int z, int y, int x) // 名称与声明不匹配
+{
+    return x + y + z;
+}
+</code></pre><p><a aria-controls="cpp_solution_id_7" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_7" href="#cpp_solution_id_7">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_7">编译链接成功。add()函数调用中的类型与前向声明匹配，且add()的定义也匹配。参数名与声明不匹配无关紧要，因为声明中的参数名是可选的（如果提供，编译器会忽略）。</div><p>e)</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+int add(int, int, int); // 无参数名称
+
+int main()
+{
+    std::cout &lt;&lt; "3 + 4 + 5 = " &lt;&lt; add(3, 4, 5) &lt;&lt; '\n';
+    return 0;
+}
+
+int add(int x, int y, int z)
+{
+    return x + y + z;
+}
+</code></pre><p><a aria-controls="cpp_solution_id_8" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_8" href="#cpp_solution_id_8">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_8">编译并链接。这与前一种情况相同。函数声明不需要指定参数的名称（尽管我们通常更倾向于包含它们）。</div><p>f)</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int add(int x, int y);
+
+int add(int x, int y, int z)
+{
+    return x + y + z;
+}
+
+int main()
+{
+    std::cout &lt;&lt; "3 + 4 + 5 = " &lt;&lt; add(3, 4, 5) &lt;&lt; '\n';
+    return 0;
+}
+</code></pre><p><a aria-controls="cpp_solution_id_9" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_9" href="#cpp_solution_id_9">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_9">编译并链接。带有两个参数的add()的前向声明未被使用。</div>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="why-functions-are-useful-and-how-to-use-them-effectively.html" rel="prev"><small>上一课</small><strong>2.6 — 为什么函数很有用，以及如何有效使用它们</strong></a><a class="lesson-nav-index" href="../index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="programs-with-multiple-code-files.html" rel="next"><small>下一课</small><strong>2.8 — 多代码文件的程序</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

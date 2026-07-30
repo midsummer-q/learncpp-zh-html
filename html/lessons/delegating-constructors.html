@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/delegating-constructors/" name="learncpp:source-url"/>
+<meta content="9d5652c1d7dba125489d8027600b957b8bfa45726bd4f565e8c9acf2eb622aea" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:50:31.068757+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T17:45:59.502351+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>14.12 — Delegating constructors</title>
+<link href="../assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="../assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="../index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="../index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">14.12 — 委托构造函数</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 14.12</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/delegating-constructors/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>只要有可能，我们都希望减少冗余代码（遵循 DRY 原则——不要重复自己）。</p><p>考虑以下函数：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">void A()
+{
+    // 执行任务 A 的语句
+}
+
+void B()
+{
+    // 执行任务 A 的语句
+    // 执行任务 B 的语句
+}
+</code></pre><p>两个函数都有一组执行完全相同操作的语句（任务 A）。在这种情况下，我们可以这样重构：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">void A()
+{
+    // 执行任务 A 的语句
+}
+
+void B()
+{
+    A();
+    // 执行任务 B 的语句
+}
+</code></pre><p>这样，我们就删除了函数中存在的冗余代码 <code>A()</code> 和 <code>B()</code>。这使得我们的代码更易于维护，因为只需要在一个地方进行更改。</p><p>当一个类包含多个构造函数时，每个构造函数中的代码通常非常相似甚至完全相同，存在大量重复。我们也希望尽可能消除构造函数中的冗余。</p><p>考虑以下示例：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;string_view&gt;
+
+class Employee
+{
+private:
+    std::string m_name { "???" };
+    int m_id { 0 };
+    bool m_isManager { false };
+
+public:
+    Employee(std::string_view name, int id) // 员工必须有姓名和 id
+        : m_name{ name }, m_id { id }
+    {
+        std::cout &lt;&lt; "Employee " &lt;&lt; m_name &lt;&lt; " created\n";
+    }
+
+    Employee(std::string_view name, int id, bool isManager) // 他们可以选择成为经理
+        : m_name{ name }, m_id{ id }, m_isManager { isManager }
+    {
+        std::cout &lt;&lt; "Employee " &lt;&lt; m_name &lt;&lt; " created\n";
+    }
+};
+
+int main()
+{
+    Employee e1{ "James", 7 };
+    Employee e2{ "Dave", 42, true };
+}
+</code></pre><p>每个构造函数的主体都有完全相同的打印语句。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">作者注</p><p>通常，让构造函数打印内容并不是一个好主意（除非用于调试目的），因为这意味着在不需要打印的情况下无法使用该构造函数创建对象。我们在此示例中这样做是为了帮助说明发生了什么。</p></div><p>构造函数可以调用其他函数，包括类的其他成员函数。所以我们可以这样重构：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;string_view&gt;
+
+class Employee
+{
+private:
+    std::string m_name { "???" };
+    int m_id{ 0 };
+    bool m_isManager { false };
+
+    void printCreated() const // 我们的新辅助函数
+    {
+        std::cout &lt;&lt; "Employee " &lt;&lt; m_name &lt;&lt; " created\n";
+    }
+
+public:
+    Employee(std::string_view name, int id)
+        : m_name{ name }, m_id { id }
+    {
+        printCreated(); // 我们在这里调用它
+    }
+
+    Employee(std::string_view name, int id, bool isManager)
+        : m_name{ name }, m_id{ id }, m_isManager { isManager }
+    {
+        printCreated(); // 以及这里
+    }
+};
+
+int main()
+{
+    Employee e1{ "James", 7 };
+    Employee e2{ "Dave", 42, true };
+}
+</code></pre><p>虽然这比之前的版本更好（因为冗余语句被替换为冗余函数调用），但它需要引入一个新函数。而且我们的两个构造函数也都在初始化 <code>m_name</code> 和 <code>m_id</code>。理想情况下，我们也应该消除这种冗余。</p><p>我们能做得更好吗？可以。但这也是许多新手程序员遇到麻烦的地方。</p><p class="cpp-section cpp-topline" style="clear:both">在函数主体中调用构造函数会创建一个临时对象</p><p>类似于上面例子中函数 <code>B()</code> 调用函数 <code>A()</code> ，显而易见的解决方案似乎是从 <code>Employee(std::string_view, int)</code> 的主体中调用 <code>Employee(std::string_view, int, bool)</code> 构造函数来初始化 <code>m_name</code>， <code>m_id</code>并打印语句。如下所示：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;string_view&gt;
+
+class Employee
+{
+private:
+    std::string m_name { "???" };
+    int m_id { 0 };
+    bool m_isManager { false };
+
+public:
+    Employee(std::string_view name, int id)
+        : m_name{ name }, m_id { id } // 这个构造函数初始化 name 和 id
+    {
+        std::cout &lt;&lt; "Employee " &lt;&lt; m_name &lt;&lt; " created\n"; // 我们的打印语句回到了这里
+    }
+
+    Employee(std::string_view name, int id, bool isManager)
+        : m_isManager { isManager } // 这个构造函数初始化 m_isManager
+    {
+        // 调用 Employee(std::string_view, int) 来初始化 m_name 和 m_id
+        Employee(name, id); // 这不会按预期工作！
+    }
+
+    const std::string&amp; getName() const { return m_name; }
+};
+
+int main()
+{
+    Employee e2{ "Dave", 42, true };
+    std::cout &lt;&lt; "e2 has name: " &lt;&lt; e2.getName() &lt;&lt; "\n"; // 打印 e2.m_name
+}
+</code></pre><p>但这并不能正确工作，因为程序输出如下：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">Employee Dave created
+e2 has name: ???
+</code></pre><p>尽管 <code>Employee Dave created</code> 打印后，在 <code>e2</code> 完成构造后， <code>e2.m_name</code> 似乎仍然设置为其初始值 <code>"???"</code>。这怎么可能？</p><p>我们期望 <code>Employee(name, id)</code> 调用构造函数以继续初始化当前的隐式对象（<code>e2</code>）。但是类对象的初始化在成员初始化列表执行完毕后就已经完成了。当我们开始执行构造函数的主体时，再进行初始化已经太晚了。</p><p>当从函数主体中调用时，看起来像构造函数调用的函数调用通常会创建并直接初始化一个临时对象（在另一种情况下，你会得到编译错误）。在上面的例子中， <code>Employee(name, id);</code> 创建了一个临时的（未命名的）Employee 对象。这个临时对象的 <code>m_name</code> 被设置为 <code>Dave</code>被设置，并且它打印了 <code>Employee Dave created</code>。然后临时对象被销毁。 <code>e2</code> 的 <code>m_name</code> 或 <code>m_id</code> 从未从默认值改变。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>不应直接从另一个函数的主体中调用构造函数。这样做要么导致编译错误，要么直接初始化一个临时对象。<br/>如果你确实想要一个临时对象，优先使用列表初始化（这清楚地表明你打算创建一个对象）。</p></div><p>那么，如果我们不能从另一个构造函数的主体中调用构造函数，我们该如何解决这个问题呢？</p><p class="cpp-section cpp-topline" style="clear:both">委托构造函数</p><p>构造函数可以委托（转移责任）初始化给同一类类型的另一个构造函数。这个过程有时被称为 <strong>构造函数链</strong> ，这样的构造函数被称为 <strong>委托构造函数</strong>。</p><p>要让一个构造函数委托另一个构造函数进行初始化，只需在成员初始化列表中调用该构造函数：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;string_view&gt;
+
+class Employee
+{
+private:
+    std::string m_name { "???" };
+    int m_id { 0 };
+
+public:
+    Employee(std::string_view name)
+        : Employee{ name, 0 } // 将初始化委托给 Employee(std::string_view, int) 构造函数
+    {
+    }
+
+    Employee(std::string_view name, int id)
+        : m_name{ name }, m_id { id } // 实际初始化成员
+    {
+        std::cout &lt;&lt; "Employee " &lt;&lt; m_name &lt;&lt; " created\n";
+    }
+
+};
+
+int main()
+{
+    Employee e1{ "James" };
+    Employee e2{ "Dave", 42 };
+}
+</code></pre><p>当 <code>e1 { "James" }</code> 被初始化，匹配的构造函数 <code>Employee(std::string_view)</code> 被调用，参数 <code>name</code> 设置为 <code>"James"</code>。该构造函数的成员初始化列表将初始化委托给另一个构造函数，因此 <code>Employee(std::string_view, int)</code> 被调用。值 <code>name</code> (<code>"James"</code>作为第一个参数传递，字面量 <code>0</code> 作为第二个参数传递。被委托构造函数的成员初始化列表随后初始化成员。然后执行被委托构造函数的函数体。接着控制权返回给初始构造函数，执行其（空的）函数体。最后，控制权返回给调用者。</p><p>这种方法的缺点是有时需要重复初始化值。在委托给 <code>Employee(std::string_view, int)</code> 构造函数时，我们需要为 <code>int</code> 参数提供一个初始化值。我们不得不硬编码字面量 <code>0</code>，因为无法引用默认成员初始化器。</p><p>关于委托构造函数还有几点补充说明。首先，委托给另一个构造函数的构造函数不允许自己进行任何成员初始化。因此，你的构造函数要么委托，要么初始化，但不能同时进行。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">顺便说一句……</p><p>注意，我们让 <code>Employee(std::string_view)</code> （参数较少的构造函数）委托给 <code>Employee(std::string_view name, int id)</code> （参数较多的构造函数）。通常让参数较少的构造函数委托给参数较多的构造函数。</p><p>如果我们选择让 <code>Employee(std::string_view name, int id)</code> 委托给 <code>Employee(std::string_view)</code>，那么我们将无法初始化 <code>m_id</code> using <code>id</code>，因为构造函数只能委托或初始化，不能同时进行。</p></div><p>其次，一个构造函数可能委托给另一个构造函数，而后者又委托回第一个构造函数。这形成了无限循环，会导致程序耗尽栈空间并崩溃。你可以通过确保所有构造函数最终都解析到一个非委托构造函数来避免这种情况。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>如果你有多个构造函数，考虑是否可以使用委托构造函数来减少重复代码。</p></div><p class="cpp-section cpp-topline" style="clear:both">使用默认参数减少构造函数</p><p>默认值有时也可以用来将多个构造函数减少为更少的构造函数。例如，通过为我们的 <code>id</code> 参数设置默认值，我们可以创建一个单一的 <code>Employee</code> 构造函数，它需要一个名称参数，但可选地接受一个 id 参数：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;string_view&gt;
+
+class Employee
+{
+private:
+    std::string m_name{};
+    int m_id{ 0 }; // 默认成员初始化器
+
+public:
+
+    Employee(std::string_view name, int id = 0) // id 的默认参数
+        : m_name{ name }, m_id{ id }
+    {
+        std::cout &lt;&lt; "Employee " &lt;&lt; m_name &lt;&lt; " created\n";
+    }
+};
+
+int main()
+{
+    Employee e1{ "James" };
+    Employee e2{ "Dave", 42 };
+}
+</code></pre><p>由于默认值必须附加在函数调用中最右边的参数上，定义类时的一个好做法是：先定义用户必须提供初始化值的成员（并将它们作为构造函数最左边的参数）。用户可以选择提供初始化值的成员（因为默认值是可接受的）应后定义（并将它们作为构造函数最右边的参数）。 <em>必须</em> 用户必须提供初始化值的成员应首先定义（并作为构造函数最左边的参数）。用户可以选择提供初始化值的成员（因为默认值是可接受的）应其次定义（并作为构造函数最右边的参数）。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>用户必须提供初始化值的成员应首先定义（并作为构造函数最左边的参数）。用户可以选择提供初始化值的成员（因为默认值是可接受的）应其次定义（并作为构造函数最右边的参数）。</p></div><p>注意，这种方法也需要重复默认初始化值 <code>m_id</code> （'0'）：一次作为默认成员初始化器，一次作为默认参数。</p><p class="cpp-section cpp-topline" style="clear:both">一个难题：冗余构造函数 vs 冗余默认值</p><p>在上面的例子中，我们使用了委托构造函数和默认参数来减少构造函数冗余。但这两种方法都要求我们在不同地方重复成员的初始化值。不幸的是，目前没有办法指定委托构造函数或默认参数应使用默认成员初始化器的值。</p><p>关于是拥有更少的构造函数（重复初始化值）还是更多的构造函数（不重复初始化值）更好，存在各种观点。我们的观点是，通常更简单的做法是拥有更少的构造函数，即使这会导致初始化值的重复。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">进阶读者</p><p>当我们有一个在多个地方使用的初始化值（例如，作为默认成员初始化器和构造函数参数的默认参数）时，我们可以定义一个命名常量，并在需要初始化值的地方使用它。这样可以将初始化值定义在一个地方。</p><p>虽然你可以为此使用 constexpr 全局变量，但更好的选择是在类内部使用一个 <code>static constexpr</code> 成员：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;string_view&gt;
+
+class Employee
+{
+private:
+    static constexpr int default_id { 0 }; // 定义一个命名常量，包含我们想要的初始化值
+    
+    std::string m_name {};
+    int m_id { default_id }; // 我们可以在这里使用它
+
+public:
+
+    Employee(std::string_view name, int id = default_id) // 我们也可以在这里使用它
+        : m_name { name }, m_id { id }
+    {
+        std::cout &lt;&lt; "Employee " &lt;&lt; m_name &lt;&lt; " created\n";
+    }
+};
+
+int main()
+{
+    Employee e1 { "James" };
+    Employee e2 { "Dave", 42 };
+}
+</code></pre><p>在此上下文中使用 <code>static</code> 关键字允许我们拥有一个单一的 <code>default_id</code> 所有对象共享的成员。如果没有 <code>Employee</code> ，每个 <code>static</code>对象都会有自己的独立 <code>Employee</code> 成员（这虽然可行，但会浪费内存）。 <code>default_id</code> 这种方法的缺点是每个额外的命名常量都会增加一个需要理解的名字，使你的类变得更加杂乱和复杂。是否值得这样做取决于需要多少这样的常量，以及初始化值在多少个地方被使用。</p><p>我们在第</p><p>课中介绍了静态数据成员。 <a href="static-member-variables.html">15.6 -- 静态成员变量</a>。</p></div><p class="cpp-section cpp-topline" style="clear:both">小测验时间</p><p class="cpp-quiz-question" style="clear:both">问题 #1</p><p>编写一个名为 Ball 的类。Ball 应该有两个私有成员变量，一个用于保存颜色（默认值： <code>black</code>），另一个用于保存半径（默认值： <code>10.0</code>）。添加 4 个构造函数，分别处理以下情况：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int main()
+{
+    Ball def{};
+    Ball blue{ "blue" };
+    Ball twenty{ 20.0 };
+    Ball blueTwenty{ "blue", 20.0 };
+
+    return 0;
+}
+</code></pre><p>程序应产生以下结果：</p><pre>Ball(black, 10)
+Ball(blue, 10)
+Ball(black, 20)
+Ball(blue, 20)
+</pre><p><a aria-controls="cpp_solution_id_0" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_0" href="#cpp_solution_id_0">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_0"><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;string_view&gt;
+
+class Ball
+{
+private:
+	std::string m_color{ "black" };
+	double m_radius{ 10.0 };
+
+public:
+	// 默认构造函数（颜色和半径将使用默认值）
+	Ball()
+	{
+            print();
+	}
+
+	// 只有半径参数的构造函数（颜色将使用默认值）
+	Ball(double radius)
+		: m_radius{ radius }
+	{
+            print();
+	}
+
+	// 只有颜色参数的构造函数（半径将使用默认值）
+	Ball(std::string_view color)
+		: m_color{ color }
+	{
+            print();
+	}
+
+	// 同时有颜色和半径参数的构造函数
+	Ball(std::string_view color, double radius)
+		: m_color{ color }
+		, m_radius{ radius }
+	{
+            print();
+	}
+
+    void print() const
+    {
+        std::cout &lt;&lt; "Ball(" &lt;&lt; m_color &lt;&lt; ", " &lt;&lt; m_radius &lt;&lt; ")\n";
+    }
+};
+
+int main()
+{
+    Ball def{};
+    Ball blue{ "blue" };
+    Ball twenty{ 20.0 };
+    Ball blueTwenty{ "blue", 20.0 };
+
+    return 0;
+}
+</code></pre></div><p class="cpp-quiz-question cpp-topline" style="clear:both">问题 #2</p><p>通过使用默认参数和委托构造函数，减少上述程序中的构造函数数量。</p><p><a aria-controls="cpp_solution_id_1" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_1" href="#cpp_solution_id_1">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_1"><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;string_view&gt;
+
+class Ball
+{
+private:
+	std::string m_color{ "black" };
+	double m_radius{ 10.0 };
+
+public:
+	// 处理 Ball(radius)
+	Ball(double radius)
+		: Ball{ "black", radius } // 委托给另一个构造函数
+	{
+		// 我们不需要在这里调用 print()，因为它会被
+		// 我们委托的构造函数		
+	}
+
+	// 处理 Ball(color, radius)、Ball(color) 和 Ball()
+	Ball(std::string_view color="black", double radius=10.0)
+		: m_color{ color }
+		, m_radius{ radius }
+	{
+		print();
+	}
+
+	void print() const
+	{
+		std::cout &lt;&lt; "Ball(" &lt;&lt; m_color &lt;&lt; ", " &lt;&lt; m_radius &lt;&lt; ")\n";
+	}
+};
+
+int main()
+{
+    Ball def{};
+    Ball blue{ "blue" };
+    Ball twenty{ 20.0 };
+    Ball blueTwenty{ "blue", 20.0 };
+
+    return 0;
+}
+</code></pre></div>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="default-constructors-and-default-arguments.html" rel="prev"><small>上一课</small><strong>14.11 — 默认构造函数与默认参数</strong></a><a class="lesson-nav-index" href="../index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="temporary-class-objects.html" rel="next"><small>下一课</small><strong>14.13 — 临时类对象</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

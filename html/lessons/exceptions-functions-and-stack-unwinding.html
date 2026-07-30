@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/exceptions-functions-and-stack-unwinding/" name="learncpp:source-url"/>
+<meta content="605799b4717b6a7f38e5830d5af33130c285f835981f905be015be4a15098865" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:54:43.078175+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T18:18:44.873597+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>27.3 — Exceptions, functions, and stack unwinding</title>
+<link href="../assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="../assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="../index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="../index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">27.3 — 异常、函数与栈展开</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 27.3</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/exceptions-functions-and-stack-unwinding/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>在上一节关于 <a href="basic-exception-handling.html">27.2 -- 基本异常处理</a>我们解释了 throw、try 和 catch 如何协同工作以实现异常处理。在本课中，我们将讨论异常处理如何与函数交互。</p><p><strong>从被调用函数中抛出异常</strong></p><p>在上一课中，我们指出“try 块会检测由 try 块内语句抛出的任何异常”。在相应的示例中，我们的 throw 语句放在 try 块内，并由关联的 catch 块捕获，所有这些都在同一个函数内。在单个函数中同时抛出和捕获异常的价值有限。</p><p>更有趣的是，如果 try 块内的语句是一个函数调用，而被调用的函数抛出了异常，会发生什么？try 块会检测到从 try 块内调用的函数抛出的异常吗？</p><p>幸运的是，答案是肯定的！</p><p>异常处理最有用的特性之一是 throw 语句不必直接放在 try 块内。相反，异常可以从函数中的任何位置抛出，并且这些异常可以被调用者的 try 块（或调用者的调用者，等等）捕获。当异常以这种方式被捕获时，执行从抛出异常的点跳转到处理该异常的 catch 块。</p><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">关键提示</p><p>try 块不仅捕获来自 try 块内语句的异常，还捕获来自 try 块内调用的函数的异常。</p></div><p>这使我们能够以更加模块化的方式使用异常处理。我们将通过重写上一课中的平方根程序来演示这一点，使用一个模块化函数。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;cmath&gt; // for sqrt() function
+#include &lt;iostream&gt;
+
+// 一个模块化的平方根函数
+double mySqrt(double x)
+{
+    // 如果用户输入了负数，这是一个错误条件
+    if (x &lt; 0.0)
+        throw "Can not take sqrt of negative number"; // 抛出 const char* 类型的异常
+
+    return std::sqrt(x);
+}
+
+int main()
+{
+    std::cout &lt;&lt; "Enter a number: ";
+    double x {};
+    std::cin &gt;&gt; x;
+
+    try // 查找 try 块内发生的异常并将其路由到附带的 catch 块
+    {
+        double d = mySqrt(x);
+        std::cout &lt;&lt; "The sqrt of " &lt;&lt; x &lt;&lt; " is " &lt;&lt; d &lt;&lt; '\n';
+    }
+    catch (const char* exception) // 捕获 const char* 类型的异常
+    {
+        std::cerr &lt;&lt; "Error: " &lt;&lt; exception &lt;&lt; std::endl;
+    }
+
+    return 0;
+}
+</code></pre><p>在这个程序中，我们将检查异常和计算平方根的代码放入一个名为 mySqrt() 的模块化函数中。然后我们在 try 块内调用这个 mySqrt() 函数。让我们验证它是否仍然按预期工作：</p><pre>Enter a number: -4
+Error: Can not take sqrt of negative number
+</pre><p>确实如此！当异常在 mySqrt() 内抛出时，mySqrt() 中没有处理程序来处理该异常。然而，对 mySqrt() 的调用（在 main() 中）位于一个 try 块内，该 try 块有一个关联的匹配异常处理程序。因此执行从 mySqrt() 中的 throw 语句跳转到 main() 中 catch 块的顶部，然后继续执行。</p><p>上述程序中最有趣的部分是 mySqrt() 函数可以抛出异常，但本身不处理这个异常！这本质上意味着 mySqrt() 愿意说“嘿，有问题！”，但不愿意自己处理问题。它实际上将处理异常的责任委托给了它的调用者（类似于使用返回码将处理错误的责任传回给函数的调用者）。</p><p>此时，你们中的一些人可能想知道为什么将错误传回给调用者是一个好主意。为什么不直接让 mySqrt() 处理自己的错误呢？问题在于不同的应用程序可能希望以不同的方式处理错误。控制台应用程序可能希望打印文本消息。Windows 应用程序可能希望弹出一个错误对话框。在一个应用程序中，这可能是一个致命错误，而在另一个应用程序中可能不是。通过将错误传出函数，每个应用程序可以以最适合其上下文的方式处理来自 mySqrt() 的错误！最终，这使 mySqrt() 尽可能模块化，而错误处理可以放在代码中较不模块化的部分。</p><p><strong>异常处理与栈展开</strong></p><p>在本节中，我们将了解当涉及多个函数时异常处理实际上是如何工作的。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">相关内容</p><p>在继续之前，请参阅课程 <a href="the-stack-and-the-heap.html">20.2 -- 栈和堆</a> 如果你需要复习调用栈和栈展开。</p></div><p>当抛出异常时，程序首先查看异常是否可以在当前函数内立即处理（即异常是在当前函数内的 try 块中抛出的，并且有一个对应的 catch 块与之关联）。如果当前函数可以处理该异常，则进行处理。</p><p>如果不能，程序接下来检查函数的调用者（调用栈上的下一个函数）是否可以处理该异常。为了使函数的调用者能够处理该异常，对当前函数的调用必须位于 try 块内，并且必须有一个匹配的 catch 块与之关联。如果找不到匹配项，则检查调用者的调用者（调用栈上再上一层的函数）。类似地，为了使调用者的调用者能够处理该异常，对调用者的调用必须位于 try 块内，并且必须有一个匹配的 catch 块与之关联。</p><p>检查调用栈上每个函数的过程一直持续，直到找到处理程序，或者调用栈上的所有函数都已检查完毕且未找到处理程序。</p><p>如果找到匹配的异常处理程序，则执行从抛出异常的点跳转到匹配的 catch 块的顶部。这需要展开栈（从调用栈中移除当前函数）必要的次数，以使处理异常的函数成为调用栈的顶部函数。</p><p>如果未找到匹配的异常处理程序，栈可能会也可能不会被展开。我们将在下一课中进一步讨论这种情况（<a href="uncaught-exceptions-catch-all-handlers.html">27.4 -- 未捕获的异常和捕获所有处理程序</a>)。</p><p>当当前函数从调用栈中移除时，所有局部变量照常销毁，但不返回值。</p><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">关键提示</p><p>展开栈会销毁被展开函数中的局部变量（这很好，因为它确保它们的析构函数得以执行）。</p></div><p><strong>另一个栈展开示例</strong></p><p>为了说明上述内容，让我们看一个更复杂的例子，使用更大的栈。虽然这个程序很长，但相当简单：main() 调用 A()，A() 调用 B()，B() 调用 C()，C() 调用 D()，而 D() 抛出一个异常。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+void D() // 由C()调用
+{
+    std::cout &lt;&lt; "Start D\n";
+    std::cout &lt;&lt; "D throwing int exception\n";
+
+    throw - 1;
+
+    std::cout &lt;&lt; "End D\n"; // 跳过
+}
+
+void C() // 由B()调用
+{
+    std::cout &lt;&lt; "Start C\n";
+    D();
+    std::cout &lt;&lt; "End C\n";
+}
+
+void B() // 由A()调用
+{
+    std::cout &lt;&lt; "Start B\n";
+
+    try
+    {
+        C();
+    }
+    catch (double) // 未捕获：异常类型不匹配
+    {
+        std::cerr &lt;&lt; "B caught double exception\n";
+    }
+
+    try
+    {
+    }
+    catch (int) // 未捕获：异常未在try块内抛出
+    {
+        std::cerr &lt;&lt; "B caught int exception\n";
+    }
+
+    std::cout &lt;&lt; "End B\n";
+}
+
+void A() // 由main()调用
+{
+    std::cout &lt;&lt; "Start A\n";
+
+    try
+    {
+        B();
+    }
+    catch (int) // 异常在此处捕获并处理
+    {
+        std::cerr &lt;&lt; "A caught int exception\n";
+    }
+    catch (double) // 未调用，因为异常已被前面的catch块处理
+    {
+        std::cerr &lt;&lt; "A caught double exception\n";
+    }
+
+    // 异常处理后，执行从这里继续
+    std::cout &lt;&lt; "End A\n";
+}
+
+int main()
+{
+    std::cout &lt;&lt; "Start main\n";
+
+    try
+    {
+        A();
+    }
+    catch (int) // 未调用，因为异常已被A处理
+    {
+        std::cerr &lt;&lt; "main caught int exception\n";
+    }
+    std::cout &lt;&lt; "End main\n";
+
+    return 0;
+}
+</code></pre><p>更详细地查看这个程序，看看你是否能弄清楚运行时打印了什么，没有打印什么。答案如下：</p><pre>Start main
+Start A
+Start B
+Start C
+Start D
+D throwing int exception
+A caught int exception
+End A
+End main
+</pre><p>让我们检查一下这种情况发生了什么。所有“Start”语句的打印都很直接，无需进一步解释。函数 D() 打印“D throwing int exception”，然后抛出一个 int 异常。这就是事情开始变得有趣的地方。</p><p>因为 D() 本身不处理异常，所以检查它的调用者（调用栈上的函数）以查看它们中是否有一个可以处理该异常。函数 C() 不处理任何异常，因此在那里找不到匹配项。</p><p>函数 B() 有两个独立的 try 块。包含对 C() 调用的 try 块有一个处理 double 类型异常的处理程序，但这与我们的 int 类型异常不匹配（并且异常不进行类型转换），因此找不到匹配项。空的 try 块确实有一个处理 int 类型异常的处理程序，但这个 catch 块不被视为匹配，因为对 C() 的调用不在关联的 try 块内。</p><p>A() 也有一个 try 块，并且对 B() 的调用在其中，因此程序查看是否有针对 int 异常的 catch 处理程序。有！因此，A() 处理该异常，并打印“A caught int exception”。</p><p>因为异常现在已被处理，控制流在 A() 内的 catch 块之后正常继续。这意味着 A() 打印“End A”，然后正常终止。</p><p>控制权返回给 main()。尽管 main() 有一个针对 int 的异常处理程序，但我们的异常已经被 A() 处理了，因此 main() 内的 catch 块不会执行。main() 只是打印“End main”，然后正常终止。</p><p>这个程序说明了几个有趣的原则：</p><p>首先，抛出异常的函数的直接调用者如果不想处理异常，就不必处理。在这种情况下，C() 没有处理 D() 抛出的异常。它将这个责任委托给了栈上层的某个调用者。</p><p>其次，如果 try 块没有针对所抛出异常类型的 catch 处理程序，则栈展开的发生就像根本没有 try 块一样。在这种情况下，B() 也没有处理异常，因为它没有正确类型的 catch 块。</p><p>第三，如果一个函数有一个匹配的 catch 块，但对当前函数的调用没有发生在关联的 try 块内，则该 catch 块不会被使用。我们在 B() 中也看到了这一点。</p><p>最后，一旦匹配的 catch 块执行，控制流正常进行，从最后一个 catch 块之后的第一条语句开始。这由 A() 处理错误，然后继续执行“End A”，然后返回调用者来演示。当程序回到 main() 时，异常已经被抛出并处理了——main() 甚至不知道曾经有过异常！</p><p>如你所见，栈展开为我们提供了一些非常有用的行为——如果一个函数不想处理异常，它就不必处理。异常会沿着栈向上传播，直到找到愿意处理它的函数！这使我们能够决定调用栈中的哪个位置是处理可能发生的任何错误的最合适位置。</p><p>在下一节课中，我们将探讨当你不捕获异常时会发生什么，以及一种防止这种情况发生的方法。</p>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="basic-exception-handling.html" rel="prev"><small>上一课</small><strong>27.2 — 基本异常处理</strong></a><a class="lesson-nav-index" href="../index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="uncaught-exceptions-catch-all-handlers.html" rel="next"><small>下一课</small><strong>27.4 — 未捕获的异常和捕获所有处理程序</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

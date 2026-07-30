@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/using-an-integrated-debugger-running-and-breakpoints/" name="learncpp:source-url"/>
+<meta content="6cd900e13b16eb0f7a8afde9260ff60367287c0b421f01faf07e1254c327da96" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:45:28.876162+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T17:18:31.771569+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>3.7 — Using an integrated debugger: Running and breakpoints</title>
+<link href="../assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="../assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="../index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="../index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">3.7 — 使用集成调试器：运行和断点</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 3.7</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/using-an-integrated-debugger-running-and-breakpoints/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>虽然逐步执行（在课程 <a href="using-an-integrated-debugger-stepping.html">3.6 -- 使用集成调试器：逐步执行</a>) 对于隔离检查代码的每一行很有用，但在一个大型程序中，逐步执行代码可能需要很长时间才能到达你想更详细检查的点。</p><p>幸运的是，现代调试器提供了更多工具来帮助我们高效地调试程序。在本课中，我们将介绍一些允许我们更快地浏览代码的调试器功能。</p><p class="cpp-section cpp-topline" style="clear:both">运行到光标处</p><p>第一个有用的命令通常被称为 <em>运行到光标处</em>。这个 <strong>运行到光标处</strong> 命令执行程序，直到执行到达光标选中的语句。然后它将控制权返回给你，这样你就可以从该点开始调试。这是一种高效的方法，可以在代码的特定点开始调试，或者如果已经在调试中，直接跳转到你想进一步检查的地方。</p><div class="cpp-note cpp-lightyellowbackground"><p class="cpp-note-title cpp-bottomline">适用于 Visual Studio 用户</p><p>在Visual Studio中， <em>运行到光标处</em> 命令可以通过右键点击代码中的语句并选择 <em>运行到光标处</em> 从上下文菜单，或按Ctrl-F10组合键。</p></div><div class="cpp-note cpp-lightyellowbackground"><p class="cpp-note-title cpp-bottomline">对于 Code::Blocks 用户</p><p>在Code::Blocks中， <em>运行到光标处</em> 命令可以通过右键点击代码中的语句并选择 <em>运行到光标处</em> 从上下文菜单或 <em>调试菜单 &gt; 运行到光标处</em>，或按F4快捷键。</p></div><div class="cpp-note cpp-lightyellowbackground"><p class="cpp-note-title cpp-bottomline">对于 VS Code 用户</p><p>在VS Code中， <em>运行到光标处</em> 命令可以在调试程序时通过右键点击代码中的语句并选择 <em>运行到光标处</em> 从上下文菜单。</p></div><p>让我们用我们一直使用的相同程序来试试：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+void printValue(int value)
+{
+    std::cout &lt;&lt; value &lt;&lt; '\n';
+}
+
+int main()
+{
+    printValue(5);
+
+    return 0;
+}
+</code></pre><p>只需在第5行任意位置右键单击，然后选择“运行到光标处”。</p><div class="cpp-image-wrapper"><img alt="" src="../assets/images/06e3ac5c32878c2fac33cbe052420cdca494cf104053baed98da4968803123ed.png"/></div><p>你会注意到程序开始运行，执行标记移动到刚刚选择的行。你的程序已经执行到这一点，现在等待你的进一步调试命令。从这里，你可以逐步执行程序， <em>运行到光标处</em> 到不同的位置，等等……</p><p>如果你 <em>运行到光标处</em> 到一个不会执行的位置， <em>运行到光标处</em> 只会运行你的程序直到终止。</p><p class="cpp-section cpp-topline" style="clear:both">继续</p><p>一旦你处于调试会话的中途，你可能想让程序从那个点开始继续运行。最简单的方法是使用 <em>continue</em> 命令。 这个 <strong>continue</strong> 调试命令只是简单地继续正常地运行程序，要么直到程序终止，要么直到某个事件触发控制权重新交还给你（例如断点，我们将在本课后面介绍）。</p><div class="cpp-note cpp-lightyellowbackground"><p class="cpp-note-title cpp-bottomline">适用于 Visual Studio 用户</p><p>在Visual Studio中， <em>continue</em> 命令可以在调试程序时通过以下方式访问： <em>调试菜单 &gt; 继续</em>，或者按下F5快捷键。</p></div><div class="cpp-note cpp-lightyellowbackground"><p class="cpp-note-title cpp-bottomline">对于 Code::Blocks 用户</p><p>在Code::Blocks中， <em>continue</em> 命令可以在调试程序时通过以下方式访问： <em>调试菜单 &gt; 启动/继续</em>，或者按下F8快捷键。</p></div><div class="cpp-note cpp-lightyellowbackground"><p class="cpp-note-title cpp-bottomline">对于 VS Code 用户</p><p>在VS Code中， <em>continue</em> 命令可以在调试程序时通过以下方式访问： <em>运行菜单 &gt; 继续</em>，或者按下 <em>F5</em> 快捷键。</p></div><p>让我们测试一下 <em>continue</em> 命令。如果你的执行标记不在第5行， <em>运行到光标处</em> 到第5行。然后选择 <em>continue</em> 从这一点开始。你的程序将执行完毕然后终止。</p><p class="cpp-section cpp-topline" style="clear:both">启动</p><p>浮点类型的 <em>continue</em> 命令有一个孪生兄弟叫 <em>start</em>。这些 <em>start</em> 命令执行与 <em>continue</em>相同的操作，只是从程序的开头开始。它只能在尚未进入调试会话时调用。</p><div class="cpp-note cpp-lightyellowbackground"><p class="cpp-note-title cpp-bottomline">适用于 Visual Studio 用户</p><p>在Visual Studio中， <em>start</em> 命令可以在不调试程序时通过 <em>调试菜单 &gt; 开始调试</em>，或者按下F5快捷键。</p></div><div class="cpp-note cpp-lightyellowbackground"><p class="cpp-note-title cpp-bottomline">对于 Code::Blocks 用户</p><p>在Code::Blocks中， <em>start</em> 命令可以在不调试程序时通过 <em>调试菜单 &gt; 启动/继续</em>，或者按下F8快捷键。</p></div><div class="cpp-note cpp-lightyellowbackground"><p class="cpp-note-title cpp-bottomline">对于 VS Code 用户</p><p>在VS Code中， <em>start</em> 命令可以在不调试程序时通过 <em>运行菜单 &gt; 开始调试</em>，或者按下 <em>F5</em> 快捷键。</p></div><p>如果你对上述示例程序使用 <em>start</em> 命令，它将一路运行下去而不会中断（除了在 <code>VS Code</code>上，因为我们在上一课中设置了 <code>stopAtEntry: true</code> ）。虽然这看起来平淡无奇，但那只是因为我们尚未告诉调试器中断程序。我们将在下一节中更好地使用此命令。</p><p class="cpp-section cpp-topline" style="clear:both">断点</p><p>本节中我们要讨论的最后一个主题是断点。 <strong>断点</strong> 是一个特殊标记，告诉调试器在调试模式下运行时在断点处停止程序的执行。</p><div class="cpp-note cpp-lightyellowbackground"><p class="cpp-note-title cpp-bottomline">适用于 Visual Studio 用户</p><p>在 Visual Studio 中，你可以通过 <em>调试菜单 &gt; 切换断点</em>，或者右键单击某条语句并选择 <em>切换断点</em> 从上下文菜单中选择，或按F9快捷键，或点击行号左侧（浅灰色区域）。</p></div><div class="cpp-note cpp-lightyellowbackground"><p class="cpp-note-title cpp-bottomline">对于 Code::Blocks 用户</p><p>在Code::Blocks中，你可以通过以下方式设置或移除断点： <em>调试菜单 &gt; 切换断点</em>，或者右键单击某条语句并选择 <em>切换断点</em> 从上下文菜单中选择，或按F5快捷键，或点击行号右侧。</p></div><div class="cpp-note cpp-lightyellowbackground"><p class="cpp-note-title cpp-bottomline">对于 VS Code 用户</p><p>在VS Code中，你可以通过以下方式设置或移除断点： <em>运行菜单 &gt; 切换断点</em>，或者按下 <em>F9</em> 快捷键，或点击行号左侧。</p></div><p>当你设置一个断点时，你会看到一种新图标出现。Visual Studio使用红色圆圈，Code::Blocks使用红色八边形（类似停车标志）：</p><div class="cpp-image-wrapper"><img alt="" src="../assets/images/c592d8b61a1586508c895268eaf8e9c3a3a26ba662e910e6aaffb76df0019e79.png"/></div><p>请在第5行设置一个断点，如上图所示。</p><p>现在，选择 <em>启动</em> 命令让调试器运行你的代码，让我们看看断点的实际效果。你会注意到，调试器并没有一直运行到程序结束，而是在断点处停止（执行标记位于断点图标之上）：</p><div class="cpp-image-wrapper"><img alt="" src="../assets/images/0c07640b216d7325866c4350f0781429f3ab51deb31837c6910616e23ca16c1a.png"/></div><p>就好像你 <em>运行到光标处</em> 运行到了这一点。</p><p>断点相对于 <em>运行到光标处</em>有几个优势。首先，断点每次被遇到时都会让调试器将控制权交还给你（不像 <em>运行到光标处</em>，后者每次调用时只运行到光标处一次）。其次，你可以设置一个断点，它会一直存在直到你移除它，而对于 <em>运行到光标处</em> ，你每次调用该命令时都必须定位到想要运行的位置。</p><p>注意，放置在不在执行路径上的行上的断点不会导致调试器停止代码执行。</p><p>让我们看一个稍微修改过的程序，它更好地说明了断点和 <em>运行到光标处</em>：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+void printValue(int value)
+{
+    std::cout &lt;&lt; value &lt;&lt; '\n';
+}
+
+int main()
+{
+    printValue(5);
+    printValue(6);
+    printValue(7);
+
+    return 0;
+}
+</code></pre><p>首先，启动一个新的调试会话，然后执行一个 <em>运行到光标处</em> 到第5行。现在选择 <em>continue</em>程序将继续运行到结束（它不会再在第5行停止，尽管第5行还会再执行两次）。</p><p>接下来，在第5行设置断点，然后选择 <em>start</em>程序将在第5行停止。现在选择 <em>continue</em>程序将第二次在第5行停止。选择 <em>continue</em> 再次，它将第三次停止。再 <em>continue</em>，程序将终止。你可以看到断点导致程序在该行执行的次数停下来。</p><p class="cpp-section cpp-topline" style="clear:both">设置下一条语句</p><p>还有一个调试命令使用得相当不常见，但至少值得了解，即使你不会经常使用它。 <strong>设置下一条语句</strong> 命令允许我们将执行点更改为其他语句（有时非正式地称为 <em>跳转</em>）。这可以用来向前跳转执行点，跳过一些本来会执行的代码，或者向后跳转，让已经执行过的内容再次运行。</p><div class="cpp-note cpp-lightyellowbackground"><p class="cpp-note-title cpp-bottomline">适用于 Visual Studio 用户</p><p>在 Visual Studio 中，你可以通过右键单击语句并选择 <em>设置下一条语句</em> 从上下文菜单中，或者按 Ctrl-Shift-F10 快捷键组合。此选项是上下文相关的，并且仅在调试程序时出现。</p></div><div class="cpp-note cpp-lightyellowbackground"><p class="cpp-note-title cpp-bottomline">对于 Code::Blocks 用户</p><p>在 Code::Blocks 中，你可以通过 <em>调试菜单 &gt; 设置下一条语句</em>，或者右键单击某条语句并选择 <em>设置下一条语句</em> 从上下文菜单。Code::Blocks 没有为此命令提供键盘快捷键。</p></div><div class="cpp-note cpp-lightyellowbackground"><p class="cpp-note-title cpp-bottomline">对于 VS Code 用户</p><p>在 VS Code 中，你可以通过右键单击语句并选择 <em>跳转到光标</em> 从上下文菜单。此选项是上下文相关的，并且仅在调试程序时出现。</p></div><p>让我们看看向前跳转的实际效果：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+void printValue(int value)
+{
+    std::cout &lt;&lt; value &lt;&lt; '\n';
+}
+
+int main()
+{
+    printValue(5);
+    printValue(6);
+    printValue(7);
+
+    return 0;
+}
+</code></pre><p>首先， <em>运行到光标处</em> 到第11行。此时，你应该能看到 <em>5</em> 在控制台输出窗口中。</p><p>现在，右键单击第12行，然后选择 <em>设置下一条语句</em>。这会导致第11行被跳过而不执行。然后选择 <em>continue</em> 来完成程序的执行。</p><p>程序的输出应该如下所示：</p><pre>5
+7
+</pre><p>我们可以看到 <code>printValue(6)</code> 被跳过了。</p><p>这个功能在多种场景下都很有用。</p><p>在我们探讨基本调试技术时，我们讨论了注释掉函数以判断该函数是否导致问题的方法。这需要修改代码，并记得稍后取消注释。在调试器中，没有直接跳过函数的方法，所以如果你决定这样做，使用 <em>设置下一条语句</em> 跳转到函数调用之上是最简单的方法。</p><p>向后跳转也很有用，如果我们想观察刚刚执行过的函数再次运行，从而了解它在做什么。</p><p>使用相同的代码， <em>运行到光标处</em> 到第12行。然后 <em>设置下一条语句</em> 在第11行上，然后 <em>continue</em>。程序的输出应该是：</p><pre>5
+6
+6
+7
+</pre><div class="cpp-note cpp-lightredbackground"><p class="cpp-note-title cpp-bottomline">警告</p><p>浮点类型的 <em>设置下一条语句</em> 命令会改变执行点，但不会改变程序的其他状态。你的变量将保持跳转前的值。因此，跳转可能导致你的程序产生与正常情况下不同的值、结果或行为。请谨慎使用此功能（尤其是向后跳转）。</p></div><div class="cpp-note cpp-lightredbackground"><p class="cpp-note-title cpp-bottomline">警告</p><p>你不应该使用 <em>设置下一条语句</em> 来将执行点更改到另一个函数。这可能导致未定义行为，并可能引发崩溃。</p></div><p class="cpp-section cpp-topline" style="clear:both">“Step back”与通过“设置下一条语句”向后跳转</p><p>“Step back”会回退所有状态，就像你从未执行过到那一点一样。对变量值或其他程序状态的任何更改都会被撤销。这本质上是一个用于单步执行的“撤销”命令。</p><p>“Set next statement”在用于向后跳转时，只会改变执行点。对变量值或其他程序状态的任何更改都不会被撤销。</p><p class="cpp-section cpp-topline" style="clear:both">总结</p><p>你现在已经学习了使用集成调试器观察和控制程序执行的主要方法。虽然这些命令对于诊断代码流程问题（例如确定某些函数是否被调用）很有用，但它们只是集成调试器带来的一部分好处。在下一节课中，我们将开始探索检查程序状态的其他方法，而这些命令是学习它们的前提。开始吧！</p>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="using-an-integrated-debugger-stepping.html" rel="prev"><small>上一课</small><strong>3.6 — 使用集成调试器：单步执行</strong></a><a class="lesson-nav-index" href="../index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="using-an-integrated-debugger-watching-variables.html" rel="next"><small>下一课</small><strong>3.8 — 使用集成调试器：监视变量</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

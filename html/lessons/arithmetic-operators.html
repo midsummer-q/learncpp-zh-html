@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/arithmetic-operators/" name="learncpp:source-url"/>
+<meta content="4d3d7df587f820852d989e3e0b8ffdca376b521a767e2f9e23aeabab6d67a5ec" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:46:26.902327+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T17:20:39.407733+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>6.2 — Arithmetic operators</title>
+<link href="../assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="../assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="../index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="../index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">6.2 — 算术运算符</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 6.2</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/arithmetic-operators/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p class="cpp-section">一元算术运算符</p><p>有两个一元算术运算符：正号（+）和负号（-）。提醒一下，一元运算符是只接受一个操作数的运算符。</p><div class="cpp-table-wrapper"><p></p><p></p><table class="cpp-table"><tbody><tr><th>运算符</th><th>符号</th><th>形式</th><th>操作</th></tr><tr><td>一元正号</td><td>+</td><td>+x</td><td>x 的值</td></tr><tr><td>一元负号</td><td>-</td><td>-x</td><td>x 的相反数</td></tr></tbody></table></div><p>浮点类型的 <strong>一元负号</strong> 运算符返回操作数乘以 -1 的结果。换句话说，如果 x = 5，那么 -x 就是 -5。</p><p>浮点类型的 <strong>一元正号</strong> 运算符返回操作数的值。换句话说，+5 是 5，+x 是 x。通常你不需要使用这个运算符，因为它是多余的。它被添加主要是为了与 <em>一元负号</em> 运算符。</p><p>为了可读性，这两个运算符都应该紧挨着操作数前面（例如 <code>-x</code>，而不是 <code>- x</code>)。</p><p>不要混淆 <em>一元负号</em> 运算符与 <em>二元减法</em> 运算符，它们使用相同的符号。例如，在表达式 <code>x = 5 - -3;</code>中，第一个减号是 <em>二元减法</em> 运算符，第二个是 <em>一元负号</em> 运算符。</p><p class="cpp-section cpp-topline" style="clear:both">二元算术运算符</p><p>有 5 个二元算术运算符。二元运算符是接受左操作数和右操作数的运算符。</p><div class="cpp-table-wrapper"><p></p><p></p><table class="cpp-table"><tbody><tr><th>运算符</th><th>符号</th><th>形式</th><th>操作</th></tr><tr><td>加法</td><td>+</td><td>x + y</td><td>x 加 y</td></tr><tr><td>减法</td><td>-</td><td>x - y</td><td>x 减 y</td></tr><tr><td>乘法</td><td>*</td><td>x * y</td><td>x 乘以 y</td></tr><tr><td>除法</td><td>/</td><td>x / y</td><td>x 除以 y</td></tr><tr><td>取余</td><td>%</td><td>x % y</td><td>x 除以 y 的余数</td></tr></tbody></table></div><p>加法、减法和乘法运算符的工作方式与现实生活一样，没有任何注意事项。</p><p>除法和取余需要一些额外的解释。我们将在下面讨论除法，在下一课中讨论取余。</p><p class="cpp-section cpp-topline" style="clear:both">整数除法和浮点数除法</p><p>最容易将除法运算符视为有两种不同的“模式”。</p><p>如果其中一个（或两个）操作数是浮点数值，那么 <em>除法运算符</em> 执行浮点数除法。 <strong>浮点数除法</strong> 返回一个浮点数值，并保留小数部分。例如， <code>7.0 / 4 = 1.75</code>， <code>7 / 4.0 = 1.75</code>、和 <code>7.0 / 4.0 = 1.75</code>与所有浮点算术运算一样，可能会发生舍入误差。</p><p>如果两个操作数都是整数， <em>除法运算符</em> 则执行整数除法。 <strong>整数除法</strong> 会丢弃任何小数部分并返回一个整数值。例如， <code>7 / 4 = 1</code> 因为结果的小数部分被丢弃了。类似地， <code>-7 / 4 = -1</code> 因为小数部分被丢弃了。</p><p class="cpp-section cpp-topline" style="clear:both">使用 static_cast&lt;&gt; 对整数进行浮点除法</p><p>这就引出了一个问题——如果我们有两个整数，并且希望在不丢失小数部分的情况下进行除法，该怎么做呢？</p><p>在课程 <a href="introduction-to-type-conversion-and-static_cast.html">4.12 -- 类型转换与static_cast简介</a>，我们展示了如何使用 <em>static_cast&lt;&gt;</em> 运算符将 char 转换为整数，以便它打印为整数而不是字符。</p><p>我们可以类似地使用 <em>static_cast&lt;&gt;</em> 将整数转换为浮点数，以便进行 <em>浮点除法</em> 而不是 <em>整数除法</em>。考虑以下代码：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+    constexpr int x{ 7 };
+    constexpr int y{ 4 };
+
+    std::cout &lt;&lt; "int / int = " &lt;&lt; x / y &lt;&lt; '\n';
+    std::cout &lt;&lt; "double / int = " &lt;&lt; static_cast&lt;double&gt;(x) / y &lt;&lt; '\n';
+    std::cout &lt;&lt; "int / double = " &lt;&lt; x / static_cast&lt;double&gt;(y) &lt;&lt; '\n';
+    std::cout &lt;&lt; "double / double = " &lt;&lt; static_cast&lt;double&gt;(x) / static_cast&lt;double&gt;(y) &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>这会产生以下结果：</p><pre>int / int = 1
+double / int = 1.75
+int / double = 1.75
+double / double = 1.75
+</pre><p>上述说明，如果任一操作数是浮点数，结果将是浮点除法，而不是整数除法。</p><p class="cpp-section cpp-topline" style="clear:both">除以 0 和 0.0</p><p>除数为 <code>0</code> 的整数除法将导致未定义行为，因为结果在数学上是未定义的！</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+	constexpr int apples { 12 };
+	std::cout &lt;&lt; "You have " &lt;&lt; apples &lt;&lt; " apples. Enter how many people to divide them between: ";
+	int x {};
+	std::cin &gt;&gt; x;
+
+	std::cout &lt;&lt; "Each person gets " &lt;&lt; apples / x &lt;&lt; " whole apples.\n"; // apples 和 x 是 int，所以这是整数除法
+
+	return 0;
+}
+</code></pre><p>如果你运行上述程序并输入 <code>0</code>，你的程序很可能会崩溃。尽管试试，它不会损害你的计算机。</p><p>除以浮点值 <code>0.0</code> 的结果是由实现定义的（即行为由编译器/架构决定）。在支持 IEEE754 浮点格式的架构上，结果将是 <code>NaN</code> 或 <code>Inf</code>。在其他架构上，结果很可能是未定义行为。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">相关内容</p><p>我们在 <code>NaN</code> 和 <code>Inf</code> 在课程 <a href="floating-point-numbers.html">4.8 -- 浮点数</a>。</p></div><p>你可以通过运行以下程序并输入 <code>0</code> 或 <code>0.0</code>：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+	constexpr int apples { 12 };
+	std::cout &lt;&lt; "You have " &lt;&lt; apples &lt;&lt; " apples. Enter how many servings of apples you want: ";
+
+	double d {};
+	std::cin &gt;&gt; d;
+
+	std::cout &lt;&lt; "Each serving is " &lt;&lt; apples / d &lt;&lt; " apples.\n"; // d 是 double，所以这是浮点数除法
+
+	return 0;
+}
+</code></pre><p class="cpp-section cpp-topline" style="clear:both">来查看你的程序的行为。</p><div class="cpp-table-wrapper"><p></p><p></p><table class="cpp-table"><tbody><tr><th>运算符</th><th>符号</th><th>形式</th><th>操作</th></tr><tr><td>加法赋值</td><td>+=</td><td>x += y</td><td>将 y 加到 x</td></tr><tr><td>减法赋值</td><td>-=</td><td>x -= y</td><td>从 x 中减去 y</td></tr><tr><td>乘法赋值</td><td>*=</td><td>x *= y</td><td>将 x 乘以 y</td></tr><tr><td>除法赋值</td><td>/=</td><td>x /= y</td><td>将 x 除以 y</td></tr><tr><td>取余赋值</td><td>%=</td><td>x %= y</td><td>将 x / y 的余数放入 x</td></tr></tbody></table></div><p>到目前为止，当你需要给变量加 4 时，你可能已经这样做了：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">x = x + 4; // 将 x 的现有值加 4
+</code></pre><p>这可行，但有点笨拙，并且需要两个运算符（operator+ 和 operator=）来执行。</p><p>因为编写像 <code>x = x + 4</code> 这样的语句非常常见，所以 C++ 为了方便提供了五个算术赋值运算符。不必编写 <code>x = x + 4</code>，你可以写 <code>x += 4</code>。而不是 <code>x = x * y</code>，你可以写 <code>x *= y</code>。</p><p>因此，上述代码变为：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">x += 4; // 将 x 的现有值加 4
+</code></pre><p class="cpp-section cpp-topline" style="clear:both">修改性运算符与非修改性运算符</p><p>能够修改其某个操作数值的运算符非正式地称为 <strong>修改性运算符</strong>。在 C++ 中，大多数运算符是非修改性的——它们仅使用操作数来计算并返回一个值。然而，有两类内置运算符会修改其左操作数（同时返回一个值）：</p><ul><li>赋值运算符，包括标准赋值运算符（<code>=</code>）、算术赋值运算符（<code>+=</code>， <code>-=</code>， <code>*=</code>， <code>/=</code>、和 <code>%=</code>）和位赋值运算符（<code>&lt;&lt;=</code>， <code>&gt;&gt;=</code>， <code>&amp;=</code>， <code>|=</code> 和 <code>^=</code>)。</li><li>递增和递减运算符（<code>++</code> 和 <code>--</code> ）。我们在课程 <a href="increment-decrement-operators-and-side-effects.html">6.4 -- 自增/自减运算符和副作用</a>。</li></ul><p>中讨论它们。此列表不包括运算符 <code>==</code>， <code>!=</code>， <code>&lt;=</code>、和 <code>&gt;=</code>，因为这些是非修改性的关系（比较）运算符（ <code>=</code> 表示“等于”）。我们在课程 <a href="relational-operators-and-floating-point-comparisons.html">6.7——关系运算符与浮点数比较</a>。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">进阶读者</p><p>中讨论它们。重载运算符可以被重新定义为与内置运算符不同的行为，这可能包括修改左操作数，即使内置版本不这样做（反之亦然）。例如，用于输出的重载版本 <code>operator&lt;&lt;</code> 会修改其左操作数（输出流对象）。</p></div>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="operator-precedence-and-associativity.html" rel="prev"><small>上一课</small><strong>6.1 — 运算符优先级与结合性</strong></a><a class="lesson-nav-index" href="../index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="remainder-and-exponentiation.html" rel="next"><small>下一课</small><strong>6.3 — 取余与幂运算</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

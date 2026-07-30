@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/how-to-design-your-first-programs/" name="learncpp:source-url"/>
+<meta content="63010d8c7777dcd2888a0d9b2acda313ba022d46b0d1baf1ead74e7097402d79" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:45:12.715639+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T17:18:28.454895+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>2.13 — How to design your first programs</title>
+<link href="../assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="../assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="../index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="../index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">2.13 — 如何设计你的第一个程序</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 2.13</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/how-to-design-your-first-programs/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>既然你已经学习了关于程序的一些基础知识，接下来让我们更仔细地探讨 <em>如何</em> 如何设计一个程序。</p><p>当你坐下来编写一个程序时，通常你会有某种想法，想为其编写程序。新手程序员往往难以弄清楚如何将那个想法转化为实际代码。但实际上，你在日常生活中已经掌握了许多解决问题所需的技能。</p><p>最重要的一点（也是最难做到的一点）是：在开始编码之前 <i>先设计好你的程序</i>。在许多方面，编程就像是建筑学。如果你试图在没有遵循建筑蓝图的情况下建造一所房子，会发生什么？除非你非常有天赋，否则最后得到的房子很可能会问题百出：墙壁不直、屋顶漏水等等。同样地，如果你在还没有一个良好的行动方案之前就尝试编程，你很可能会发现代码存在很多问题，并且你将花费大量时间来修复那些本可以通过提前思考就能完全避免的问题。</p><p>长远来看，事先做一点规划将会节省你的时间和挫败感。</p><p>在本课中，我们将介绍一种通用方法，用于将想法转化为简单的功能性程序。</p><p class="cpp-section cpp-topline" style="clear:both">设计步骤 1：定义你的目标</p><p>为了编写一个成功的程序，你首先需要定义你的目标是什么。理想情况下，你应该能用一两句话来表述它。通常以面向用户的结果来表达会很有用。例如：</p><ul><li>允许用户整理一份姓名和关联电话号码的列表。</li><li>生成随机化的地下城，从而产生有趣外观的洞穴。</li><li>为具有高股息率的股票生成一份股票推荐列表。</li><li>模拟一个球从塔上掉落到地面所需的时间。</li></ul><p>尽管这一步看起来显而易见，但它也非常重要。最糟糕的事情莫过于编写了一个实际上并不符合你（或你老板）期望的程序！</p><p class="cpp-section cpp-topline" style="clear:both">设计步骤 2：定义需求</p><p>虽然定义问题有助于你确定想要的 <em>什么</em> 结果，但这仍然很模糊。下一步是考虑需求。</p><p>需求是一个花哨的词，既指解决方案需要遵守的约束（例如预算、时间线、空间、内存等），也指程序为了满足用户需求而必须展现的能力。请注意，你的需求同样应该关注“什么”，而不是“如何”。</p><p>例如：</p><ul><li>电话号码应被保存，以便日后可以调取。</li><li>随机生成的地牢应始终包含一条从入口到出口的路径。</li><li>股票推荐应利用历史价格数据。</li><li>用户应能输入塔的高度。</li><li>我们需要在7天内提供一个可测试的版本。</li><li>程序应在用户提交请求后的10秒内产生结果。</li><li>程序应在少于0.1%的用户会话中崩溃。</li></ul><p>一个问题可能产生许多需求，而解决方案只有在满足所有这些需求时才算是“完成”。</p><p class="cpp-section cpp-topline" style="clear:both">设计步骤3：明确你的工具、目标和备份计划</p><p>当你成为一名经验丰富的程序员时，通常在此时会有许多其他步骤，包括：</p><ul><li>确定程序将运行的目标架构和/或操作系统。</li><li>确定你将使用哪些工具集。</li><li>确定你是独自编写程序还是作为团队的一部分。</li><li>明确你的测试/反馈/发布策略。</li><li>确定你将如何备份代码。</li></ul><p>然而，作为一名新程序员，这些问题的答案通常很简单：你为自己使用而编写程序，独自在自己的系统上，使用你下载的IDE，而且你的代码可能只有你自己使用。这使事情变得简单。</p><p>话虽如此，如果你要处理任何具有一定复杂性的工作，你应该有一个备份代码的计划。仅仅将源代码目录压缩或复制到同一存储设备上的另一个位置是不够的——如果存储设备损坏或崩溃，你将丢失一切。复制或压缩到可移动存储设备（例如U盘）会更好，但在盗窃、火灾或重大自然灾害的情况下，你仍然面临丢失一切的风险。</p><p>最好的备份策略是将代码副本存放到位于不同物理位置的机器上。有许多简单的方法可以做到这一点：压缩并通过电子邮件发送给自己，上传到云存储服务（例如Dropbox），使用文件传输协议（例如SFTP）上传到你控制的服务器，或者使用位于另一台机器或云上的版本控制系统（例如GitHub）。版本控制系统还有一个额外的好处，即不仅能恢复文件，还能将文件回滚到以前的版本。</p><p class="cpp-section cpp-topline" style="clear:both">设计步骤4：将难题分解为简单问题</p><p>在现实生活中，我们经常需要执行非常复杂的任务。试图弄清楚如何完成这些任务可能非常具有挑战性。在这种情况下，我们常常会利用 <strong>自顶向下</strong> 解决问题的自顶向下方法。也就是说，我们不直接解决一个复杂的任务，而是将该任务分解为多个子任务，每个子任务单独解决起来都更容易。如果这些子任务仍然难以解决，可以进一步分解。通过不断将复杂任务拆分为更简单的任务，最终每个任务都能变得易于管理，即使并非微不足道。</p><p>我们来看一个例子。假设我们要打扫房子。目前的任务层次结构如下：</p><ul><li>打扫房子</li></ul><p>一次性打扫整栋房子是一项相当庞大的任务，所以我们把它分解成子任务：</p><ul><li>打扫房子<ul><li>用吸尘器吸地毯</li><li>打扫浴室</li><li>打扫厨房</li></ul></li></ul><p>这样就更易于管理了，因为我们现在有了可以分别专注的子任务。不过，我们还可以进一步分解其中的一些：</p><ul><li>打扫房子<ul><li>用吸尘器吸地毯</li><li>打扫浴室<ul><li>刷洗马桶（呃！）</li><li>清洗水槽</li></ul></li><li>打扫厨房<ul><li>清理台面</li><li>清洁台面</li><li>刷洗水槽</li><li>倒垃圾</li></ul></li></ul></li></ul><p>现在我们有了一个任务层次结构，其中没有特别困难的任务。通过完成每个相对易于管理的子项，我们就可以完成打扫房子这个更困难的总体任务。</p><p>另一种创建任务层次结构的方法是自 <strong>底向上</strong>。在这种方法中，我们从一系列简单任务开始，通过分组来构建层次结构。</p><p>举个例子，许多人在工作日要去上班或上学，假设我们要解决“去上班”的问题。如果有人问你早上从起床到上班做了哪些事情，你可能会列出以下清单：</p><ul><li>挑选衣服</li><li>穿衣服</li><li>吃早餐</li><li>去上班</li><li>刷牙</li><li>起床</li><li>准备早餐</li><li>骑上自行车</li><li>洗澡</li></ul><p>使用自底向上的方法，我们可以通过寻找将相似项目分组的方式，将这些项目组织成层次结构：</p><ul><li>从床上到工作<ul><li>卧室事务<ul><li>关掉闹钟</li><li>起床</li><li>挑选衣服</li></ul></li><li>浴室事务<ul><li>洗澡</li><li>穿衣服</li><li>刷牙</li></ul></li><li>早餐事务<ul><li>煮咖啡或茶</li><li>吃麦片</li></ul></li><li>交通事务<ul><li>骑上自行车</li><li>去上班</li></ul></li></ul></li></ul><p>事实证明，这些任务层次结构在编程中非常有用，因为一旦你有了任务层次结构，你基本上就定义了整个程序的结构。顶层任务（在这种情况下，"打扫房子"或"去上班"）成为 main()（因为它是你试图解决的主要问题）。子项目成为程序中的函数。</p><p>如果发现某个项目（函数）难以实现，只需将其拆分为多个子项目/子函数。最终你应该达到这样的程度：程序中的每个函数实现起来都很简单。</p><p class="cpp-section cpp-topline" style="clear:both">设计步骤5：确定事件顺序</p><p>既然你的程序已经有了结构，就该确定如何将所有任务连接起来。第一步是确定将要执行的事件顺序。例如，早上起床时，你按什么顺序做上述任务？可能如下所示：</p><ul><li>卧室事务</li><li>浴室事务</li><li>早餐事务</li><li>交通事务</li></ul><p>如果我们在编写一个计算器，我们可能会按此顺序操作：</p><ul><li>从用户获取第一个数字</li><li>从用户获取数学运算</li><li>从用户获取第二个数字</li><li>计算结果</li><li>打印结果</li></ul><p>至此，我们已准备好进入实现阶段。</p><p class="cpp-section cpp-topline" style="clear:both">实现步骤1：勾勒你的主函数轮廓</p><p>现在我们可以开始实现了。上述序列可用于勾勒主程序的轮廓。暂时不必考虑输入和输出。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int main()
+{
+//    doBedroomThings();
+//    doBathroomThings();
+//    doBreakfastThings();
+//    doTransportationThings();
+
+    return 0;
+}
+</code></pre><p>或者以计算器为例：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int main()
+{
+    // 从用户处获取第一个数字
+//    getUserInput();
+
+    // 从用户处获取数学运算
+//    getMathematicalOperation();
+
+    // 从用户处获取第二个数字
+//    getUserInput();
+
+    // 计算结果
+//    calculateResult();
+
+    // 打印结果
+//    printResult();
+
+    return 0;
+}
+</code></pre><p>请注意，如果你打算使用这种“轮廓”方法来构建程序，函数将无法编译，因为函数定义尚不存在。一种解决方法是临时注释掉函数调用，直到你准备好实现函数定义（这也是我们将在此展示的方法）。或者，你也可以 <em>存根化</em> 你的函数（创建具有空体的占位函数），以便程序能够编译。</p><p class="cpp-section cpp-topline" style="clear:both">实现步骤2：实现每个函数</p><p>在此步骤中，对于每个函数，你需要做三件事：</p><ol><li>定义函数原型（输入和输出）</li><li>编写函数</li><li>测试函数</li></ol><p>如果你的函数足够细化，那么每个函数都应该相当简单明了。如果某个函数实现起来仍然过于复杂，也许需要将其分解为更易于实现的子函数（或者可能是你以错误的顺序执行了某些操作，需要重新审视事件的顺序安排）。</p><p>让我们从计算器示例中的第一个函数开始：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+// getUserInput函数的完整实现
+int getUserInput()
+{
+    std::cout &lt;&lt; "Enter an integer: ";
+    int input{};
+    std::cin &gt;&gt; input;
+
+    return input;
+}
+
+int main()
+{
+    // 从用户处获取第一个数字
+    int value{ getUserInput() }; // 注意：我们在这里包含了测试返回值的代码！
+    std::cout &lt;&lt; value &lt;&lt; '\n'; // 调试代码，确保getUserInput()正常工作，稍后我们将删除这些代码
+
+    // 从用户处获取数学运算
+//    getMathematicalOperation();
+
+    // 从用户处获取第二个数字
+//    getUserInput();
+
+    // 计算结果
+//    calculateResult();
+
+    // 打印结果
+//    printResult();
+
+    return 0;
+}
+</code></pre><p>首先，我们确定 <em>getUserInput</em> 函数不接受任何参数，并将向调用者返回一个int值。这一点体现在函数原型中，返回值类型为int且没有参数。接下来，我们编写了函数体，其中包含四个直截了当的语句。最后，我们在函数中实现了一些临时代码 <em>main</em> ，以测试该函数 <em>getUserInput</em> （包括其返回值）是否正常工作。</p><p>我们可以多次运行此程序，每次使用不同的输入值，确保程序在此阶段的行为符合预期。如果发现有问题，我们知道问题出在我们刚刚编写的代码中。</p><p>一旦我们确信程序到目前为止按预期工作，就可以删除临时测试代码，继续进行下一个函数（函数 <em>getMathematicalOperation</em>）的实现。我们不会在本课中完成整个程序，因为需要先介绍一些其他主题。</p><p>记住：不要一次性实现整个程序。要分步骤进行，并在进行下一步之前测试每一步。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">相关内容</p><p>我们在课程 <a href="introduction-to-testing-your-code.html">9.1 -- Introduction to testing your code</a>。</p></div><p class="cpp-section cpp-topline" style="clear:both">中更详细地介绍了测试。
+实现步骤3：最终测试</p><p>一旦你的程序“完成”，最后一步是测试整个程序并确保其按预期工作。如果没有，则修复它。</p><p class="cpp-section cpp-topline" style="clear:both">编写程序时的建议</p><p><strong>首先要保持程序简单</strong>。新手程序员常常对自己的程序有宏大的愿景。“我想写一个角色扮演游戏，包含图形、声音、随机怪物和地下城，还有一个可以出售在迷宫中找到的物品的城镇。”如果你一开始就尝试编写过于复杂的东西，你会因进展缓慢而不知所措并灰心丧气。相反，让你的第一个目标尽可能简单，确保在你能力范围之内。例如，“我想在屏幕上显示一个二维场地”。</p><p><strong>随时间添加功能</strong>一旦你的简单程序能够正常运行，并且运行良好，你就可以开始添加功能了。例如，当你能显示你的场地后，添加一个可以四处走动的角色。当你能走动后，添加墙壁来阻挡你的前进。当你有了墙壁后，用它们建造一个简单的小镇。当你有了小镇后，添加商人。通过逐步添加每个功能，你的程序会变得越来越复杂，但不会让你感到不知所措。</p><p><strong>每次专注于一个方面</strong>不要试图一次性编写所有代码，也不要将注意力分散到多个任务上。每次专注于一个任务。有一个任务能正常工作，而五个任务还没开始，远比六个部分完成的任务要好。如果你分散注意力，更容易犯错并忘记重要细节。</p><p><strong>边写代码边测试</strong>新手程序员常常一次性写完整个程序。然后当他们第一次编译时，编译器报告上百个错误。这不仅令人畏惧，而且如果代码不工作，你可能很难找出原因。相反，编写一小段代码，然后立即编译并测试它。如果它不工作，你就能准确知道问题出在哪里，并且很容易修复。一旦你确定代码能工作，再转移到下一段代码并重复这个过程。完成代码编写可能需要更长时间，但当你完成时，整个程序应该能工作，你就不必花双倍时间去弄清楚它为什么不工作了。</p><p><strong>不要过早追求代码完美</strong>功能（或程序）的第一个版本很少是好的。而且程序往往会随着时间的推移而演变，因为你添加新功能并找到更好的结构方式。如果你过早地投入精力去打磨代码（添加大量文档、完全遵循最佳实践、进行优化），当代码需要变更时，你可能会失去所有这些投入。相反，让你的功能达到最基本的可用状态，然后继续前进。随着你对解决方案的信心增强，逐步进行打磨。不要追求完美——有意义的程序永远不会完美，总有一些事情可以做得更好。做到“足够好”然后继续前进。</p><p><strong>为可维护性而非性能进行优化</strong>有一句著名的引言（出自高德纳）说：“过早优化是万恶之源”。新手程序员常常花费过多时间思考如何微优化他们的代码（例如，试图判断两个语句哪个更快）。这通常无关紧要。大部分性能提升来自于良好的程序结构、使用正确的工具和能力来解决问题，以及遵循最佳实践。额外的时间应该用于提高代码的可维护性。找到冗余并消除它。将长函数拆分成更短的函数。用更好的代码替换别扭或难以使用的代码。最终结果将是更容易改进和优化（在你确定哪里真正需要优化之后）且更少错误的代码。我们还在课程中提供了一些额外的建议。 <a href="finding-issues-before-they-become-problems.html">3.10 -- 在问题变成麻烦之前发现它们</a>。</p><blockquote><p>一个能正常工作的复杂系统，往往是从一个能正常工作的简单系统演化而来的</p></blockquote><p class="cpp-section cpp-topline" style="clear:both">总结</p><p>许多新手程序员会走捷径跳过设计过程（因为这看起来工作量很大，或者没有写代码那么有趣）。然而，对于任何有意义的项目来说，遵循这些步骤从长远来看会节省大量时间。事先做一点规划，就能减少最后的调试时间。</p><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">关键提示</p><p>事先花一点时间思考如何组织你的程序，将带来更好的代码，并减少寻找和修复错误的时间。</p><blockquote><p>我想说这可以说是编程中最重要的事情，而我们中的一些人，就像最初的我，对此不以为意。</p></blockquote></div><p>当你对这些概念和技巧越来越熟悉时，它们会开始变得更加自然。最终你会达到这样的境界：只需极少的事前规划就能写出完整的函数（以及短程序）。</p>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="header-guards.html" rel="prev"><small>上一课</small><strong>2.12 — 头文件守卫</strong></a><a class="lesson-nav-index" href="../index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="chapter-2-summary-and-quiz.html" rel="next"><small>下一课</small><strong>2.x — 第2章 总结与测验</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

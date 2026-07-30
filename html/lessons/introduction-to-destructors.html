@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/introduction-to-destructors/" name="learncpp:source-url"/>
+<meta content="f881c4ae0b88d7a032d1c821f525366d7463e5ba1ffed6fd9c8b894fc47bcb2a" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:50:51.044327+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T17:48:52.752868+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>15.4 — Introduction to destructors</title>
+<link href="../assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="../assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="../index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="../index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">15.4 — 析构函数简介</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 15.4</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/introduction-to-destructors/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p class="cpp-section">清理问题</p><p>假设你正在编写一个需要通过网络发送数据的程序。然而，建立与服务器的连接代价高昂，因此你希望收集一批数据后一次性发送。这样的类可能结构如下：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">// 此示例无法编译，因为它（故意）不完整
+class NetworkData
+{
+private:
+    std::string m_serverName{};
+    DataStore m_dataQueue{};
+
+public:
+	NetworkData(std::string_view serverName)
+		: m_serverName { serverName }
+	{
+	}
+
+	void addData(std::string_view data)
+	{
+		m_dataQueue.add(data);
+	}
+
+	void sendData()
+	{
+		// 连接到服务器
+		// 发送所有数据
+		// 清除数据
+	}
+};
+
+int main()
+{
+    NetworkData n("someipAddress");
+
+    n.addData("somedata1");
+    n.addData("somedata2");
+
+    n.sendData();
+
+    return 0;
+}
+</code></pre><p>然而，这 <code>NetworkData</code> 存在一个潜在问题。它依赖于 <code>sendData()</code> 在程序关闭前被显式调用。如果 <code>NetworkData</code> 的用户忘记这样做，数据将不会发送到服务器，并在程序退出时丢失。现在，你可能会说：“嗯，记住这个并不难！”，在这个特定例子中，你是对的。但考虑一个稍微复杂的例子，比如这个函数：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">bool someFunction()
+{
+    NetworkData n("someipAddress");
+
+    n.addData("somedata1");
+    n.addData("somedata2");
+
+    if (someCondition)
+        return false;
+
+    n.sendData();
+    return true;
+}
+</code></pre><p>在这种情况下，如果 <code>someCondition</code> 等于 <code>true</code>，那么函数会提前返回，而 <code>sendData()</code> 将不会被调用。这是一个更容易犯的错误，因为 <code>sendData()</code> 调用是存在的，只是程序在所有情况下都没有执行到它。</p><p>概括来说，使用资源（最常见的是内存，但有时也包括文件、数据库、网络连接等）的类通常需要在销毁使用它们的类对象之前显式发送或关闭资源。在其他情况下，我们可能希望在对象销毁前进行一些记录工作，例如将信息写入日志文件，或向服务器发送一条遥测数据。术语“清理”通常指类在对象销毁前必须执行的一组任务，以确保行为符合预期。如果我们必须依赖此类用户确保执行清理的函数在对象销毁前被调用，那么很可能在某些地方出错。</p><p>但为什么我们要要求用户确保这一点呢？如果对象正在被销毁，那么我们知道此时需要执行清理。难道清理不应该自动进行吗？</p><p class="cpp-section cpp-topline" style="clear:both">析构函数来拯救</p><p>在课程 <a href="introduction-to-constructors.html">14.9 -- 构造函数简介</a> 我们介绍了构造函数，它们是在创建非聚合类类型对象时调用的特殊成员函数。构造函数用于初始化成员变量，并执行确保类对象准备好使用所需的其他设置任务。</p><p>类似地，类还有另一种特殊成员函数，它在非聚合类类型对象销毁时自动调用。这个函数称为 <strong>析构函数</strong>。析构函数旨在允许类在对象销毁前执行任何必要的清理。</p><p class="cpp-section cpp-topline" style="clear:both">析构函数命名</p><p>与构造函数一样，析构函数有特定的命名规则：</p><ol start="1"><li>析构函数必须与类同名，前面加一个波浪号（~）。</li><li>析构函数不能接受参数。</li><li>析构函数没有返回类型。</li></ol><p>一个类只能有一个析构函数。</p><p>通常你不应该显式调用析构函数（因为它会在对象销毁时自动调用），因为很少有需要多次清理对象的情况。</p><p>析构函数可以安全地调用其他成员函数，因为对象在析构函数执行完毕后才会被销毁。</p><p class="cpp-section cpp-topline" style="clear:both">析构函数示例</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+class Simple
+{
+private:
+    int m_id {};
+
+public:
+    Simple(int id)
+        : m_id { id }
+    {
+        std::cout &lt;&lt; "Constructing Simple " &lt;&lt; m_id &lt;&lt; '\n';
+    }
+
+    ~Simple() // 这是我们的析构函数
+    {
+        std::cout &lt;&lt; "Destructing Simple " &lt;&lt; m_id &lt;&lt; '\n';
+    }
+
+    int getID() const { return m_id; }
+};
+
+int main()
+{
+    // 分配一个 Simple
+    Simple simple1{ 1 };
+    {
+        Simple simple2{ 2 };
+    } // simple2 在此处销毁
+
+    return 0;
+} // simple1 在此处销毁
+</code></pre><p>该程序产生以下结果：</p><pre>Constructing Simple 1
+Constructing Simple 2
+Destructing Simple 2
+Destructing Simple 1
+</pre><p>注意，当每个 <code>Simple</code> 对象被销毁时，析构函数被调用，打印一条消息。“Destructing Simple 1”在“Destructing Simple 2”之后打印，因为 <code>simple2</code> 在函数结束前被销毁，而 <code>simple1</code> 直到 <code>main()</code>。</p><p>结束才被销毁。记住，静态变量（包括全局变量和静态局部变量）在程序启动时构造，在程序关闭时销毁。</p><p class="cpp-section cpp-topline" style="clear:both">改进 NetworkData 程序</p><p>回到课程开头的例子，我们可以通过让析构函数调用该函数来消除用户显式调用 <code>sendData()</code> 的需要：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">class NetworkData
+{
+private:
+    std::string m_serverName{};
+    DataStore m_dataQueue{};
+
+public:
+	NetworkData(std::string_view serverName)
+		: m_serverName { serverName }
+	{
+	}
+
+	~NetworkData()
+	{
+		sendData(); // 确保在对象销毁前所有数据都已发送
+	}
+
+	void addData(std::string_view data)
+	{
+		m_dataQueue.add(data);
+	}
+
+	void sendData()
+	{
+		// 连接到服务器
+		// 发送所有数据
+		// 清除数据
+	}
+};
+
+int main()
+{
+    NetworkData n("someipAddress");
+
+    n.addData("somedata1");
+    n.addData("somedata2");
+
+    return 0;
+}
+</code></pre><p>有了这样的析构函数，我们的 <code>NetworkData</code> 对象将在销毁前始终发送其拥有的任何数据！清理自动进行，这意味着更少的出错机会，以及更少需要操心的事情。</p><p class="cpp-section cpp-topline" style="clear:both">隐式析构函数</p><p>如果非聚合类类型对象没有用户声明的析构函数，编译器将生成一个带有空体的析构函数。这个析构函数称为隐式析构函数，它实际上只是一个占位符。</p><p>如果你的类在销毁时不需要执行任何清理，完全可以不定义析构函数，让编译器为你的类生成一个隐式析构函数。</p><p class="cpp-section cpp-topline" style="clear:both">关于 <code>std::exit()</code> 函数</p><p>在课程 <a href="halts-exiting-your-program-early.html">8.12 -- 暂停（提前退出程序）</a>，我们讨论了 <code>std::exit()</code> 函数，它可以用来立即终止程序。当程序立即终止时，程序只是结束。局部变量不会被先销毁，因此不会调用任何析构函数。如果你依赖析构函数在这种情况下进行必要的清理工作，请小心。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">进阶读者</p><p>未处理的异常也会导致程序终止，并且可能在此之前不会展开堆栈。如果堆栈展开没有发生，则在程序终止之前不会调用析构函数。</p></div>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="nested-types-member-types.html" rel="prev"><small>上一课</small><strong>15.3 — 嵌套类型（成员类型）</strong></a><a class="lesson-nav-index" href="../index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="class-templates-with-member-functions.html" rel="next"><small>下一课</small><strong>15.5 — 带成员函数的类模板</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

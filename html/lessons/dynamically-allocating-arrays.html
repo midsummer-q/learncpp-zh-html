@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/dynamically-allocating-arrays/" name="learncpp:source-url"/>
+<meta content="2566eba6862153ca244b7e922ba8e7c5a446d175353d54f7a67a0ad738b39f10" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:52:11.931188+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T18:01:23.683964+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>19.2 — Dynamically allocating arrays</title>
+<link href="../assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="../assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="../index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="../index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">19.2 — 动态分配数组</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 19.2</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/dynamically-allocating-arrays/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>除了动态分配单个值，我们还可以动态分配变量数组。与固定数组不同，固定数组的大小必须在编译时确定，而动态分配数组允许我们在运行时选择数组长度（这意味着长度不需要是 constexpr）。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">作者注</p><p>在这些课程中，我们将动态分配 C 风格数组，这是最常见的动态分配数组类型。</p><p>虽然你可以动态分配一个 <code>std::array</code>，但通常最好使用非动态分配的 <code>std::vector</code> 在这种情况下。</p></div><p>要动态分配数组，我们使用 new 和 delete 的数组形式（通常称为 new[] 和 delete[]）：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;cstddef&gt;
+#include &lt;iostream&gt;
+
+int main()
+{
+    std::cout &lt;&lt; "Enter a positive integer: ";
+    std::size_t length{};
+    std::cin &gt;&gt; length;
+
+    int* array{ new int[length]{} }; // 使用数组 new。注意长度不必是常量！
+
+    std::cout &lt;&lt; "I just allocated an array of integers of length " &lt;&lt; length &lt;&lt; '\n';
+
+    array[0] = 5; // 将元素 0 设置为值 5
+
+    delete[] array; // 使用数组 delete 释放数组
+
+    // 我们不需要将数组设置为 nullptr/0，因为它在此之后立即超出作用域
+
+    return 0;
+}
+</code></pre><p>因为我们正在分配一个数组，C++ 知道它应该使用数组版本的 new 而不是标量版本的 new。本质上，new[] 运算符被调用，即使 [] 没有放在 new 关键字旁边。</p><p>动态分配数组的长度类型为 <code>std::size_t</code>。如果你使用非 constexpr 的 int，你需要 <code>static_cast</code> 切换到 <code>std::size_t</code> 因为这被认为是窄化转换，否则编译器会发出警告。</p><p>注意，由于这块内存是从与固定数组不同的地方分配的，数组的大小可以非常大。你可以运行上面的程序并分配长度为 1,000,000（甚至可能 100,000,000）的数组而不会出现问题。试试看！因此，在 C++ 中需要分配大量内存的程序通常采用动态分配。</p><p class="cpp-section cpp-topline" style="clear:both">动态删除数组</p><p>当删除动态分配的数组时，我们必须使用数组版本的 delete，即 delete[]。</p><p>这告诉 CPU 它需要清理多个变量而不是单个变量。新手程序员在处理动态内存分配时最常见的错误之一是在删除动态分配的数组时使用 delete 而不是 delete[]。对标量数组使用标量版本的 delete 会导致未定义行为，例如数据损坏、内存泄漏、崩溃或其他问题。</p><p>关于数组 delete[] 的一个常见问题是：“数组 delete 如何知道要删除多少内存？”答案是数组 new[] 会跟踪为变量分配了多少内存，以便数组 delete[] 可以删除适当数量的内存。不幸的是，这个大小/长度对程序员不可访问。</p><p class="cpp-section cpp-topline" style="clear:both">动态数组与固定数组几乎相同</p><p>在课程 <a href="c-style-array-decay.html">17.8 -- C 风格数组退化</a>，你了解到固定数组保存第一个数组元素的内存地址。你还了解到固定数组可以退化为指向数组第一个元素的指针。在这种退化形式中，固定数组的长度不可用（因此也无法通过 sizeof() 获取数组大小），但除此之外几乎没有区别。</p><p>动态数组的生命始于一个指向数组第一个元素的指针。因此，它具有相同的局限性，即不知道自己的长度或大小。动态数组的功能与退化的固定数组完全相同，不同之处在于程序员负责通过 delete[] 关键字释放动态数组。</p><p class="cpp-section cpp-topline" style="clear:both">初始化动态分配的数组</p><p>如果你想将动态分配的数组初始化为 0，语法非常简单：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int* array{ new int[length]{} };
+</code></pre><p>在 C++11 之前，没有简单的方法将动态数组初始化为非零值（初始化列表仅适用于固定数组）。这意味着你必须遍历数组并显式地给元素赋值。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int* array = new int[5];
+array[0] = 9;
+array[1] = 7;
+array[2] = 5;
+array[3] = 3;
+array[4] = 1;
+</code></pre><p>超级烦人！</p><p>然而，从 C++11 开始，现在可以使用初始化列表初始化动态数组了！</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int fixedArray[5] = { 9, 7, 5, 3, 1 }; // 在 C++11 之前初始化固定数组
+int* array{ new int[5]{ 9, 7, 5, 3, 1 } }; // 从 C++11 开始初始化动态数组
+// 为了避免写两次类型，我们可以使用 auto。这通常用于名称较长的类型。
+auto* array{ new int[5]{ 9, 7, 5, 3, 1 } };
+</code></pre><p>注意，这种语法在数组长度和初始化列表之间没有 operator=。</p><p>为了保持一致性，固定数组也可以使用统一初始化进行初始化：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int fixedArray[]{ 9, 7, 5, 3, 1 }; // 在 C++11 中初始化固定数组
+char fixedArray[]{ "Hello, world!" }; // 在 C++11 中初始化固定数组
+</code></pre><p>显式指定数组大小是可选的。</p><p class="cpp-section cpp-topline" style="clear:both">调整数组大小</p><p>动态分配数组允许你在分配时设置数组长度。然而，C++ 没有提供内置的方法来调整已分配的数组的大小。可以通过动态分配新数组、复制元素并删除旧数组来绕过这个限制。但这容易出错，尤其是当元素类型是类时（类有特殊的创建规则）。</p><p>因此，我们建议避免自己这样做。使用 <code>std::vector</code> 的别名。</p><p class="cpp-section cpp-topline" style="clear:both">小测验时间</p><div class="quiz" style="clear:both"><p class="quiz-header">问题 #1</p><p>编写一个程序：</p><ul><li>询问用户想要输入多少个名字。</li><li>动态分配一个 <code>std::string</code> 数组。</li><li>要求用户输入每个名字。</li><li>调用 <code>std::sort</code> 对名字进行排序（参见 <a href="sorting-an-array-using-selection-sort.html#stdsort">18.1 -- 使用选择排序对数组进行排序</a> 和 <a href="pointer-arithmetic-and-subscripting.html">17.9 -- 指针算术和下标</a>)</li><li>打印排序后的名字列表。</li></ul><p><code>std::string</code> 支持通过比较运算符 &lt; 和 &gt; 比较字符串。你不需要手动实现字符串比较。</p><p>你的输出应该匹配以下内容：</p><pre>How many names would you like to enter? 5
+Enter name #1: Jason
+Enter name #2: Mark
+Enter name #3: Alex
+Enter name #4: Chris
+Enter name #5: John
+
+Here is your sorted list:
+Name #1: Alex
+Name #2: Chris
+Name #3: Jason
+Name #4: John
+Name #5: Mark
+</pre><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">提醒</p><p>您可以使用 <code>std::getline()</code> 读取包含空格的名称（参见课程 <a href="introduction-to-stdstring.html">5.7 -- std::string 简介</a>)。</p></div><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">提醒</p><p>要使用 <code>std::sort()</code> 使用指向数组的指针，手动计算 begin 和 end</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">std::sort(array, array + arrayLength);
+</code></pre></div><p><a aria-controls="cpp_solution_id_0" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_0" href="#cpp_solution_id_0">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_0"><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;algorithm&gt; // std::sort
+#include &lt;cstddef&gt;
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+std::size_t getNameCount()
+{
+    std::cout &lt;&lt; "How many names would you like to enter? ";
+    std::size_t length{};
+    std::cin &gt;&gt; length;
+
+    return length;
+}
+
+// 要求用户输入所有名称
+void getNames(std::string* names, std::size_t length)
+{
+    for (std::size_t i{ 0 }; i &lt; length; ++i)
+    {
+        std::cout &lt;&lt; "Enter name #" &lt;&lt; i + 1 &lt;&lt; ": ";
+        std::getline(std::cin &gt;&gt; std::ws, names[i]);
+    }
+}
+
+// 打印排序后的名称
+void printNames(std::string* names, std::size_t length)
+{
+    std::cout &lt;&lt; "\nHere is your sorted list:\n";
+
+    for (std::size_t i{ 0 }; i &lt; length; ++i)
+        std::cout &lt;&lt; "Name #" &lt;&lt; i + 1 &lt;&lt; ": " &lt;&lt; names[i] &lt;&lt; '\n';
+}
+
+int main()
+{
+    std::size_t length{ getNameCount() };
+
+    // 分配一个数组来保存名称
+    auto* names{ new std::string[length]{} };
+
+    getNames(names, length);
+
+    // 对数组进行排序
+    std::sort(names, names + length);
+
+    printNames(names, length);
+
+    // 不要忘记使用数组 delete
+    delete[] names;
+    // 我们不需要将 names 设置为 nullptr/0，因为它将在此之后立即
+    // 超出作用域。
+
+    return 0;
+}
+</code></pre></div></div>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="dynamic-memory-allocation-with-new-and-delete.html" rel="prev"><small>上一课</small><strong>19.1 — 使用 new 和 delete 进行动态内存分配</strong></a><a class="lesson-nav-index" href="../index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="destructors.html" rel="next"><small>下一课</small><strong>19.3 — 析构函数</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

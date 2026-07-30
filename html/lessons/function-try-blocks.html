@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/function-try-blocks/" name="learncpp:source-url"/>
+<meta content="884776b8ab0eb1e7df5b902ed7a4b08d166d117832e3b5c00bd9e06faa73326d" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:54:51.082997+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-29T01:53:01.035286+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>27.7 — Function try blocks</title>
+<link href="../assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="../assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="../index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="../index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">27.7 — 函数 try 块</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 27.7</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/function-try-blocks/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>try 和 catch 块在大多数情况下工作良好，但有一种特殊情况它们不够用。考虑以下示例：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+class A
+{
+private:
+	int m_x;
+public:
+	A(int x) : m_x{x}
+	{
+		if (x &lt;= 0)
+			throw 1; // 此处抛出异常
+	}
+};
+
+class B : public A
+{
+public:
+	B(int x) : A{x} // A 在 B 的成员初始化列表中初始化
+	{
+		// 如果创建 A 失败，我们想在这里处理它，会发生什么？
+	}
+};
+
+int main()
+{
+	try
+	{
+		B b{0};
+	}
+	catch (int)
+	{
+		std::cout &lt;&lt; "Oops\n";
+	}
+}
+</code></pre><p>在上面的示例中，派生类 B 调用基类构造函数 A，A 可能抛出异常。由于对象 b 的创建被放在 try 块内（在函数 main() 中），如果 A 抛出异常，main 的 try 块将捕获它。因此，该程序输出：</p><pre>Oops
+</pre><p>但如果我们想在 B 内部捕获异常呢？对基构造函数 A 的调用通过成员初始化列表进行，发生在 B 构造函数体执行之前。没有办法用标准的 try 块包裹它。</p><p>在这种情况下，我们必须使用一种稍微修改过的 try 块，称为 <strong>函数 try 块</strong>。</p><p class="cpp-section cpp-topline" style="clear:both">函数 try 块</p><p>函数 try 块旨在允许您在整个函数体周围建立异常处理程序，而不是在代码块周围。</p><p>函数 try 块的语法有点难以描述，所以我们通过示例来展示：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+class A
+{
+private:
+	int m_x;
+public:
+	A(int x) : m_x{x}
+	{
+		if (x &lt;= 0)
+			throw 1; // 此处抛出异常
+	}
+};
+
+class B : public A
+{
+public:
+	B(int x) try : A{x} // 注意这里添加了 try 关键字
+	{
+	}
+	catch (...) // 注意这与函数本身处于相同的缩进级别
+	{
+                // 来自成员初始化列表或
+                // 来自构造函数体的异常在此处捕获
+
+                std::cerr &lt;&lt; "Exception caught\n";
+
+                throw; // 重新抛出当前异常
+	}
+};
+
+int main()
+{
+	try
+	{
+		B b{0};
+	}
+	catch (int)
+	{
+		std::cout &lt;&lt; "Oops\n";
+	}
+}
+</code></pre><p>运行此程序时，它产生输出：</p><pre>Exception caught
+Oops
+</pre><p>让我们更详细地检查这个程序。</p><p>首先，注意在成员初始化列表之前添加了 <code>try</code> 关键字。这表示从该点之后（直到函数结束）的所有内容都应被视为在 try 块内部。</p><p>其次，注意关联的 catch 块与整个函数处于相同的缩进级别。在 try 关键字和函数体结束之间抛出的任何异常都可以在这里被捕获。</p><p>当上述程序运行时，变量 <code>b</code> 开始构造，它调用 B 的构造函数（该构造函数使用了函数 try）。B 的构造函数调用 A 的构造函数，然后 A 的构造函数引发异常。由于 A 的构造函数没有处理此异常，异常沿堆栈向上传播到 B 的构造函数，在那里被 B 构造函数的函数级 catch 捕获。catch 块打印“Exception caught”，然后沿堆栈重新抛出当前异常，该异常被 <code>main()</code>中的 catch 块捕获，并打印“Oops”。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>当构造函数需要处理成员初始化列表中抛出的异常时，使用函数 try 块。</p></div><p class="cpp-section cpp-topline" style="clear:both">函数 catch 块的限制</p><p>对于常规的 catch 块（在函数内部），我们有三个选项：我们可以抛出新的异常、重新抛出当前异常，或者解决异常（通过 return 语句，或让控制到达 catch 块的末尾）。</p><p>构造函数的函数级 catch 块必须要么抛出新的异常，要么重新抛出现有异常——它们不允许解决异常！return 语句也不允许，到达 catch 块的末尾将隐式地重新抛出。</p><p>析构函数的函数级 catch 块可以通过 return 语句抛出、重新抛出或解决当前异常。到达 catch 块的末尾将隐式地重新抛出。</p><p>其他函数的函数级 catch 块可以通过 return 语句抛出、重新抛出或解决当前异常。到达 catch 块的末尾将隐式地解决非值返回函数的异常，并对值返回函数产生未定义行为！</p><p>下表总结了函数级 catch 块的限制和行为：</p><div class="cpp-table-wrapper"><table class="cpp-table"><tbody><tr><th>函数类型</th><th>能否通过 return 语句<br/>解决异常</th><th>catch 块末尾的行为</th></tr><tr><td>构造函数</td><td>否，必须抛出或重新抛出</td><td>隐式重新抛出</td></tr><tr><td>析构函数</td><td>是</td><td>隐式重新抛出</td></tr><tr><td>非值返回函数</td><td>是</td><td>解决异常</td></tr><tr><td>值返回函数</td><td>是</td><td>未定义行为</td></tr></tbody></table></div><p>由于 catch 块末尾的行为因函数类型而异（并且对于值返回函数包括未定义行为），我们建议永远不要让控制到达 catch 块的末尾，而应始终显式地抛出、重新抛出或返回。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>避免让控制到达函数级 catch 块的末尾。相反，显式地抛出、重新抛出或返回。</p></div><p>在上面的程序中，如果我们没有在构造函数的函数级 catch 块中显式地重新抛出异常，控制将到达函数级 catch 的末尾，并且由于这是一个构造函数，将发生隐式重新抛出。结果将是相同的。</p><p>虽然函数级 try 块也可以用于非成员函数，但通常不会，因为很少需要这样做。它们几乎专门用于构造函数！</p><p class="cpp-section cpp-topline" style="clear:both">函数 try 块可以捕获基类和当前类的异常</p><p>在上面的示例中，如果 A 或 B 的构造函数抛出异常，它将被 B 构造函数周围的 try 块捕获。</p><p>在下面的示例中，我们可以看到这一点，我们从类 B 而不是类 A 抛出异常：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+class A
+{
+private:
+	int m_x;
+public:
+	A(int x) : m_x{x}
+	{
+	}
+};
+
+class B : public A
+{
+public:
+	B(int x) try : A{x} // 注意这里添加了 try 关键字
+	{
+		if (x &lt;= 0) // 从 A 移到了 B
+			throw 1; // 这个也移过来了
+	}
+	catch (...)
+	{
+                std::cerr &lt;&lt; "Exception caught\n";
+
+                // 如果此处没有显式抛出异常，
+                // 当前异常将被隐式重新抛出
+	}
+};
+
+int main()
+{
+	try
+	{
+		B b{0};
+	}
+	catch (int)
+	{
+		std::cout &lt;&lt; "Oops\n";
+	}
+}
+</code></pre><p>我们得到相同的输出：</p><pre>Exception caught
+Oops
+</pre><p class="cpp-section cpp-topline" style="clear:both">不要使用函数 try 来清理资源</p><p>当对象的构造失败时，类的析构函数不会被调用。因此，你可能会想使用函数 try 块来清理部分分配了资源但随后失败的类。然而，引用失败对象的成员被认为是未定义行为，因为在 catch 块执行之前对象已经“死亡”。这意味着你不能使用函数 try 来清理类。如果你想清理类，请遵循处理抛出异常的类的标准规则（参见课程“当构造函数失败”小节）。 <a href="exceptions-classes-and-inheritance.html">27.5 -- 异常、类和继承</a>)。</p><p>函数 try 主要用于在将异常向上传递之前记录失败，或者更改抛出的异常类型。</p>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="rethrowing-exceptions.html" rel="prev"><small>上一课</small><strong>27.6 — 重新抛出异常</strong></a><a class="lesson-nav-index" href="../index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="exception-dangers-and-downsides.html" rel="next"><small>下一课</small><strong>27.8 — 异常的危险与缺点</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

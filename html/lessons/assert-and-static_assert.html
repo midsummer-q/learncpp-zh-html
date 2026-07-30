@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/assert-and-static_assert/" name="learncpp:source-url"/>
+<meta content="8353716a580a3dcc87e1961487e7936a8674920bbe91077930824fb8b0631322" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:48:04.662288+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-29T02:13:00.315618+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>9.6 — Assert and static_assert</title>
+<link href="../assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="../assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="../index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="../index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">9.6 — 断言和 static_assert</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 9.6</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/assert-and-static_assert/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>在带参数的函数中，调用者可能传入语法有效但语义无意义的参数。例如，在上一课（<a href="detecting-and-handling-errors.html">9.4 -- 检测和处理错误</a>）中，我们展示了以下示例函数：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">void printDivision(int x, int y)
+{
+    if (y != 0)
+        std::cout &lt;&lt; static_cast&lt;double&gt;(x) / y;
+    else
+        std::cerr &lt;&lt; "Error: Could not divide by zero\n";
+}
+</code></pre><p>该函数显式检查 <code>y</code> 等于 <code>0</code>，因为除以零是语义错误，会导致程序崩溃。</p><p>在上一课中，我们讨论了几种处理此类问题的方法，包括终止程序或跳过有问题的语句。</p><p>但这两种方法都有问题。如果程序因错误而跳过语句，那么它本质上是在静默失败。尤其是在编写和调试程序时，静默失败很糟糕，因为它们掩盖了真正的问题。即使我们打印错误消息，该消息也可能淹没在其他程序输出中，并且可能不清楚错误消息是在哪里生成的，或者触发错误消息的条件是如何发生的。某些函数可能被调用数十次或数百次，如果只有其中一种情况产生问题，则很难知道是哪一个。</p><p>如果程序终止（通过 <code>std::exit</code>），那么我们将丢失调用堆栈和任何有助于隔离问题的调试信息。 <code>std::abort</code> 对于这种情况，</p><p class="cpp-section cpp-topline" style="clear:both">是更好的选择，因为通常开发人员可以选择在程序中止的位置开始调试。</p><p>在编程中， <strong>前置条件</strong> 是在执行某些代码段（通常是函数体）之前必须为真的任何条件。在前面的示例中，我们检查 <code>y != 0</code> 是一个前置条件，确保 <code>y</code> 在除以 <code>y</code>。</p><p>之前具有非零值。函数的前置条件最好放在函数顶部，如果前置条件不满足，则使用提前返回来返回给调用者。例如：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">void printDivision(int x, int y)
+{
+    if (y == 0) // 处理 
+    {
+        std::cerr &lt;&lt; "Error: Could not divide by zero\n";
+        return; // 将用户弹回调用者
+    }
+
+    // 我们现在知道 y != 0
+    std::cout &lt;&lt; static_cast&lt;double&gt;(x) / y;
+}
+</code></pre><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">可选阅读</p><p>这有时被称为“门卫模式”，因为一旦检测到错误，您会立即被弹回函数外部。</p><p>门卫模式有两个主要优点：</p><ol start="1"><li>所有测试用例都在前面，测试用例和处理错误的代码在一起。</li><li>嵌套更少。</li></ol><p>这是非门卫版本的代码：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">void printDivision(int x, int y)
+{
+    if (y != 0)
+    {
+        std::cout &lt;&lt; static_cast&lt;double&gt;(x) / y;
+    }
+    else
+    {
+        std::cerr &lt;&lt; "Error: Could not divide by zero\n";
+        return; // 将用户弹回调用者
+    }
+}
+</code></pre><p>这个版本严格来说更差，因为测试用例和处理错误的代码更加分离，并且嵌套更多。</p></div><p>一种 <strong>不变量</strong> 是在执行某些代码段时必须为真的条件。这通常用于循环，循环体只有在不变量为真时才会执行。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">进阶读者</p><p>我们在课程 <a href="introduction-to-classes.html">14.2 -- 类简介</a>。</p></div><p>中讨论了一种常见的不变量类型，称为“类不变量”。类似地， <strong>后置条件</strong> 是在执行某些代码段后必须为真的条件。我们的函数没有任何后置条件。</p><p class="cpp-section cpp-topline" style="clear:both">断言</p><p>使用条件语句检测无效参数（或验证其他类型的假设），同时打印错误消息并终止程序，是检测问题的常见方法，以至于 C++ 提供了一种快捷方式来实现这一点。</p><p>一种 <strong>断言</strong> 是一个表达式，除非程序中有错误，否则该表达式为真。如果表达式求值为 <code>true</code>，则断言语句不执行任何操作。如果条件表达式求值为 <code>false</code>，则显示错误消息并终止程序（通过 <code>std::abort</code>）。此错误消息通常包含失败的表达式文本，以及代码文件的名称和断言的行号。这使得不仅很容易知道问题是什么，而且知道问题发生在代码中的哪个位置。这可以极大地帮助调试工作。</p><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">关键提示</p><p>断言用于在开发和调试时检测错误。</p><p>当断言求值为假时，程序会立即停止。这使您有机会使用调试工具检查程序状态并确定断言失败的原因。然后，您可以反向工作，快速找到并修复问题。</p><p>如果没有断言来检测错误并失败，这样的错误很可能导致程序稍后出现故障。在这种情况下，很难确定问题出在哪里，或者问题的根本原因是什么。</p></div><p>在 C++ 中，运行时断言通过 <strong>assert</strong> 预处理器宏，位于 &lt;cassert&gt; 头文件中。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;cassert&gt; // for assert()
+#include &lt;cmath&gt; // for std::sqrt
+#include &lt;iostream&gt;
+
+double calculateTimeUntilObjectHitsGround(double initialHeight, double gravity)
+{
+  assert(gravity &gt; 0.0); // 除非存在正重力，否则该对象不会到达地面。
+ 
+  if (initialHeight &lt;= 0.0)
+  {
+    // 对象已经在地上了。或者埋了。
+    return 0.0;
+  }
+ 
+  return std::sqrt((2.0 * initialHeight) / gravity);
+}
+
+int main()
+{
+  std::cout &lt;&lt; "Took " &lt;&lt; calculateTimeUntilObjectHitsGround(100.0, -9.8) &lt;&lt; " second(s)\n";
+
+  return 0;
+}
+</code></pre><p>当程序调用 <code>calculateTimeUntilObjectHitsGround(100.0, -9.8)</code>， <code>assert(gravity &gt; 0.0)</code> 将求值为 <code>false</code>，这将触发断言。它会打印类似这样的消息：</p><pre>dropsimulator: src/main.cpp:6: double calculateTimeUntilObjectHitsGround(double, double): Assertion 'gravity &gt; 0.0' failed.
+</pre><p>实际消息因编译器而异。</p><p>虽然断言最常用于验证函数参数，但它们可以用于任何你想要验证某条件为真的地方。</p><p>尽管我们之前告诉你要避免预处理器宏，但断言是少数被认为可以接受的预处理器宏之一。我们鼓励你在代码中大量使用 assert 语句。</p><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">关键提示</p><p>断言比注释更好，因为它们既记录又强制执行条件。当代码更改而注释未更新时，注释可能会过时。而过时的断言是代码正确性问题，因此开发者不太可能让它们被忽视。</p></div><p class="cpp-section cpp-topline" style="clear:both">让你的 assert 语句更具描述性</p><p>有时 assert 表达式不够描述性。考虑以下语句：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">assert(found);
+</code></pre><p>如果这个断言被触发，断言会显示：</p><pre>Assertion failed: found, file C:\\VCProjects\\Test.cpp, line 34
+</pre><p>这到底是什么意思？显然 <code>found</code> 是 <code>false</code> （因为断言触发了），但什么没找到？你必须去查看代码才能确定。</p><p>幸运的是，有一个小技巧可以让你的 assert 语句更具描述性。只需添加一个用逻辑 AND 连接的字符串字面量：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">assert(found &amp;&amp; "Car could not be found in database");
+</code></pre><p>这样做的原因是：字符串字面量总是求值为布尔值 <code>true</code>。所以如果 <code>found</code> 等于 <code>false</code>， <code>false &amp;&amp; true</code> 等于 <code>false</code>。如果 <code>found</code> 等于 <code>true</code>， <code>true &amp;&amp; true</code> 等于 <code>true</code>。因此，用逻辑 AND 连接字符串字面量不会影响断言的求值。</p><p>然而，当断言触发时，字符串字面量会包含在断言消息中：</p><pre>Assertion failed: found &amp;&amp; "Car could not be found in database", file C:\\VCProjects\\Test.cpp, line 34
+</pre><p>这为你提供了关于出错原因的额外上下文。</p><p class="cpp-section cpp-topline" style="clear:both">使用断言处理未实现的功能</p><p>断言有时也用于记录程序员编写代码时因不需要而未实现的情况：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">assert(moved &amp;&amp; "Need to handle case where student was just moved to another classroom");
+</code></pre><p>这样，如果开发者遇到需要这种情况的场景，代码会以有用的错误消息失败，然后程序员可以决定如何实现该情况。</p><p class="cpp-section cpp-topline" style="clear:both">NDEBUG</p><p>浮点类型的 <code>assert</code> 宏每次检查断言条件时都会带来微小的性能开销。此外，断言（理想情况下）在生产代码中永远不应被触发（因为你的代码应该已经经过彻底测试）。因此，大多数开发者希望断言仅在调试构建中激活。C++ 提供了一种内置方式来关闭生产代码中的断言：如果预处理器宏 <code>NDEBUG</code> 被定义，则 assert 宏被禁用。</p><p>大多数 IDE 在发布配置的项目设置中默认设置 <code>NDEBUG</code> 例如，在 Visual Studio 中，项目级别设置了以下预处理器定义： <code>WIN32;NDEBUG;_CONSOLE</code>。如果你使用 Visual Studio 并希望断言在发布构建中触发，你需要从该设置中移除 <code>NDEBUG</code> </p><p>如果你使用的 IDE 或构建系统没有在发布配置中自动定义 <code>NDEBUG</code> ，你需要在项目或编译设置中手动添加它。</p><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">提示</p><p>为了测试目的，你可以在给定的翻译单元中启用或禁用断言。为此，在 <strong>在</strong> 任何 #include 之前单独一行放置以下之一： <code>#define NDEBUG</code> （禁用断言）或 <code>#undef NDEBUG</code> （启用断言）。确保该行不以分号结尾。</p><p>例如：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#define NDEBUG // 禁用断言（必须放在任何 #include 之前）
+#include &lt;cassert&gt;
+#include &lt;iostream&gt;
+
+int main()
+{
+    assert(false); // 不会触发，因为在此翻译单元中断言已被禁用
+    std::cout &lt;&lt; "Hello, world!\n";
+
+    return 0;
+}
+</code></pre></div><p class="cpp-section cpp-topline" style="clear:both"><a name="static_assert"></a>静态断言 <a href="#static_assert"><i class="fa fa-link" style="font-size:.8em"></i></a></p><p>C++ 还有另一种类型的断言，称为 <code>static_assert</code>。一个 <strong>静态断言</strong> 是一种在编译时而非运行时检查的断言，失败的 <code>static_assert</code> 会导致编译错误。与声明在 &lt;cassert&gt; 头文件中的 assert 不同，static_assert 是一个关键字，因此无需包含头文件即可使用。</p><p>一个 <code>static_assert</code> 采用如下形式：</p><pre>static_assert(condition, diagnostic_message)
+</pre><p>如果条件不成立，则会打印诊断消息。下面是一个使用 static_assert 确保类型具有特定大小的示例：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">static_assert(sizeof(long) == 8, "long must be 8 bytes");
+static_assert(sizeof(int) &gt;= 4, "int must be at least 4 bytes");
+
+int main()
+{
+	return 0;
+}
+</code></pre><p>在作者的机器上，编译时，编译器报错：</p><pre>1&gt;c:\consoleapplication1\main.cpp(19): error C2338: long must be 8 bytes
+</pre><p>关于以下几点有用的说明 <code>static_assert</code>：</p><ul><li>因为 <code>static_assert</code> 由编译器求值时，条件必须是常量表达式。</li><li><code>static_assert</code> 可以放置在代码文件中的任何位置（甚至在全局命名空间中）。</li><li><code>static_assert</code> 在发布版本中不会被停用（像普通的 <code>assert</code> 是）。</li><li>由于编译器执行求值，因此不会产生运行时开销 <code>static_assert</code>。</li></ul><p>在C++17之前，诊断消息必须作为第二个参数提供。自C++17起，提供诊断消息是可选的。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>推荐使用 <code>static_assert</code> 而不是 <code>assert()</code> 的整数类型进行位移操作。</p></div><p class="cpp-section cpp-topline" style="clear:both">断言与错误处理</p><p>断言和错误处理非常相似，以至于它们的目的可能会被混淆，所以让我们澄清一下。</p><p>断言用于检测 <em>编程错误</em> 在开发过程中，通过记录对不应发生情况的假设来使用断言。如果确实发生了，那就是程序员的错误。断言不允许从错误中恢复（毕竟，如果某事不应发生，就没有必要从中恢复）。由于断言通常在发布版本中被编译掉，你可以大量使用它们而无需担心性能，因此几乎没有理由不自由地使用它们。</p><p>错误处理用于我们需要优雅地处理在发布版本中可能发生（无论多么罕见）的情况。这些可能是可恢复的问题（程序可以继续运行），也可能是不可恢复的问题（程序必须关闭，但我们至少可以显示一个友好的错误消息并确保一切被正确清理）。错误检测和处理既有运行时性能成本，也有开发时间成本。</p><p>在某些情况下，我们不太清楚该怎么做。考虑这样一个函数：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">double getInverse(double x)
+{
+    return 1.0 / x;
+}
+</code></pre><p>如果 <code>x</code> 等于 <code>0.0</code>，这个函数会表现异常，我们需要防范这种情况。应该使用断言还是错误处理？最好的答案可能是“两者都用”。</p><p>在调试过程中，如果此函数在以下情况下被调用 <code>x</code> 等于 <code>0.0</code>，这表明我们的代码某处存在错误，我们希望立即知道。因此，断言绝对是合适的。</p><p>然而，这种情况在发布版本中也可能合理发生（例如，沿着我们未测试的隐蔽路径）。如果断言被编译掉且我们没有错误处理，那么这个函数将返回意外结果并表现异常。在这种情况下，最好检测并处理这种情况。</p><p>我们最终得到的函数可能如下所示：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">double getInverse(double x)
+{
+    assert(x != 0.0);
+    if (x == 0.0)
+       // // 以某种方式处理错误（例如抛出异常）
+
+    return 1.0 / x;
+}
+</code></pre><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">提示</p><p>鉴于此，我们建议如下：</p><ul><li>使用断言来检测编程错误、不正确的假设或正确代码中不应出现的条件。修复这些问题是程序员的责任，因此我们希望尽早发现它们。</li><li>对于预期在程序正常运行期间会发生的问题，使用错误处理。</li><li>在不应发生但若发生我们希望优雅失败的情况下，两者都使用。</li></ul></div><p class="cpp-section cpp-topline" style="clear:both">一些断言的限制和警告</p><p>断言有几个陷阱和局限性。首先，断言本身可能编写不当。如果发生这种情况，断言要么会报告一个不存在的错误，要么会未能报告一个确实存在的错误。</p><p>其次，你的 <code>assert()</code> 表达式不应有副作用，因为当断言表达式不会被求值时 <code>NDEBUG</code> 被定义（因此副作用不会生效）。否则，在调试配置中测试的内容将与发布配置不同（假设您使用 NDEBUG 发布）。</p><p>另请注意， <code>abort()</code> 函数会立即终止程序，没有机会进行任何进一步的清理（例如关闭文件或数据库）。因此，断言应仅用于程序意外终止时不太可能发生损坏的情况。</p>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="stdcin-and-handling-invalid-input.html" rel="prev"><small>上一课</small><strong>9.5 — std::cin 与处理无效输入</strong></a><a class="lesson-nav-index" href="../index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="chapter-9-summary-and-quiz.html" rel="next"><small>下一课</small><strong>9.x — 第9章总结与测验</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>
