@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/composition/" name="learncpp:source-url"/>
+<meta content="3a1fa966e8974463df9e85a130ae75b619e28c00b5d2136dc4139a2e46d6e90b" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:53:26.303668+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T18:11:18.943002+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>23.2 — Composition</title>
+<link href="assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">23.2 — 组合</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 23.2</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/composition/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p class="cpp-section">对象组合</p><p>在现实生活中，复杂对象通常由更小、更简单的对象构建而成。例如，汽车由金属框架、发动机、轮胎、变速箱、方向盘以及大量其他部件组成。个人电脑由CPU、主板、内存等构成。甚至你自己也是由更小的部分组成的：你有头、身体、腿、胳膊等等。这种从简单对象构建复杂对象的过程称为 <strong>对象组合</strong>。</p><p>广义上讲，对象组合建模了两个对象之间的“有一个”关系。汽车“有一个”变速箱。你的电脑“有一个”CPU。你“有一个”心脏。复杂对象有时被称为整体或父对象。简单对象通常被称为部分、子对象或组件。</p><p>在C++中，你已经看到结构体和类可以拥有各种类型的数据成员（例如基本类型或其他类）。当我们用数据成员构建类时，本质上是在从更简单的部分构造复杂对象，这就是对象组合。因此，结构体和类有时被称为 <strong>复合类型</strong>。</p><p>对象组合在C++上下文中很有用，因为它允许我们通过组合更简单、更易于管理的部分来创建复杂的类。这降低了复杂性，并使我们能够更快地编写代码且错误更少，因为我们可以重用已经编写、测试并验证为可工作的代码。</p><p class="cpp-section cpp-topline" style="clear:both">对象组合的类型</p><p>对象组合有两种基本子类型：组合和聚合。我们将在本节课中学习组合，在下一节课中学习聚合。</p><p>关于术语的说明：术语“组合”通常既指组合也指聚合，而不仅仅指组合子类型。在本教程中，当我们同时指两者时，我们将使用术语“对象组合”；当我们特指组合子类型时，将使用“组合”。</p><p class="cpp-section cpp-topline" style="clear:both">组合</p><p>要符合 <strong>组合</strong>的条件，对象和部分必须具有以下关系：</p><ul><li>部分（成员）是对象（类）的一部分</li><li>部分（成员）一次只能属于一个对象（类）</li><li>部分（成员）的存在由对象（类）管理</li><li>部分（成员）不知道对象（类）的存在</li></ul><p>一个很好的现实生活中的组合例子是人的身体和心脏之间的关系。让我们更详细地检查这些。</p><p>组合关系是部分-整体关系，其中部分必须构成整体对象的一部分。例如，心脏是人体的一部分。组合中的部分一次只能是一个对象的一部分。属于一个人身体的心脏不能同时属于另一个人的身体。</p><p>在组合关系中，对象负责部分的存在。大多数情况下，这意味着部分在对象创建时创建，在对象销毁时销毁。但更广泛地说，这意味着对象以用户无需参与的方式管理部分的生存期。例如，当身体被创建时，心脏也被创建。当人的身体被销毁时，他们的心脏也被销毁。因此，组合有时被称为“死亡关系”。</p><p>最后，部分不知道整体的存在。你的心脏幸福地运作着，不知道它是更大结构的一部分。我们称之为 <strong>单向</strong> 关系，因为身体知道心脏，但反之则不然。</p><p>注意，组合对部分的可转移性没有任何规定。心脏可以从一个身体移植到另一个身体。然而，即使在移植后，它仍然满足组合的要求（心脏现在归接受者所有，并且除非再次转移，否则只能成为接受者对象的一部分）。</p><p>我们无处不在的Fraction类是一个很好的组合例子：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">class Fraction
+{
+private:
+	int m_numerator;
+	int m_denominator;
+ 
+public:
+	Fraction(int numerator=0, int denominator=1)
+		: m_numerator{ numerator }, m_denominator{ denominator }
+	{
+	}
+};
+</code></pre><p>这个类有两个数据成员：分子和分母。分子和分母是Fraction的一部分（包含在其中）。它们一次不能属于多个Fraction。分子和分母不知道它们是Fraction的一部分，它们只是保存整数。当创建一个Fraction实例时，分子和分母被创建。当Fraction实例被销毁时，分子和分母也被销毁。</p><p>虽然对象组合建模了“有一个”类型的关系（身体有一个心脏，分数有一个分母），但我们可以更精确地说组合建模了“部分-整体”关系（心脏是身体的一部分，分子是分数的一部分）。组合通常用于建模物理关系，其中一个对象物理上包含在另一个对象中。</p><p>对象组合的部分可以是单一的或多重的——例如，心脏是身体的单一组成部分，但身体包含10根手指（可以建模为数组）。</p><p class="cpp-section cpp-topline" style="clear:both">实现组合</p><p>组合是C++中最容易实现的关系类型之一。它们通常被创建为具有普通数据成员的结构体或类。因为这些数据成员直接作为结构体/类的一部分存在，它们的生存期与类实例本身的生存期绑定。</p><p>需要进行动态分配或释放的组合可以使用指针数据成员来实现。在这种情况下，组合类应负责自行完成所有必要的内存管理（而不是类的用户）。</p><p>一般来说，如果你 <em>可以</em> 使用组合设计一个类，你 <em>应该</em> 使用组合设计一个类。使用组合设计的类简单、灵活且健壮（因为它们能很好地自我清理）。</p><p class="cpp-section cpp-topline" style="clear:both">更多示例</p><p>许多游戏和模拟都有在棋盘、地图或屏幕上移动的生物或对象。所有这些生物/对象的一个共同点是它们都有一个位置。在这个例子中，我们将创建一个生物类，它使用一个点类来保存生物的位置。</p><p>首先，让我们设计点类。我们的生物将生活在二维世界中，所以我们的点类将有两个维度：X和Y。我们假设世界由离散的方块组成，所以这些维度总是整数。</p><p>Point2D.h:</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#ifndef POINT2D_H
+#define POINT2D_H
+
+#include &lt;iostream&gt;
+
+class Point2D
+{
+private:
+    int m_x;
+    int m_y;
+
+public:
+    // 一个默认构造函数
+    Point2D()
+        : m_x{ 0 }, m_y{ 0 }
+    {
+    }
+
+    // 一个特定构造函数
+    Point2D(int x, int y)
+        : m_x{ x }, m_y{ y }
+    {
+    }
+
+    // 一个重载的输出运算符
+    friend std::ostream&amp; operator&lt;&lt;(std::ostream&amp; out, const Point2D&amp; point)
+    {
+        out &lt;&lt; '(' &lt;&lt; point.m_x &lt;&lt; ", " &lt;&lt; point.m_y &lt;&lt; ')';
+        return out;
+    }
+
+    // 访问函数
+    void setPoint(int x, int y)
+    {
+        m_x = x;
+        m_y = y;
+    }
+
+};
+
+#endif
+</code></pre><p>注意，因为我们在头文件中实现了所有函数（为了保持示例简洁），所以没有Point2D.cpp。</p><p>这个Point2d类是其部分的组合：位置值x和y是Point2D的一部分，它们的生命周期与给定的Point2D实例的生命周期绑定。</p><p>现在让我们设计我们的 Creature。我们的 Creature 将拥有几个属性：一个名字（字符串）和一个位置（我们的 Point2D 类）。</p><p>Creature.h:</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#ifndef CREATURE_H
+#define CREATURE_H
+
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;string_view&gt;
+#include "Point2D.h"
+
+class Creature
+{
+private:
+    std::string m_name;
+    Point2D m_location;
+
+public:
+    Creature(std::string_view name, const Point2D&amp; location)
+        : m_name{ name }, m_location{ location }
+    {
+    }
+
+    friend std::ostream&amp; operator&lt;&lt;(std::ostream&amp; out, const Creature&amp; creature)
+    {
+        out &lt;&lt; creature.m_name &lt;&lt; " is at " &lt;&lt; creature.m_location;
+        return out;
+    }
+
+    void moveTo(int x, int y)
+    {
+        m_location.setPoint(x, y);
+    }
+};
+#endif
+</code></pre><p>这个 Creature 也是其组成部分的组合。生物的名字和位置有一个父对象，它们的生命周期与它们所属的 Creature 的生命周期绑定。</p><p>最后，main.cpp:</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;string&gt;
+#include &lt;iostream&gt;
+#include "Creature.h"
+#include "Point2D.h"
+
+int main()
+{
+    std::cout &lt;&lt; "Enter a name for your creature: ";
+    std::string name;
+    std::cin &gt;&gt; name;
+    Creature creature{ name, { 4, 7 } };
+	
+    while (true)
+    {
+        // 打印生物的名字和位置
+        std::cout &lt;&lt; creature &lt;&lt; '\n';
+
+        std::cout &lt;&lt; "Enter new X location for creature (-1 to quit): ";
+        int x{ 0 };
+        std::cin &gt;&gt; x;
+        if (x == -1)
+            break;
+
+        std::cout &lt;&lt; "Enter new Y location for creature (-1 to quit): ";
+        int y{ 0 };
+        std::cin &gt;&gt; y;
+        if (y == -1)
+            break;
+		
+        creature.moveTo(x, y);
+    }
+
+    return 0;
+}
+</code></pre><p>以下是此代码运行的记录：</p><pre>Enter a name for your creature: Marvin
+Marvin is at (4, 7)
+Enter new X location for creature (-1 to quit): 6
+Enter new Y location for creature (-1 to quit): 12
+Marvin is at (6, 12)
+Enter new X location for creature (-1 to quit): 3
+Enter new Y location for creature (-1 to quit): 2
+Marvin is at (3, 2)
+Enter new X location for creature (-1 to quit): -1
+</pre><p class="cpp-section cpp-topline" style="clear:both">组合主题的变体</p><p>尽管大多数组合在创建时直接创建其部分，并在销毁时直接销毁其部分，但也有一些组合的变体稍微改变了这些规则。</p><p>例如：</p><ul><li>组合可能会推迟某些部分的创建，直到需要它们为止。例如，字符串类可能不会在用户分配要保存的数据之前创建字符的动态数组。</li><li>组合可以选择使用作为输入提供给它的部分，而不是自己创建该部分。</li><li>组合可以将其部分的销毁委托给其他对象（例如垃圾回收例程）。</li></ul><p>这里的关键点是，组合应该管理其部分，而组合的用户无需管理任何东西。</p><p class="cpp-section cpp-topline" style="clear:both">组合与类成员</p><p>关于对象组合，新程序员经常问的一个问题是：“什么时候应该使用类成员而不是直接实现某个功能？”例如，我们可以不在 Creature 类中使用 Point2D 类来实现位置，而是直接添加两个整数并在 Creature 类中编写代码来处理定位。然而，将 Point2D 作为自己的类（并且作为 Creature 的成员）有许多好处：</p><ol><li>每个单独的类可以保持相对简单和直接，专注于做好一件事。这使得这些类更容易编写，也更容易理解，因为它们更加专注。例如，Point2D 只关心与点相关的事情，这有助于保持其简单性。</li><li>每个类可以是自包含的，这使得它们可重用。例如，我们可以在完全不同的应用程序中重用我们的 Point2D 类。或者，如果我们的生物需要另一个点（例如，它试图到达的目的地），我们可以简单地添加另一个 Point2D 成员变量。</li><li>外部类可以让类成员完成大部分困难工作，而自身专注于协调成员之间的数据流。这有助于降低外部类的整体复杂性，因为它可以将任务委托给已经知道如何执行这些任务的成员。例如，当我们移动 Creature 时，它将任务委托给 Point 类，而 Point 类已经知道如何设置一个点。因此，Creature 类不必担心这些事情如何实现。</li></ol><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">提示</p><p>一个好的经验法则是每个类应该只完成一个任务。该任务要么是存储和操作某种数据（例如 Point2D、std::string），要么是协调其成员（例如 Creature）。理想情况下，不应两者兼有。</p></div><p>在我们的示例中，Creature 不应该担心 Point 如何实现，或者名字如何存储，这是有道理的。Creature 的工作不是了解这些细节。Creature 的工作是协调数据流，并确保每个类成员知道 <i>什么</i> 它应该做什么。而各个类则负责担心 <i>如何</i> 它们将如何做。</p>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="object-relationships.html" rel="prev"><small>上一课</small><strong>23.1 — 对象关系</strong></a><a class="lesson-nav-index" href="index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="aggregation.html" rel="next"><small>下一课</small><strong>23.3 — 聚合</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/function-return-values-value-returning-functions/" name="learncpp:source-url"/>
+<meta content="09f4f775d22fdc091fd845d8ed5e6b56edc4207cc4ee897c49912dd4d905060c" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:44:50.603800+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T17:18:20.434412+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>2.2 — Function return values (value-returning functions)</title>
+<link href="assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">2.2 — 函数返回值（有返回值的函数）</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 2.2</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/function-return-values-value-returning-functions/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>考虑以下程序：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+	// 从用户处获取一个值
+	std::cout &lt;&lt; "Enter an integer: ";
+	int num{};
+	std::cin &gt;&gt; num;
+
+	// 打印数值的两倍
+	std::cout &lt;&lt; num &lt;&lt; " doubled is: " &lt;&lt; num * 2 &lt;&lt; '\n';
+
+	return 0;
+}
+</code></pre><p>该程序由两个概念部分构成：首先，我们从用户那里获取一个值。然后，我们告诉用户这个值的两倍是多少。</p><p>尽管这个程序足够简单，我们不需要将其拆分为多个函数，但如果我们想这样做呢？从用户那里获取一个整数值是一个定义明确的任务，我们希望程序完成它，因此它很适合作为一个函数。</p><p>那么，让我们编写一个程序来实现这个功能：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">// 此程序无法正常工作
+#include &lt;iostream&gt;
+
+void getValueFromUser()
+{
+ 	std::cout &lt;&lt; "Enter an integer: ";
+	int input{};
+	std::cin &gt;&gt; input;  
+}
+
+int main()
+{
+	getValueFromUser(); // 请求用户输入
+
+	int num{}; // 如何从getValueFromUser()获取值并用它来初始化这个变量？
+
+	std::cout &lt;&lt; num &lt;&lt; " doubled is: " &lt;&lt; num * 2 &lt;&lt; '\n';
+
+	return 0;
+}
+</code></pre><p>虽然这个程序是一个不错的尝试，但它并不能正常工作。</p><p>当函数 <code>getValueFromUser</code> 被调用时，用户会按预期被要求输入一个整数。但用户输入的值会在 <code>getValueFromUser</code> 终止并将控制权返回给 <code>main</code>变量 <code>num</code> 永远不会用用户输入的值进行初始化，因此程序总是输出答案 <code>0</code>。</p><p>我们缺少的是某种方式让 <code>getValueFromUser</code> 将用户输入的值返回给 <code>main</code> 以便 <code>main</code> 能够使用该数据。</p><p class="cpp-section cpp-topline" style="clear:both">返回值</p><p>当你编写一个自定义函数时，你可以决定函数是否向调用者返回一个值。要向调用者返回一个值，需要做两件事。</p><p>首先，函数必须指明将返回什么类型的值。这通过设置函数的 <strong>返回类型</strong>来实现，该类型定义在函数名之前。在上面的例子中，函数 <code>getValueFromUser</code> 的返回类型为 <code>void</code> (意味着不会向调用者返回值) <code>main</code> 的返回类型为 <code>int</code> (意味着类型为 <code>int</code> 将返回给调用者)。请注意，这并不决定返回哪个具体值——它只决定 <em>类型</em> 类型的值将被返回。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">相关内容</p><p>我们探讨返回 <code>void</code> 的内容将在下一课中进一步探讨（<a href="void-functions-non-value-returning-functions.html">2.3 -- Void functions (non-value returning functions)</a>)。</p></div><p>其次，在将要返回值的函数内部，我们使用一个 <strong>return语句</strong> 来指示要返回给调用者的具体值。return语句由 <code>return</code> 关键字后跟一个表达式（有时称为 <strong>返回表达式</strong>），以分号结尾。</p><p>当return语句被执行时：</p><ul><li>返回表达式被求值以产生一个值。</li><li>由返回表达式产生的值被复制回调用者。这个副本被称为 <strong>返回值</strong> 函数的。</li><li>函数退出，控制权返回给调用者。</li></ul><p>将复制的值返回给调用者的过程被称为 <strong>按值返回</strong>。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">术语</p><p>返回表达式生成要返回的值。返回值是该值的一个副本。</p></div><p>一个返回值函数每次被调用时都会返回一个值。</p><p>让我们来看一个返回整数值的简单函数，以及一个调用它的示例程序：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+// int 是返回类型
+// int 作为返回类型意味着该函数将向调用者返回一个整数值（具体值未在此指定）
+int returnFive()
+{
+    // return 语句提供了将被返回的值
+    return 5; // 将值 5 返回给调用者
+}
+
+int main()
+{
+    std::cout &lt;&lt; returnFive() &lt;&lt; '\n'; // 打印 5
+    std::cout &lt;&lt; returnFive() + 2 &lt;&lt; '\n'; // 打印 7
+
+    returnFive(); // 可以：返回了值 5，但由于 main() 未对其进行任何操作，因此被忽略
+
+    return 0;
+}
+</code></pre><p>运行后，该程序输出：</p><pre>5
+7
+</pre><p>执行从顶部开始 <code>main</code>。在第一个语句中，函数调用 <code>returnFive()</code> 被求值，这导致函数 <code>returnFive()</code> 被调用。返回表达式 <code>5</code> 被求值以产生值 <code>5</code>，该值被返回给调用者并通过 <code>std::cout</code>。</p><p>在第二次函数调用中，对 <code>returnFive</code> 被求值，这导致函数 <code>returnFive</code> 再次被调用。函数 <code>returnFive</code> 返回值 <code>5</code> 给调用者。表达式 <code>5 + 2</code> 被求值以产生结果 <code>7</code>，然后通过 <code>std::cout</code>。</p><p>在第三个语句中，函数 <code>returnFive</code> 再次被调用，导致值 <code>5</code> 被返回给调用者。然而，函数 <code>main</code> 对返回值不做任何操作，因此不会发生进一步的事情（返回值被忽略）。</p><p>注意：除非调用者通过 <code>std::cout</code>。在上面的最后一个案例中，返回值没有被发送到 <code>std::cout</code>，因此不会打印任何内容。</p><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">提示</p><p>当被调用的函数返回一个值时，调用者可以选择在表达式或语句中使用该值（例如，用它来初始化一个变量，或者将其发送给 <code>std::cout</code>）或忽略它（不做任何其他操作）。如果调用者忽略了返回值，则该返回值将被丢弃（不对其进行任何操作）。</p></div><p class="cpp-section cpp-topline" style="clear:both">修复我们的挑战程序</p><p>有了这个认识，我们可以修复在本课开头展示的程序：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int getValueFromUser() // 此函数现在返回一个整数值
+{
+ 	std::cout &lt;&lt; "Enter an integer: ";
+	int input{};
+	std::cin &gt;&gt; input;  
+
+	return input; // 将用户输入的值返回给调用者
+}
+
+int main()
+{
+	int num { getValueFromUser() }; // 使用 getValueFromUser() 的返回值初始化 num
+
+	std::cout &lt;&lt; num &lt;&lt; " doubled is: " &lt;&lt; num * 2 &lt;&lt; '\n';
+
+	return 0;
+}
+</code></pre><p>当这个程序执行时，中的第一条语句 <code>main</code> 将创建一个 <code>int</code> 变量，名为 <code>num</code>。当程序要初始化 <code>num</code>时，它会发现有一个对 <code>getValueFromUser()</code>，因此它将会执行那个函数。函数 <code>getValueFromUser</code>要求用户输入一个值，然后将其返回给调用者（<code>main()</code>）。这个返回值被用作变量 <code>num</code>。 <code>num</code> 然后可以在中根据需要多次使用 <code>main()</code>。</p><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">提示</p><p>如果需要多次使用函数调用的返回值，请用该返回值初始化一个变量，然后根据需要多次使用该变量。</p></div><p>自己编译这个程序并运行几次，以向自己证明它是有效的。</p><p class="cpp-section cpp-topline" style="clear:both">重新审视main()</p><p>你现在已经具备了理解 <code>main()</code> 函数实际上是如何工作的。当程序执行时，操作系统会调用 <code>main()</code>执行随后跳转到顶部 <code>main()</code>中的语句 <code>main()</code> 被顺序执行。最后， <code>main()</code> 返回一个整数值（通常是 <code>0</code>），然后你的程序终止。</p><p>在C++中，对于有两个特殊要求 <code>main()</code>：</p><ul><li><code>main()</code> 被要求返回一个 <code>int</code>。</li><li>显式函数调用 <code>main()</code> 是不允许的。</li></ul><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">void foo()
+{
+    main(); // 编译错误：不允许显式调用 main
+}
+
+void main() // 编译错误：不允许 main 具有非 int 返回类型
+{
+    foo();
+}
+</code></pre><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">关键提示</p><p>C允许 <code>main()</code> 被显式调用，因此一些C++编译器出于兼容性原因会允许这样做。</p></div><p>目前，你也应该定义你的 <code>main()</code> 函数在代码文件的底部，在其他函数下面，并避免显式调用它。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">进阶读者</p><p>一个常见的误解是 <code>main</code> 总是第一个执行的函数。</p><p>全局变量在执行的之前被初始化 <code>main</code>如果此类变量的初始化器调用了一个函数，那么该函数将在之前执行 <code>main</code>。我们在第课中讨论全局变量 <a href="introduction-to-global-variables.html">7.4 -- 全局变量简介</a>。</p></div><p class="cpp-section cpp-topline" style="clear:both">状态码</p><p>你可能想知道为什么我们从 <code>main()</code>, 以及何时返回其他值。</p><p>来自 <code>main()</code> 有时被称为 <strong>状态码</strong> (或较少见的，一个 <strong>退出码</strong>，或很少见的，一个 <strong>返回码</strong>)。状态码用于指示程序是否成功运行。</p><p>按照惯例，状态码为 <code>0</code> 表示程序正常运行（即程序按预期执行和行为）。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>你的 <code>main</code> 函数应返回值 <code>0</code> 如果程序正常运行。</p></div><p>非零状态码通常用于表示某种失败（虽然这在大多数操作系统上运行良好，但严格来说，不能保证可移植性）。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">进阶读者</p><p>C++ 标准仅定义了3个状态码的含义： <code>0</code>， <code>EXIT_SUCCESS</code>、和 <code>EXIT_FAILURE</code>。 <code>0</code> 和 <code>EXIT_SUCCESS</code> 都表示程序执行成功。 <code>EXIT_FAILURE</code> 表示程序未成功执行。</p><p><code>EXIT_SUCCESS</code> 和 <code>EXIT_FAILURE</code> 是在&lt;cstdlib&gt;头文件中定义的预处理器宏：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;cstdlib&gt; // for EXIT_SUCCESS and EXIT_FAILURE
+
+int main()
+{
+    return EXIT_SUCCESS;
+}
+</code></pre><p>如果你想要最大化可移植性，你应该只使用 <code>0</code> 或 <code>EXIT_SUCCESS</code> 来表示成功终止，或 <code>EXIT_FAILURE</code> 来表示不成功终止。</p><p>我们在课程中涵盖了预处理器和预处理器宏 <a href="introduction-to-the-preprocessor.html">2.10 -- 预处理器简介</a>。</p></div><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">顺便说一句……</p><p>状态码被传递回操作系统。操作系统通常会将状态码提供给启动返回状态码的那个程序的任何程序。这为任何启动另一个程序并判断被启动程序是否成功运行的程序提供了一种粗略机制。</p></div><p class="cpp-section cpp-topline" style="clear:both">一个不返回值的返回值函数将产生未定义行为</p><p>返回值的函数被称为 <strong>返回值函数</strong>。如果返回类型不是void，则该函数是返回值的。 <code>void</code>。</p><p>一个返回值函数 <em>必须</em> 必须返回该类型的值（使用return语句），否则将导致未定义行为。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">相关内容</p><p>我们在课程中讨论了未定义行为 <a href="uninitialized-variables-and-undefined-behavior.html">1.6 -- 未初始化的变量和未定义行为</a>。</p></div><p>这是一个产生未定义行为的函数示例：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int getValueFromUserUB() // 此函数返回一个整数值
+{
+ 	std::cout &lt;&lt; "Enter an integer: ";
+	int input{};
+	std::cin &gt;&gt; input;
+
+	// 注意：没有 return 语句
+}
+
+int main()
+{
+	int num { getValueFromUserUB() }; // 使用 getValueFromUserUB() 的返回值初始化 num
+
+	std::cout &lt;&lt; num &lt;&lt; " doubled is: " &lt;&lt; num * 2 &lt;&lt; '\n';
+
+	return 0;
+}
+</code></pre><p>现代编译器应该会生成一条警告，因为 <code>getValueFromUserUB</code> 被定义为返回一个 <code>int</code> 但未提供return语句。运行这样的程序将产生未定义行为，因为 <code>getValueFromUserUB()</code> 是一个不返回值的返回值函数。</p><p>在大多数情况下，编译器会检测到你是否忘记返回一个值。然而，在某些复杂情况下，编译器可能无法在所有情况下正确判断你的函数是否返回值，因此你不应依赖于此。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>确保你的非void返回类型的函数在所有情况下都返回一个值。</p><p>未能从返回值函数返回值将导致未定义行为。</p></div><p class="cpp-section cpp-topline" style="clear:both">如果未提供返回语句，main 函数将隐式返回 0。</p><p>对于必须通过返回语句返回值的函数规则，唯一的例外是函数 <code>main()</code>. 函数 <code>main()</code> 将隐式返回值 <code>0</code> 如果未提供返回语句。话虽如此，最佳实践是显式地从 <code>main</code>返回值，既要表明你的意图，也要与其他函数保持一致（其他函数如果未指定返回值将表现出未定义行为）。</p><p class="cpp-section cpp-topline" style="clear:both">函数只能返回一个值</p><p>每次调用时，返回值函数只能向调用者返回一个值。</p><p>请注意，返回语句中提供的值不一定是字面量——它可以是任何有效表达式的结果，包括变量或甚至返回值的另一个函数调用。在 <code>getValueFromUser()</code> 上面的例子中，我们返回了一个变量 <code>input</code>，它保存了用户输入的数字。</p><p>有多种方法可以绕过函数只能返回一个值的限制，我们将在未来的课程中介绍。</p><p class="cpp-section cpp-topline" style="clear:both">函数作者可以决定返回值的含义</p><p>函数返回值的含义由函数的作者决定。有些函数使用返回值作为状态码，指示它们是成功还是失败。其他函数返回计算或选择的值。还有一些函数不返回任何值（我们将在下一课中看到这些例子）。</p><p>由于这里可能性多种多样，最好用注释记录函数的返回值含义。例如：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">// 函数要求用户输入一个值
+// 返回值是用户从键盘输入的整数
+int getValueFromUser()
+{
+ 	std::cout &lt;&lt; "Enter an integer: ";
+	int input{};
+	std::cin &gt;&gt; input;  
+
+	return input; // 将用户输入的值返回给调用者
+}
+</code></pre><p class="cpp-section cpp-topline" style="clear:both">重用函数</p><p>现在我们可以说明一个函数重用的好例子。考虑以下程序：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+	int x{};
+	std::cout &lt;&lt; "Enter an integer: ";
+	std::cin &gt;&gt; x; 
+
+	int y{};
+	std::cout &lt;&lt; "Enter an integer: ";
+	std::cin &gt;&gt; y; 
+
+	std::cout &lt;&lt; x &lt;&lt; " + " &lt;&lt; y &lt;&lt; " = " &lt;&lt; x + y &lt;&lt; '\n';
+
+	return 0;
+}
+</code></pre><p>虽然这个程序可以工作，但有点冗余。事实上，这个程序违反了优秀编程的核心原则之一： <strong>不要重复自己</strong> （通常缩写为 <strong>DRY</strong>)。</p><p>为什么重复代码不好？如果我们要将文本“Enter an integer:”改为其他内容，就必须在两个地方更新它。如果我们要初始化 10 个变量而不是 2 个呢？那将会有大量冗余代码（使程序更长、更难理解），并且很容易出现拼写错误。</p><p>让我们更新这个程序以使用我们的 <code>getValueFromUser</code> 上面开发的函数：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int getValueFromUser()
+{
+ 	std::cout &lt;&lt; "Enter an integer: ";
+	int input{};
+	std::cin &gt;&gt; input;  
+
+	return input;
+}
+
+int main()
+{
+    int x{ getValueFromUser() }; // 首次调用 getValueFromUser
+    int y{ getValueFromUser() }; // 第二次调用 getValueFromUser
+
+    std::cout &lt;&lt; x &lt;&lt; " + " &lt;&lt; y &lt;&lt; " = " &lt;&lt; x + y &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>该程序产生如下输出：</p><pre>Enter an integer: 5
+Enter an integer: 7
+5 + 7 = 12
+</pre><p>在这个程序中，我们调用 <code>getValueFromUser</code> 两次，一次用于初始化变量 <code>x</code>，一次用于初始化变量 <code>y</code>。这使我们不必重复编写获取用户输入的代码，并降低了出错的可能性。一旦我们知道 <code>getValueFromUser</code> 可以正常工作，我们就可以根据需要多次调用它。</p><p>这就是模块化编程的精髓：能够编写一个函数，测试它，确保它能正常工作，然后知道我们可以随意重复使用它，它将继续正常工作（只要我们不修改该函数——一旦修改，我们就必须重新测试它）。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>遵循 DRY 原则：“不要重复自己”。如果你需要多次做某件事，考虑如何修改代码以尽可能消除冗余。变量可以用来存储需要多次使用的结果（这样我们就不必重复计算）。函数可以用来定义我们想要多次执行的语句序列。而循环（我们将在后面的章节中介绍）可以用来多次执行一条语句。</p><p>像所有最佳实践一样，DRY 是一个指导方针，而非绝对规则。读者 Yariv 已经 <a href="https://www.learncpp.com/cpp-tutorial/function-return-values-value-returning-functions/#comment-593257">指出</a> ，当代码被拆分得太细时，DRY 可能会损害整体理解。</p></div><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">顺便说一句……</p><p>DRY 的（讽刺性的）反面是 WET（“Write everything twice”）。</p></div><p class="cpp-section cpp-topline" style="clear:both">总结</p><p>返回值提供了一种方式，让函数可以向它的调用者返回单个值。</p><p>函数提供了一种在程序中最小化冗余的方法。</p><p class="cpp-section cpp-topline" style="clear:both">小测验时间</p><p class="cpp-quiz-question" style="clear:both">问题 #1</p><p>检查（不要编译）以下每个程序。确定程序将输出什么，或者程序是否会产生编译器错误。</p><p>假设你已关闭“将警告视为错误”选项。</p><p>1a)</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int return7()
+{
+    return 7;
+}
+
+int return9()
+{
+    return 9;
+}
+
+int main()
+{
+    std::cout &lt;&lt; return7() + return9() &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p><a aria-controls="cpp_solution_id_0" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_0" href="#cpp_solution_id_0">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_0">该程序输出数字16。</div><p>1b)</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int return7()
+{
+    return 7;
+
+    int return9()
+    {
+        return 9;
+    }
+}
+
+int main()
+{
+    std::cout &lt;&lt; return7() + return9() &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p><a aria-controls="cpp_solution_id_1" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_1" href="#cpp_solution_id_1">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_1">该程序无法编译。不允许嵌套函数。</div><p>1c)</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int return7()
+{
+    return 7;
+}
+
+int return9()
+{
+    return 9;
+}
+
+int main()
+{
+    return7();
+    return9();
+
+    return 0;
+}
+</code></pre><p><a aria-controls="cpp_solution_id_2" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_2" href="#cpp_solution_id_2">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_2">该程序可以编译但不产生任何输出。函数的返回值未被使用（因此被丢弃）。</div><p>1d)</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int getNumbers()
+{
+    return 5;
+    return 7;
+}
+
+int main()
+{
+    std::cout &lt;&lt; getNumbers() &lt;&lt; '\n';
+    std::cout &lt;&lt; getNumbers() &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p><a aria-controls="cpp_solution_id_3" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_3" href="#cpp_solution_id_3">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_3">该程序两次输出5（分别在单独的行）。每次调用函数时， <code>getNumbers()</code> 被调用， <code>return 5;</code> 语句执行，程序将值5返回给调用者。 <code>return 7;</code> 该语句从不执行。</div><p>1e)</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int return 5()
+{
+    return 5;
+}
+
+int main()
+{
+    std::cout &lt;&lt; return 5() &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p><a aria-controls="cpp_solution_id_4" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_4" href="#cpp_solution_id_4">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_4">该程序无法编译，因为函数名称无效。我们在第课中讨论了命名规则 <a href="keywords-and-naming-identifiers.html#rules">1.7节 -- 关键字和命名标识符</a>。</div><p class="cpp-quiz-question cpp-topline" style="clear:both">问题 #2</p><p>DRY代表什么？为什么这是一个值得遵循的有用做法？</p><p><a aria-controls="cpp_solution_id_5" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_5" href="#cpp_solution_id_5">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_5">DRY代表“不要重复自己”。这是一种以最小化冗余的方式编写代码的做法。这使得程序更简洁、更不易出错、更易于维护。</div>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="introduction-to-functions.html" rel="prev"><small>上一课</small><strong>2.1 — 函数简介</strong></a><a class="lesson-nav-index" href="index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="void-functions-non-value-returning-functions.html" rel="next"><small>下一课</small><strong>2.3 — void函数（不返回值的函数）</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

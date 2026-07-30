@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/c-style-array-decay/" name="learncpp:source-url"/>
+<meta content="22de98e26be4f460bb52bf7ad0ad5702456a860b7f5150ba455e72378b5dbd10" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:51:47.576410+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-29T01:49:27.311419+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>17.8 — C-style array decay</title>
+<link href="assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">17.8 — C风格数组退化</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 17.8</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/c-style-array-decay/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p class="cpp-section">C风格数组传递的挑战</p><p>C语言的设计者曾面临一个问题。考虑以下简单程序：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+void print(int val)
+{
+    std::cout &lt;&lt; val;
+}
+
+int main()
+{
+    int x { 5 };
+    print(x);
+
+    return 0;
+}
+</code></pre><p>当 <code>print(x)</code> 被调用时，参数 <code>x</code> (<code>5</code>的值被复制到形参 <code>val</code>中。在函数体内， <code>val</code> (<code>5</code>的值被打印到控制台。由于 <code>x</code> 复制成本低，这里没有问题。</p><p>现在考虑以下类似的程序，它使用一个包含1000个元素的C风格int数组，而不是单个int：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+void printElementZero(int arr[1000])
+{
+    std::cout &lt;&lt; arr[0]; // // 打印第一个元素的值
+}
+
+int main()
+{
+    int x[1000] { 5 };   // // 定义一个包含1000个元素的数组，x[0]被初始化为5
+    printElementZero(x);
+
+    return 0;
+}
+</code></pre><p>这个程序也能编译并打印预期的值（<code>5</code>）到控制台。</p><p>虽然这个例子中的代码与前一个例子中的代码相似，但它的工作机制与你预期的略有不同（我们将在下面解释）。这是因为C语言设计者为了解决两个主要挑战而提出的解决方案。</p><p>首先，每次调用函数时复制一个包含1000个元素的数组代价高昂（如果元素是复制成本高的类型则更甚），因此我们希望避免这种情况。但如何避免？C语言没有引用，因此无法通过传引用来避免复制函数参数。</p><p>其次，我们希望编写一个能够接受不同长度数组参数的函数。理想情况下，上面例子中的 <code>printElementZero()</code> 函数应该能够接受任意长度的数组参数（因为元素0保证存在）。我们不想为每种可能的数组长度都编写一个不同的函数。但如何实现？C语言没有指定“任意长度”数组的语法，也不支持模板，而且一个长度的数组不能转换为另一个长度的数组（大概是因为这样做会涉及昂贵的复制）。</p><p>C语言的设计者提出了一个巧妙的解决方案（出于兼容性原因，C++继承了它），同时解决了这两个问题：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+void printElementZero(int arr[1000]) // // 不进行复制
+{
+    std::cout &lt;&lt; arr[0]; // // 打印第一个元素的值
+}
+
+int main()
+{
+    int x[7] { 5 };      // // 定义一个包含7个元素的数组
+    printElementZero(x); // // 居然能工作！
+
+    return 0;
+}
+</code></pre><p>不知何故，上面的例子将一个包含7个元素的数组传递给了一个期望包含1000个元素的函数，而没有进行任何复制。在本课中，我们将探讨这是如何工作的。</p><p>我们还将探讨为什么C语言设计者选择的解决方案是危险的，并且不适合在现代C++中使用。</p><p>但首先，我们需要介绍两个子主题。</p><p class="cpp-section cpp-topline" style="clear:both">数组到指针的转换（数组退化）</p><p>在大多数情况下，当C风格数组在表达式中使用时，数组会隐式转换为指向元素类型的指针，并用第一个元素（索引为0）的地址初始化。通俗地说，这称为 <strong>数组退化</strong> （或简称 <strong>退化</strong> （简称）。</p><p>你可以在以下程序中看到这一点：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iomanip&gt; // for std::boolalpha
+#include &lt;iostream&gt;
+
+int main()
+{
+    int arr[5]{ 9, 7, 5, 3, 1 }; // // 我们的数组元素类型是int
+
+    // // 首先，让我们证明arr退化为int*指针
+
+    auto ptr{ arr }; // // 求值导致arr退化，类型推导应推导出类型int*
+    std::cout &lt;&lt; std::boolalpha &lt;&lt; (typeid(ptr) == typeid(int*)) &lt;&lt; '\n'; // // 如果ptr的类型是int*，则打印true
+
+    // // 现在让我们证明该指针持有数组第一个元素的地址
+
+    std::cout &lt;&lt; std::boolalpha &lt;&lt; (&amp;arr[0] == ptr) &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>在作者的机器上，打印了：</p><pre>true
+true
+</pre><p>数组退化成的指针并没有什么特别之处。它是一个普通的指针，保存着第一个元素的地址。</p><p>类似地，const数组（例如 <code>const int arr[5]</code>）退化为指向const的指针（<code>const int*</code>)。</p><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">提示</p><p>在C++中，有几种常见情况下C风格数组不会退化：</p><ol start="1"><li>当用作 <code>sizeof()</code> 或 <code>typeid()</code>。</li><li>的参数时； <code>operator&amp;</code>。</li><li>当使用</li><li>获取数组地址时；</li></ol></div><p>当作为类类型的成员传递时； <em>是</em> 当通过引用传递时。</p><p>由于C风格数组在大多数情况下会退化为指针，因此人们常错误地认为数组就是指针。但事实并非如此。数组对象是一个元素序列，而指针对象只保存一个地址。 <code>arr</code> 的类型为 <code>int[5]</code>数组和退化数组的类型信息不同。在上面的例子中，数组 <code>int*</code>的类型是 <code>int[5]</code> ，而退化数组的类型是 <code>int*</code> 值得注意的是，数组类型</p><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">关键提示</p><p>包含长度信息，而退化数组的指针类型</p></div><p class="cpp-section cpp-topline" style="clear:both">不包含。 <code>operator[]</code> 退化后的数组指针不知道它指向的数组有多长。术语“退化”表示这种长度类型信息的丢失。</p><p>对C风格数组进行下标操作实际上是对退化后的指针应用下标操作。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+    const int arr[] { 9, 7, 5, 3, 1 };
+    std::cout &lt;&lt; arr[2]; // // 对退化的数组进行下标操作以获取元素2，打印5
+
+    return 0;
+}
+</code></pre><p>我们也可以直接在指针上使用 <code>operator[]</code> 如果该指针持有第一个元素的地址，结果将是相同的：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+    const int arr[] { 9, 7, 5, 3, 1 };
+    
+    const int* ptr{ arr };  // // arr退化为指针
+    std::cout &lt;&lt; ptr[2];    // 对ptr进行下标操作获取元素2，打印5
+
+    return 0;
+}
+</code></pre><p>我们稍后会看到这在哪里方便，并在下一课中更深入地了解这实际上是如何工作的（以及当指针持有的是第一个元素地址以外的内容时会发生什么）。 <a href="pointer-arithmetic-and-subscripting.html">17.9 -- 指针算术和下标</a>。</p><p class="cpp-section cpp-topline" style="clear:both">数组退化解决了我们的C风格数组传递问题</p><p>数组退化解决了我们在课程开头遇到的两个挑战。</p><p>当将C风格数组作为参数传递时，数组退化为指针，持有数组第一个元素地址的指针被传递给函数。因此，虽然看起来我们是在按值传递C风格数组，但实际上我们是在按地址传递！这样就避免了复制C风格数组参数。</p><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">关键提示</p><p>C风格数组是按地址传递的，即使看起来是按值传递。</p></div><p>现在考虑两个具有相同元素类型但不同长度的不同数组（例如 <code>int[5]</code> 和 <code>int[7]</code>）。它们是不同的类型，彼此不兼容。然而，它们都会退化为相同的指针类型（例如 <code>int*</code>）。它们的退化版本是可互换的！从类型中丢弃长度信息允许我们传递不同长度的数组而不会出现类型不匹配。</p><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">关键提示</p><p>两个具有相同元素类型但不同长度的C风格数组将退化为相同的指针类型。</p></div><p>在下面的例子中，我们将说明两件事：</p><ul><li>我们可以将不同长度的数组传递给同一个函数（因为两者都退化为相同的指针类型）。</li><li>接收数组的函数参数可以是数组元素类型的（const）指针。</li></ul><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+void printElementZero(const int* arr) // // 通过常量地址传递
+{
+    std::cout &lt;&lt; arr[0];
+}
+
+int main()
+{
+    const int prime[] { 2, 3, 5, 7, 11 };
+    const int squares[] { 1, 4, 9, 25, 36, 49, 64, 81 };
+
+    printElementZero(prime);   // // prime退化为const int*指针
+    printElementZero(squares); // squares 退化为 const int* 指针
+
+    return 0;
+}
+</code></pre><p>这个例子运行良好，并打印：</p><pre>2
+1
+</pre><p>在 <code>main()</code>，当我们调用 <code>printElementZero(prime)</code>， <code>prime</code> 数组从类型 <code>const int[5]</code> 退化为类型 <code>const int*</code> 的指针，该指针持有 <code>prime</code>的第一个元素的地址。类似地，当我们调用 <code>printElementZero(squares)</code>， <code>squares</code> 从类型 <code>const int[8]</code> 退化为类型 <code>const int*</code> 的指针，该指针持有 <code>squares</code>退化为类型 <code>const int*</code> 的指针。这些类型为</p><p>的指针才是实际作为参数传递给函数的。 <code>const int*</code>由于我们传递的是类型为 <code>printElementZero()</code> 的指针，我们的<code>const int*</code>)。</p><p>函数需要有一个相同指针类型的参数（</p><p>在这个函数内部，我们使用下标访问指针以访问选定的数组元素。因为C风格数组是按地址传递的，函数可以直接访问传入的数组（而不是副本），并且可以修改其元素。因此，如果函数不打算修改数组元素，最好确保函数参数是const。</p><p class="cpp-section cpp-topline" style="clear:both">C风格数组函数参数语法</p><p>将函数参数声明为 <code>int* arr</code> 的一个问题是，不清楚 <code>arr</code> 应该是指向值数组的指针，而不是指向单个整数的指针。因此，在传递C风格数组时，最好使用替代声明形式 <code>int arr[]</code>：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+void printElementZero(const int arr[]) // 与 const int* 相同处理
+{
+    std::cout &lt;&lt; arr[0];
+}
+
+int main()
+{
+    const int prime[] { 2, 3, 5, 7, 11 };
+    const int squares[] { 1, 4, 9, 25, 36, 49, 64, 81 };
+
+    printElementZero(prime);  // prime 退化为指针
+    printElementZero(squares); // squares 退化为指针
+
+    return 0;
+}
+</code></pre><p>该程序的行为与之前的程序相同，因为编译器会将函数参数 <code>const int arr[]</code> 等同于 <code>const int*</code>解释为 <code>arr</code> 然而，这样做的好处是向调用者传达</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>预期是一个退化的C风格数组，而不是指向单个值的指针。注意，方括号之间不需要长度信息（因为它无论如何都不会被使用）。如果提供了长度，它将被忽略。 <code>int arr[]</code>期望C风格数组类型的函数参数应使用数组语法（例如 <code>int *arr</code>)。</p></div><p>）而不是指针语法（例如 <code>arr</code> ）。使用这种语法的缺点是，它使得</p><p class="cpp-section cpp-topline" style="clear:both">已经退化这一点不那么明显（而指针语法则很清楚），因此你需要格外小心，不要做任何对退化数组来说不能按预期工作的事情（我们稍后会介绍其中一些）。</p><p>尽管数组退化是一种巧妙的解决方案，可以确保不同长度的C风格数组能够传递给函数而无需进行昂贵的复制，但数组长度信息的丢失使得几种类型的错误很容易发生。</p><p>首先， <code>sizeof()</code> 对于数组和退化数组将返回不同的值：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+void printArraySize(int arr[])
+{
+    std::cout &lt;&lt; sizeof(arr) &lt;&lt; '\n'; // 打印 4（假设 32 位地址）
+}
+
+int main()
+{
+    int arr[]{ 3, 2, 1 };
+
+    std::cout &lt;&lt; sizeof(arr) &lt;&lt; '\n'; // 打印 12（假设 4 字节 int）
+
+    printArraySize(arr);
+
+    return 0;
+}
+</code></pre><p>这意味着在C风格数组上使用 <code>sizeof()</code> 是潜在危险的，因为必须确保仅在能够访问实际数组对象时使用它，而不是退化后的数组或指针。</p><p>在上一课（<a href="introduction-to-c-style-arrays.html">17.7 -- C风格数组简介</a>），我们提到过 <code>sizeof(arr)/sizeof(*arr)</code> 历史上曾被用作获取C风格数组大小的技巧。这个技巧很危险，因为如果 <code>arr</code> 已经退化， <code>sizeof(arr)</code> 将返回指针的大小而不是数组的大小，从而导致错误的数组长度，很可能导致程序出现故障。</p><p>幸运的是，C++17中更好的替代品 <code>std::size()</code> （以及C++20中的 <code>std::ssize()</code>）如果传入指针值将编译失败：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int printArrayLength(int arr[])
+{
+    std::cout &lt;&lt; std::size(arr) &lt;&lt; '\n'; // 编译错误：std::size() 不能用于指针
+}
+
+int main()
+{
+    int arr[]{ 3, 2, 1 };
+
+    std::cout &lt;&lt; std::size(arr) &lt;&lt; '\n'; // 打印 3
+
+    printArrayLength(arr);
+
+    return 0;
+}
+</code></pre><p>其次，也许最重要的是，数组退化会使重构（将长函数分解为更短、更模块化的函数）变得困难。对于未退化的数组能正常工作的代码，当同样的代码使用退化数组时，可能无法编译（或者更糟，可能静默地出现故障）。</p><p>第三，缺少长度信息会带来若干编程挑战。没有长度信息，就很难对数组长度进行合理性检查。用户很容易传入比预期更短的数组（甚至是指向单个值的指针），这将在使用无效索引进行下标操作时导致未定义行为。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+void printElement2(int arr[])
+{
+    // 如何确保 arr 至少有三个元素？
+    std::cout &lt;&lt; arr[2] &lt;&lt; '\n';
+}
+
+int main()
+{
+    int a[]{ 3, 2, 1 };
+    printElement2(a);  // ok
+
+    int b[]{ 7, 6 };
+    printElement2(b);  // 编译通过但产生未定义行为
+
+    int c{ 9 };
+    printElement2(&amp;c); // 编译通过但产生未定义行为
+
+    return 0;
+}
+</code></pre><p>缺少数组长度也会在遍历数组时带来挑战——我们如何知道何时到达了末尾？</p><p>这些问题有一些解决方案，但这些解决方案既增加了程序的复杂性，也增加了脆弱性。</p><p class="cpp-section cpp-topline" style="clear:both">解决数组长度问题的方法</p><p>历史上，程序员通过两种方法之一来解决数组长度信息的缺失。</p><p>第一种，我们可以将数组和数组长度作为单独的参数传入：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;cassert&gt;
+#include &lt;iostream&gt;
+
+void printElement2(const int arr[], int length)
+{
+    assert(length &gt; 2 &amp;&amp; "printElement2: Array too short"); // 无法对长度进行 static_assert
+
+    std::cout &lt;&lt; arr[2] &lt;&lt; '\n';
+}
+
+int main()
+{
+    constexpr int a[]{ 3, 2, 1 };
+    printElement2(a, static_cast&lt;int&gt;(std::size(a)));  // ok
+
+    constexpr int b[]{ 7, 6 };
+    printElement2(b, static_cast&lt;int&gt;(std::size(b)));  // 将触发断言
+
+    return 0;
+}
+</code></pre><p>然而，这仍然存在一些问题：</p><ul><li>调用者需要确保数组和数组长度是配对的——如果传入了错误的长度值，函数仍然会出错。</li><li>如果使用 <code>std::size()</code> 的函数，可能存在符号转换问题。 <code>std::size_t</code>。</li><li>运行时断言仅在运行时遇到时触发。如果我们的测试路径没有覆盖所有对函数的调用，就有可能将程序交付给客户，而客户在执行我们未明确测试的操作时会触发断言。在现代C++中，我们希望使用 <code>static_assert</code> 对constexpr数组的数组长度进行编译时验证，但没有简单的方法做到这一点（因为函数参数不能是constexpr，即使在constexpr或consteval函数中也不行！）。</li><li>这种方法仅在显式函数调用时有效。如果函数调用是隐式的（例如，我们调用一个以数组为操作数的运算符），那么就没有机会传入长度。</li></ul><p>第二种，如果存在一个在语义上无效的元素值（例如，测试分数为 <code>-1</code>），我们可以使用该值的元素来标记数组的结尾。这样，数组的长度可以通过计算从数组开头到该终止元素之间的元素数量来得到。数组也可以通过从开头迭代直到遇到终止元素来遍历。这种方法的好处是即使在隐式函数调用中也能工作。</p><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">关键提示</p><p>C风格字符串（即C风格数组）使用空终止符来标记字符串的结尾，这样即使它们已经退化，也能被遍历。</p></div><p>但这种方法也存在一些问题：</p><ul><li>如果终止元素不存在，遍历将直接越过数组末尾，导致未定义行为。</li><li>遍历数组的函数需要特殊处理终止元素（例如，C风格字符串打印函数需要知道不打印终止元素）。</li><li>实际数组长度与语义有效元素数量之间存在不匹配。如果使用了错误的长度，语义无效的终止元素可能会被“处理”。</li><li>这种方法仅在存在语义无效的值时有效，而通常情况并非如此。</li></ul><p class="cpp-section cpp-topline" style="clear:both">在大多数情况下应避免使用C风格数组</p><p>由于非标准的传递语义（使用按地址传递而非按值传递）以及退化数组丢失长度信息带来的风险，C风格数组通常已不再受欢迎。我们建议尽可能避免使用它们。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>在实际可行时避免使用C风格数组。</p><ul><li>优先使用 <code>std::string_view</code> 用于只读字符串（字符串字面量符号常量和字符串参数）。</li><li>优先使用 <code>std::string</code> 用于可修改字符串。</li><li>优先使用 <code>std::array</code> 用于非全局constexpr数组。</li><li>优先使用 <code>std::vector</code> 用于非 constexpr 数组。</li></ul><p>对于全局constexpr数组，使用C风格数组是可以的。我们稍后会讨论这一点。</p></div><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">顺便说一句……</p><p>在C++中，数组可以通过引用传递，此时数组参数在传递给函数时不会退化（但数组的引用在求值时仍会退化）。然而，很容易忘记一致地应用这一点，一次遗漏的引用就会导致参数退化。此外，数组引用参数必须具有固定长度，这意味着该函数只能处理特定长度的数组。如果我们想要一个能处理不同长度数组的函数，那么还必须使用函数模板。但如果你打算同时做这两件事来“修复”C风格数组，那么还不如直接使用 <code>std::array</code>！</p></div><p class="cpp-section cpp-topline" style="clear:both">那么，在现代C++中，C风格数组何时使用？</p><p>在现代C++中，C风格数组通常用于两种情况：</p><ol start="1"><li>存储constexpr全局（或constexpr静态局部）程序数据。由于此类数组可以直接从程序中的任何位置访问，我们无需传递数组，从而避免了与退化相关的问题。定义C风格数组的语法可能比 <code>std::array</code>稍微不那么别扭。更重要的是，对此类数组进行索引没有标准库容器类那样的符号转换问题。</li><li>作为函数或类的参数，这些函数或类希望直接处理非constexpr C风格字符串参数（而不是要求转换为 <code>std::string_view</code>）。这有两个可能的原因：首先，将非constexpr C风格字符串转换为 <code>std::string_view</code> 需要遍历C风格字符串以确定其长度。如果函数位于性能关键的代码段中，并且不需要长度（例如，因为函数无论如何都会遍历字符串），那么避免转换可能是有用的。其次，如果函数（或类）调用其他期望C风格字符串的函数，那么转换为 <code>std::string_view</code> 只是为了转换回来可能不是最优的（除非你有其他理由想要一个 <code>std::string_view</code>)。</li></ol><p></p><p class="cpp-section cpp-topline" style="clear:both">小测验时间</p><p class="cpp-quiz-question" style="clear:both">问题 #1</p><p></p><p>什么是数组退化，为什么它是一个问题？</p><p><a aria-controls="cpp_solution_id_0" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_0" href="#cpp_solution_id_0">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_0"><p>当C风格数组被求值时，在大多数上下文中，它会隐式转换为指向数组元素类型的指针。</p><p>退化的数组丢失了其长度信息，这使得长度相关的错误更容易被引入程序中。</p></div><p class="cpp-quiz-question cpp-topline" style="clear:both">问题 #2</p><p>为什么C风格字符串（它们是C风格数组）使用空终止符？</p><p><a aria-controls="cpp_solution_id_1" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_1" href="#cpp_solution_id_1">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_1"><p>当C风格数组传递给函数时，它会退化并丢失其长度信息。如果C风格字符串没有空终止符，函数将无法确定字符串的长度。</p></div><p class="cpp-quiz-question cpp-topline" style="clear:both">问题 #3</p><p>额外加分：为什么C风格字符串使用空终止符，而不是要求将退化的C风格字符串和显式长度信息都传递给函数？</p><p><a aria-controls="cpp_solution_id_2" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_2" href="#cpp_solution_id_2">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_2"><p>这个问题可能有很多答案，但这里有一些：</p><ul><li>人体工程学将非常糟糕，因为到处都会有额外的参数和魔法数字（例如 <code>printString("Hello", 5)</code>)。</li><li>字符串和提供的字符串长度很容易不匹配。字符串长度本质上是字符串本身的一个不变量。依赖用户来维护这个不变量将不可避免地导致错误（例如 <code>printString("Hello", 6)</code>)。</li></ul></div><p>额外加分#2：即使C++想要实现必须传递显式长度信息，为什么它行不通？</p><p><a aria-controls="cpp_hint_id_0" aria-expanded="false" class="hint_link_show" data-hide-label="隐藏提示" data-hint-target="cpp_hint_id_0" data-show-label="显示提示" href="#cpp_hint_id_0">显示提示</a></p><div class="wphint" hidden="" id="cpp_hint_id_0">提示：考虑使用 <code>std::cout</code>。</div><p><a aria-controls="cpp_solution_id_3" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_3" href="#cpp_solution_id_3">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_3"><p>同时传递C风格字符串和显式长度信息只有在函数被显式调用时才可能。如果函数被隐式调用，则无法传递长度信息。</p><p>考虑一个语句如 <code>std::cout &lt;&lt; cstr</code>。二元 <code>operator&lt;&lt;</code> 只能接受两个操作数： <code>std::cout</code> 和 <code>cstr</code>。没有办法传递另一个代表长度信息的参数。空终止符方法没有这个问题。</p></div>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="introduction-to-c-style-arrays.html" rel="prev"><small>上一课</small><strong>17.7 — C风格数组简介</strong></a><a class="lesson-nav-index" href="index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="pointer-arithmetic-and-subscripting.html" rel="next"><small>下一课</small><strong>17.9 — 指针算术和下标</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

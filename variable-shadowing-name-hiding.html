@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/variable-shadowing-name-hiding/" name="learncpp:source-url"/>
+<meta content="da96650dfc86abb516519afcde214e9b420a1ba4be20f88664a248648a0d1bec" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:46:58.810886+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T17:21:44.263427+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>7.5 — Variable shadowing (name hiding)</title>
+<link href="assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">7.5 — 变量遮蔽（名称隐藏）</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 7.5</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/variable-shadowing-name-hiding/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>每个块定义了自己的作用域区域。那么，当我们在嵌套块中有一个变量与外部块中的变量同名时会发生什么？发生这种情况时，嵌套变量在两者都处于作用域的区域中“隐藏”了外部变量。这被称为 <strong>名称隐藏</strong> 或 <strong>遮蔽</strong>。</p><p class="cpp-section cpp-topline" style="clear:both">局部变量的遮蔽</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{ // 外部块
+    int apples { 5 }; // 这里是外部块的apples
+
+    { // 嵌套块
+        // 这里的apples指的是外部块的apples
+        std::cout &lt;&lt; apples &lt;&lt; '\n'; // 打印外部块apples的值
+
+        int apples{ 0 }; // 在嵌套块的作用域内定义apples
+
+        // apples现在指的是嵌套块的apples
+        // 外部块的apples被暂时隐藏
+
+        apples = 10; // 这将值10赋给嵌套块的apples，而不是外部块的apples
+
+        std::cout &lt;&lt; apples &lt;&lt; '\n'; // 打印嵌套块apples的值
+    } // 嵌套块apples被销毁
+
+
+    std::cout &lt;&lt; apples &lt;&lt; '\n'; // 打印外部块apples的值
+
+    return 0;
+} // 外部块apples被销毁
+</code></pre><p>如果你运行这个程序，它会打印：</p><pre>5
+10
+5
+</pre><p>在上面的程序中，我们首先在外部块中声明了一个名为 <code>apples</code> 的变量。这个变量在内部块中是可见的，我们可以通过打印它的值（<code>5</code>）来看到这一点。然后我们在嵌套块中声明了另一个不同的变量（也名为 <code>apples</code>）。从这一点到块结束，名称 <code>apples</code> 指的是嵌套块的 <code>apples</code>，而不是外部块的 <code>apples</code>。</p><p>因此，当我们赋值 <code>10</code> 切换到 <code>apples</code>时，我们是在给嵌套块的 <code>apples</code>赋值。打印这个值（<code>10</code>）后，嵌套块结束，嵌套块的 <code>apples</code> 被销毁。外部块的 <code>apples</code> 的存在和值不受影响，我们通过打印外部块的 <code>apples</code> (<code>5</code>)。</p><p>的值来证明这一点。注意，如果嵌套块的 <code>apples</code> 没有被定义，那么嵌套块中的名称 <code>apples</code> 仍然会引用外部块的 <code>apples</code>，所以赋值 <code>10</code> 切换到 <code>apples</code> 会应用于外部块的 <code>apples</code>：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{ // 外部块
+    int apples{5}; // 这里是外部块的apples
+
+    { // 嵌套块
+        // 这里的apples指的是外部块的apples
+        std::cout &lt;&lt; apples &lt;&lt; '\n'; // 打印外部块apples的值
+
+        // 此示例中未定义内部块apples
+
+        apples = 10; // 这适用于外部块apples
+
+        std::cout &lt;&lt; apples &lt;&lt; '\n'; // 打印外部块apples的值
+    } // 即使离开嵌套块，外部块apples仍保留其值
+
+    std::cout &lt;&lt; apples &lt;&lt; '\n'; // 打印外部块apples的值
+
+    return 0;
+} // 外部块apples被销毁
+</code></pre><p>上面的程序打印：</p><pre>5
+10
+10
+</pre><p>当在嵌套块内部时，无法直接访问来自外部块的被遮蔽变量。</p><p class="cpp-section cpp-topline" style="clear:both">全局变量的遮蔽</p><p>类似于嵌套块中的变量可以遮蔽外部块中的变量，与全局变量同名的局部变量会在局部变量作用域内遮蔽全局变量：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+int value { 5 }; // 全局变量
+
+void foo()
+{
+    std::cout &lt;&lt; "global variable value: " &lt;&lt; value &lt;&lt; '\n'; // 此处value未被隐藏，因此指的是全局值
+}
+
+int main()
+{
+    int value { 7 }; // 隐藏全局变量value（只要局部变量value在作用域内）
+
+    ++value; // 递增局部value，而非全局value
+
+    std::cout &lt;&lt; "local variable value: " &lt;&lt; value &lt;&lt; '\n';
+
+    foo();
+
+    return 0;
+} // 局部value被销毁
+</code></pre><p>这段代码打印：</p><pre>local variable value: 8
+global variable value: 5
+</pre><p>然而，因为全局变量是全局命名空间的一部分，我们可以使用不带前缀的作用域运算符（::）来告诉编译器我们指的是全局变量而不是局部变量。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+int value { 5 }; // 全局变量
+
+int main()
+{
+    int value { 7 }; // 隐藏全局变量value
+    ++value; // 递增局部value，而非全局value
+
+    --(::value); // 递减全局value，而非局部value（添加括号以提高可读性）
+
+    std::cout &lt;&lt; "local variable value: " &lt;&lt; value &lt;&lt; '\n';
+    std::cout &lt;&lt; "global variable value: " &lt;&lt; ::value &lt;&lt; '\n';
+
+    return 0;
+} // 局部value被销毁
+</code></pre><p>这段代码打印：</p><pre>local variable value: 8
+global variable value: 4
+</pre><p class="cpp-section cpp-topline" style="clear:both">避免变量遮蔽</p><p>通常应避免局部变量的遮蔽，因为它可能导致无意中使用或修改了错误的变量，从而引发错误。一些编译器会在变量被遮蔽时发出警告。</p><p>出于与建议避免遮蔽局部变量相同的原因，我们也建议避免遮蔽全局变量。如果所有全局名称都使用“g_”前缀，这很容易避免。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>避免变量遮蔽。</p></div><div class="cpp-note cpp-lightyellowbackground"><p class="cpp-note-title cpp-bottomline">对于 gcc 用户</p><p>GCC和Clang支持标志 <code>-Wshadow</code> ，该标志会在变量被遮蔽时生成警告。这个标志有几个子变体（<code>-Wshadow=global</code>， <code>-Wshadow=local</code>、和 <code>-Wshadow=compatible-local</code>。请查阅 <a href="https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html">GCC文档</a> 以了解差异的解释。</p><p>Visual Studio默认启用此类警告。</p></div>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="introduction-to-global-variables.html" rel="prev"><small>上一课</small><strong>7.4 — 全局变量简介</strong></a><a class="lesson-nav-index" href="index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="internal-linkage.html" rel="next"><small>下一课</small><strong>7.6 — 内部链接</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

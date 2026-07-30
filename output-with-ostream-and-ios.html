@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/output-with-ostream-and-ios/" name="learncpp:source-url"/>
+<meta content="9f70c28b25a731081f0e7978ebb013af29ddac0299b3c5631e201c54e972897f" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:55:05.093821+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T18:20:45.408980+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>28.3 — Output with ostream and ios</title>
+<link href="assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">28.3 — 使用 ostream 和 ios 进行输出</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 28.3</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/output-with-ostream-and-ios/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>在本节中，我们将探讨 iostream 输出类（ostream）的各个方面。</p><p><strong>插入运算符</strong></p><p>插入运算符（&lt;&lt;）用于将信息放入输出流。C++ 为所有内置数据类型预定义了插入操作，并且你已经看到如何 <a href="https://www.learncpp.com/cpp-tutorial/93-overloading-the-io-operators/">重载插入运算符</a> 用于你自己的类。</p><p>在关于 <a href="https://www.learncpp.com/cpp-tutorial/131-input-and-output-io-streams/">流</a>，你看到 istream 和 ostream 都派生自一个名为 ios 的类。ios（以及 ios_base）的任务之一是控制输出的格式化选项。</p><p><strong>格式化</strong></p><p>有两种方法可以更改格式化选项：标志和操纵器。你可以将 <strong>标志</strong> 视为可以打开和关闭的布尔变量。 <strong>操纵器</strong> 是放置在流中影响输入和输出方式的对象。</p><p>要打开一个标志，使用 <strong>setf()</strong> 函数，并将适当的标志作为参数。例如，默认情况下，C++ 不会在正数前面打印 + 号。但是，通过使用 std::ios::showpos 标志，我们可以改变这种行为：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">std::cout.setf(std::ios::showpos); // 打开 std::ios::showpos 标志
+std::cout &lt;&lt; 27 &lt;&lt; '\n';
+</code></pre><p>这将产生以下输出：</p><pre>+27
+</pre><p>可以使用按位或（|）运算符一次打开多个 ios 标志：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">std::cout.setf(std::ios::showpos | std::ios::uppercase); // 打开 std::ios::showpos 和 std::ios::uppercase 标志
+std::cout &lt;&lt; 1234567.89f &lt;&lt; '\n';
+</code></pre><p>这会输出：</p><pre>+1.23457E+06
+</pre><p>要关闭一个标志，使用 <strong>unsetf()</strong> 函数：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">std::cout.setf(std::ios::showpos); // 打开 std::ios::showpos 标志
+std::cout &lt;&lt; 27 &lt;&lt; '\n';
+std::cout.unsetf(std::ios::showpos); // 关闭 std::ios::showpos 标志
+std::cout &lt;&lt; 28 &lt;&lt; '\n';
+</code></pre><p>这将产生以下输出：</p><pre>+27
+28
+</pre><p>使用 setf() 时还有另一个需要提及的棘手问题。许多标志属于称为格式组的组。一个 <strong>格式组</strong> 是一组执行相似（有时互斥）格式化选项的标志。例如，一个名为“basefield”的格式组包含标志“oct”、“dec”和“hex”，它们控制整数值的进制。默认情况下，“dec”标志被设置。因此，如果我们这样做：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">std::cout.setf(std::ios::hex); // 尝试打开十六进制输出
+std::cout &lt;&lt; 27 &lt;&lt; '\n';
+</code></pre><p>我们得到以下输出：</p><pre>27
+</pre><p>它没有起作用！原因在于 setf() 只打开标志——它不够智能，无法关闭互斥的标志。因此，当我们打开 std::hex 时，std::ios::dec 仍然打开，并且 std::ios::dec 显然具有优先权。有两种方法可以解决这个问题。</p><p>首先，我们可以关闭 std::ios::dec，以便只设置 std::hex：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">std::cout.unsetf(std::ios::dec); // 关闭十进制输出
+std::cout.setf(std::ios::hex); // 打开十六进制输出
+std::cout &lt;&lt; 27 &lt;&lt; '\n';
+</code></pre><p>现在我们得到预期的输出：</p><pre>1b
+</pre><p>第二种方法是使用另一种形式的 setf()，它接受两个参数：第一个参数是要设置的标志，第二个是它所属的格式组。使用这种形式的 setf() 时，属于该组的所有标志都被关闭，只有传入的标志被打开。例如：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">// 将 std::ios::hex 设置为唯一的 std::ios::basefield 标志
+std::cout.setf(std::ios::hex, std::ios::basefield);
+std::cout &lt;&lt; 27 &lt;&lt; '\n';
+</code></pre><p>这也产生了预期的输出：</p><pre>1b
+</pre><p>使用 setf() 和 unsetf() 往往很笨拙，因此 C++ 提供了第二种更改格式化选项的方法：操纵器。操纵器的好处在于它们足够智能，可以打开和关闭适当的标志。以下是一个使用一些操纵器更改进制的示例：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">std::cout &lt;&lt; std::hex &lt;&lt; 27 &lt;&lt; '\n'; // 以十六进制打印 27
+std::cout &lt;&lt; 28 &lt;&lt; '\n'; // 我们仍然在十六进制模式
+std::cout &lt;&lt; std::dec &lt;&lt; 29 &lt;&lt; '\n'; // 回到十进制
+</code></pre><p>该程序产生输出：</p><pre>1b
+1c
+29
+</pre><p>一般来说，使用操纵器比设置和取消设置标志容易得多。许多选项可以通过标志和操纵器两种方式使用（例如更改进制），然而，其他选项只能通过标志或只能通过操纵器使用，因此了解如何使用两者很重要。</p><p><strong>有用的格式化器</strong></p><p>以下是一些更有用的标志、操纵器和成员函数的列表。标志位于 std::ios 类中，操纵器位于 std 命名空间中，成员函数位于 std::ostream 类中。</p><div class="cpp-table-wrapper"><p></p><p></p><table class="cpp-table"><tbody><tr><th>组</th><th>标志</th><th>含义</th></tr><tr><td></td><td>std::ios::boolalpha</td><td>如果设置，布尔值打印“true”或“false”。如果未设置，布尔值打印 0 或 1</td></tr></tbody></table></div><div class="cpp-table-wrapper"><p></p><p></p><table class="cpp-table"><tbody><tr><th>操纵器</th><th>含义</th></tr><tr><td>std::boolalpha</td><td>布尔值打印“true”或“false”</td></tr><tr><td>std::noboolalpha</td><td>布尔值打印为 0 或 1（默认）</td></tr></tbody></table></div><p>示例：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">std::cout &lt;&lt; true &lt;&lt; ' ' &lt;&lt; false &lt;&lt; '\n';
+
+std::cout.setf(std::ios::boolalpha);
+std::cout &lt;&lt; true &lt;&lt; ' ' &lt;&lt; false &lt;&lt; '\n';
+
+std::cout &lt;&lt; std::noboolalpha &lt;&lt; true &lt;&lt; ' ' &lt;&lt; false &lt;&lt; '\n';
+
+std::cout &lt;&lt; std::boolalpha &lt;&lt; true &lt;&lt; ' ' &lt;&lt; false &lt;&lt; '\n';
+</code></pre><p>结果：</p><pre>1 0
+true false
+1 0
+true false
+</pre><div class="cpp-table-wrapper"><p></p><p></p><table class="cpp-table"><tbody><tr><th>组</th><th>标志</th><th>含义</th></tr><tr><td></td><td>std::ios::showpos</td><td>如果设置，正数前加 +</td></tr></tbody></table></div><div class="cpp-table-wrapper"><p></p><p></p><table class="cpp-table"><tbody><tr><th>操纵器</th><th>含义</th></tr><tr><td>std::showpos</td><td>正数前加 +</td></tr><tr><td>std::noshowpos</td><td>正数前不加 +</td></tr></tbody></table></div><p>示例：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">std::cout &lt;&lt; 5 &lt;&lt; '\n';
+
+std::cout.setf(std::ios::showpos);
+std::cout &lt;&lt; 5 &lt;&lt; '\n';
+
+std::cout &lt;&lt; std::noshowpos &lt;&lt; 5 &lt;&lt; '\n';
+
+std::cout &lt;&lt; std::showpos &lt;&lt; 5 &lt;&lt; '\n';
+</code></pre><p>结果：</p><pre>5
++5
+5
++5
+</pre><div class="cpp-table-wrapper"><p></p><p></p><table class="cpp-table"><tbody><tr><th>组</th><th>标志</th><th>含义</th></tr><tr><td></td><td>std::ios::uppercase</td><td>如果设置，使用大写字母</td></tr></tbody></table></div><div class="cpp-table-wrapper"><p></p><p></p><table class="cpp-table"><tbody><tr><th>操纵器</th><th>含义</th></tr><tr><td>std::uppercase</td><td>使用大写字母</td></tr><tr><td>std::nouppercase</td><td>使用小写字母</td></tr></tbody></table></div><p>示例：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">std::cout &lt;&lt; 12345678.9 &lt;&lt; '\n';
+
+std::cout.setf(std::ios::uppercase);
+std::cout &lt;&lt; 12345678.9 &lt;&lt; '\n';
+
+std::cout &lt;&lt; std::nouppercase &lt;&lt; 12345678.9 &lt;&lt; '\n';
+
+std::cout &lt;&lt; std::uppercase &lt;&lt; 12345678.9 &lt;&lt; '\n';
+</code></pre><p>结果：</p><pre>1.23457e+007
+1.23457E+007
+1.23457e+007
+1.23457E+007
+</pre><div class="cpp-table-wrapper"><p></p><p></p><table class="cpp-table"><tbody><tr><th>组</th><th>标志</th><th>含义</th></tr><tr><td>std::ios::basefield</td><td>std::ios::dec</td><td>以十进制打印值（默认）</td></tr><tr><td>std::ios::basefield</td><td>std::ios::hex</td><td>以十六进制打印值</td></tr><tr><td>std::ios::basefield</td><td>std::ios::oct</td><td>以八进制打印值</td></tr><tr><td>std::ios::basefield</td><td>（无）</td><td>根据值的前导字符打印值</td></tr></tbody></table></div><div class="cpp-table-wrapper"><p></p><p></p><table class="cpp-table"><tbody><tr><th>操纵器</th><th>含义</th></tr><tr><td>std::dec</td><td>以十进制打印值</td></tr><tr><td>std::hex</td><td>以十六进制打印值</td></tr><tr><td>std::oct</td><td>以八进制打印值</td></tr></tbody></table></div><p>示例：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">std::cout &lt;&lt; 27 &lt;&lt; '\n';
+
+std::cout.setf(std::ios::dec, std::ios::basefield);
+std::cout &lt;&lt; 27 &lt;&lt; '\n';
+
+std::cout.setf(std::ios::oct, std::ios::basefield);
+std::cout &lt;&lt; 27 &lt;&lt; '\n';
+
+std::cout.setf(std::ios::hex, std::ios::basefield);
+std::cout &lt;&lt; 27 &lt;&lt; '\n';
+
+std::cout &lt;&lt; std::dec &lt;&lt; 27 &lt;&lt; '\n';
+std::cout &lt;&lt; std::oct &lt;&lt; 27 &lt;&lt; '\n';
+std::cout &lt;&lt; std::hex &lt;&lt; 27 &lt;&lt; '\n';
+</code></pre><p>结果：</p><pre>27
+27
+33
+1b
+27
+33
+1b
+</pre><p>到现在为止，你应该能够看到通过标志和操纵器设置格式之间的关系。在未来的示例中，除非操纵器不可用，否则我们将使用操纵器。</p><p><strong>精度、记数法和小数点</strong></p><p>使用操纵器（或标志），可以改变浮点数显示的精度和格式。有几个格式化选项以相当复杂的方式组合，因此我们将更仔细地研究这一点。</p><div class="cpp-table-wrapper"><p></p><p></p><table class="cpp-table"><tbody><tr><th>组</th><th>标志</th><th>含义</th></tr><tr><td>std::ios::floatfield</td><td>std::ios::fixed</td><td>对浮点数使用十进制记数法</td></tr><tr><td>std::ios::floatfield</td><td>std::ios::scientific</td><td>对浮点数使用科学记数法</td></tr><tr><td>std::ios::floatfield</td><td>（无）</td><td>对位数少的数字使用 fixed，否则使用 scientific</td></tr><tr><td>std::ios::floatfield</td><td>std::ios::showpoint</td><td>始终显示小数点和小数点后的尾随 0</td></tr></tbody></table></div><div class="cpp-table-wrapper"><p></p><p></p><table class="cpp-table"><tbody><tr><th>操纵器</th><th>含义</th></tr><tr><td>std::fixed</td><td>对数值使用十进制表示法</td></tr><tr><td>std::scientific</td><td>对数值使用科学计数法</td></tr><tr><td>std::showpoint</td><td>对浮点数值显示小数点和尾随的0</td></tr><tr><td>std::noshowpoint</td><td>对浮点数值不显示小数点和尾随的0</td></tr><tr><td>std::setprecision(int)</td><td>设置浮点数的精度（定义在iomanip头文件中）</td></tr></tbody></table></div><div class="cpp-table-wrapper"><p></p><p></p><table class="cpp-table"><tbody><tr><th>成员函数</th><th>含义</th></tr><tr><td>std::ios_base::precision()</td><td>返回浮点数的当前精度</td></tr><tr><td>std::ios_base::precision(int)</td><td>设置浮点数的精度并返回旧精度</td></tr></tbody></table></div><p>如果使用了fixed或scientific表示法，精度决定显示的小数位数。注意，如果精度小于有效数字的位数，数字将被四舍五入。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">std::cout &lt;&lt; std::fixed &lt;&lt; '\n';
+std::cout &lt;&lt; std::setprecision(3) &lt;&lt; 123.456 &lt;&lt; '\n';
+std::cout &lt;&lt; std::setprecision(4) &lt;&lt; 123.456 &lt;&lt; '\n';
+std::cout &lt;&lt; std::setprecision(5) &lt;&lt; 123.456 &lt;&lt; '\n';
+std::cout &lt;&lt; std::setprecision(6) &lt;&lt; 123.456 &lt;&lt; '\n';
+std::cout &lt;&lt; std::setprecision(7) &lt;&lt; 123.456 &lt;&lt; '\n';
+
+std::cout &lt;&lt; std::scientific &lt;&lt; '\n';
+std::cout &lt;&lt; std::setprecision(3) &lt;&lt; 123.456 &lt;&lt; '\n';
+std::cout &lt;&lt; std::setprecision(4) &lt;&lt; 123.456 &lt;&lt; '\n';
+std::cout &lt;&lt; std::setprecision(5) &lt;&lt; 123.456 &lt;&lt; '\n';
+std::cout &lt;&lt; std::setprecision(6) &lt;&lt; 123.456 &lt;&lt; '\n';
+std::cout &lt;&lt; std::setprecision(7) &lt;&lt; 123.456 &lt;&lt; '\n';
+</code></pre><p>产生结果：</p><pre>123.456
+123.4560
+123.45600
+123.456000
+123.4560000
+
+1.235e+002
+1.2346e+002
+1.23456e+002
+1.234560e+002
+1.2345600e+002
+</pre><p>如果既没有使用fixed也没有使用scientific，精度决定显示多少位有效数字。同样，如果精度小于有效数字的位数，数字将被四舍五入。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">std::cout &lt;&lt; std::setprecision(3) &lt;&lt; 123.456 &lt;&lt; '\n';
+std::cout &lt;&lt; std::setprecision(4) &lt;&lt; 123.456 &lt;&lt; '\n';
+std::cout &lt;&lt; std::setprecision(5) &lt;&lt; 123.456 &lt;&lt; '\n';
+std::cout &lt;&lt; std::setprecision(6) &lt;&lt; 123.456 &lt;&lt; '\n';
+std::cout &lt;&lt; std::setprecision(7) &lt;&lt; 123.456 &lt;&lt; '\n';
+</code></pre><p>产生以下结果：</p><pre>123
+123.5
+123.46
+123.456
+123.456
+</pre><p>使用showpoint操纵符或标志，可以使流写入小数点和尾随零。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">std::cout &lt;&lt; std::showpoint &lt;&lt; '\n';
+std::cout &lt;&lt; std::setprecision(3) &lt;&lt; 123.456 &lt;&lt; '\n';
+std::cout &lt;&lt; std::setprecision(4) &lt;&lt; 123.456 &lt;&lt; '\n';
+std::cout &lt;&lt; std::setprecision(5) &lt;&lt; 123.456 &lt;&lt; '\n';
+std::cout &lt;&lt; std::setprecision(6) &lt;&lt; 123.456 &lt;&lt; '\n';
+std::cout &lt;&lt; std::setprecision(7) &lt;&lt; 123.456 &lt;&lt; '\n';
+</code></pre><p>产生以下结果：</p><pre>123.
+123.5
+123.46
+123.456
+123.4560
+</pre><p>以下是一个包含更多示例的汇总表：</p><div class="cpp-table-wrapper"><p></p><p></p><table class="cpp-table"><tbody><tr><th>选项</th><th>精度</th><th>12345.0</th><th>0.12345</th></tr><tr><td rowspan="4">正常</td><td>3</td><td>1.23e+004</td><td>0.123</td></tr><tr><td>4</td><td>1.235e+004</td><td>0.1235</td></tr><tr><td>5</td><td>12345</td><td>0.12345</td></tr><tr><td>6</td><td>12345</td><td>0.12345</td></tr><tr><td rowspan="4">Showpoint</td><td>3</td><td>1.23e+004</td><td>0.123</td></tr><tr><td>4</td><td>1.235e+004</td><td>0.1235</td></tr><tr><td>5</td><td>12345.</td><td>0.12345</td></tr><tr><td>6</td><td>12345.0</td><td>0.123450</td></tr><tr><td rowspan="4">Fixed</td><td>3</td><td>12345.000</td><td>0.123</td></tr><tr><td>4</td><td>12345.0000</td><td>0.1235</td></tr><tr><td>5</td><td>12345.00000</td><td>0.12345</td></tr><tr><td>6</td><td>12345.000000</td><td>0.123450</td></tr><tr><td rowspan="4">Scientific</td><td>3</td><td>1.235e+004</td><td>1.235e-001</td></tr><tr><td>4</td><td>1.2345e+004</td><td>1.2345e-001</td></tr><tr><td>5</td><td>1.23450e+004</td><td>1.23450e-001</td></tr><tr><td>6</td><td>1.234500e+004</td><td>1.234500e-001</td></tr></tbody></table></div><p><strong>宽度、填充字符和对齐</strong></p><p>通常打印数字时，数字的打印不考虑周围的空格。然而，可以左对齐或右对齐数字的打印。为此，我们首先需要定义一个字段宽度，它定义了一个值将占用的输出空格数。如果实际打印的数字小于字段宽度，它将按指定方式左对齐或右对齐。如果实际数字大于字段宽度，它不会被截断——而是会溢出字段。</p><div class="cpp-table-wrapper"><p></p><p></p><table class="cpp-table"><tbody><tr><th>组</th><th>标志</th><th>含义</th></tr><tr><td>std::ios::adjustfield</td><td>std::ios::internal</td><td>左对齐数字的符号，右对齐数值</td></tr><tr><td>std::ios::adjustfield</td><td>std::ios::left</td><td>左对齐符号和数值</td></tr><tr><td>std::ios::adjustfield</td><td>std::ios::right</td><td>右对齐符号和数值（默认）</td></tr></tbody></table></div><div class="cpp-table-wrapper"><p></p><p></p><table class="cpp-table"><tbody><tr><th>操纵器</th><th>含义</th></tr><tr><td>std::internal</td><td>左对齐数字的符号，右对齐数值</td></tr><tr><td>std::left</td><td>左对齐符号和数值</td></tr><tr><td>std::right</td><td>右对齐符号和数值</td></tr><tr><td>std::setfill(char)</td><td>将参数设置为填充字符（定义在 iomanip 头文件中）</td></tr><tr><td>std::setw(int)</td><td>将输入和输出的字段宽度设置为参数（定义在 iomanip 头文件中）</td></tr></tbody></table></div><div class="cpp-table-wrapper"><p></p><p></p><table class="cpp-table"><tbody><tr><th>成员函数</th><th>含义</th></tr><tr><td>std::basic_ostream::fill()</td><td>返回当前填充字符</td></tr><tr><td>std::basic_ostream::fill(char)</td><td>设置填充字符并返回旧的填充字符</td></tr><tr><td>std::ios_base::width()</td><td>返回当前字段宽度</td></tr><tr><td>std::ios_base::width(int)</td><td>设置当前字段宽度并返回旧的字段宽度</td></tr></tbody></table></div><p>为了使用这些格式化器中的任何一个，我们首先必须设置一个字段宽度。这可以通过 width(int) 成员函数或 setw() 操纵器来完成。注意右对齐是默认的。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">std::cout &lt;&lt; -12345 &lt;&lt; '\n'; // 打印默认值，无字段宽度
+std::cout &lt;&lt; std::setw(10) &lt;&lt; -12345 &lt;&lt; '\n'; // 打印默认值，带字段宽度
+std::cout &lt;&lt; std::setw(10) &lt;&lt; std::left &lt;&lt; -12345 &lt;&lt; '\n'; // 打印左对齐
+std::cout &lt;&lt; std::setw(10) &lt;&lt; std::right &lt;&lt; -12345 &lt;&lt; '\n'; // 打印右对齐
+std::cout &lt;&lt; std::setw(10) &lt;&lt; std::internal &lt;&lt; -12345 &lt;&lt; '\n'; // 内部对齐打印
+</code></pre><p>这会产生以下结果：</p><pre>-12345
+    -12345
+-12345
+    -12345
+-    12345
+</pre><p>需要注意的一点是，setw() 和 width() 只影响下一个输出语句。它们不像其他一些标志/操纵器那样持久。</p><p>现在，让我们设置一个填充字符并做同样的例子：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">std::cout.fill('*');
+std::cout &lt;&lt; -12345 &lt;&lt; '\n'; // 打印默认值，无字段宽度
+std::cout &lt;&lt; std::setw(10) &lt;&lt; -12345 &lt;&lt; '\n'; // 打印默认值，带字段宽度
+std::cout &lt;&lt; std::setw(10) &lt;&lt; std::left &lt;&lt; -12345 &lt;&lt; '\n'; // 打印左对齐
+std::cout &lt;&lt; std::setw(10) &lt;&lt; std::right &lt;&lt; -12345 &lt;&lt; '\n'; // 打印右对齐
+std::cout &lt;&lt; std::setw(10) &lt;&lt; std::internal &lt;&lt; -12345 &lt;&lt; '\n'; // 内部对齐打印
+</code></pre><p>这将产生输出：</p><pre>-12345
+****-12345
+-12345****
+****-12345
+-****12345
+</pre><p>注意字段中的所有空白都被填充字符填满了。</p><p>ostream 类和 iostream 库包含其他可能有用的输出函数、标志和操纵器，具体取决于你需要做什么。与 istream 类一样，这些主题更适合专注于标准库的教程或书籍。</p>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="input-with-istream.html" rel="prev"><small>上一课</small><strong>28.2 — 使用istream进行输入</strong></a><a class="lesson-nav-index" href="index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="stream-classes-for-strings.html" rel="next"><small>下一课</small><strong>28.4 — 字符串流类</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

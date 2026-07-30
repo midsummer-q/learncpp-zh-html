@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/using-an-integrated-debugger-stepping/" name="learncpp:source-url"/>
+<meta content="82beae06220377c476f904319d3caace75686d13ec463351ec7d6044b74783fd" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:45:26.848745+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T17:18:31.173482+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>3.6 — Using an integrated debugger: Stepping</title>
+<link href="assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">3.6 — 使用集成调试器：单步执行</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 3.6</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/using-an-integrated-debugger-stepping/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>当您运行程序时，执行从 <em>main</em> 函数的顶部开始，然后按语句顺序依次执行，直到程序结束。在程序运行的任何时刻，程序会跟踪很多事情：正在使用的变量的值，哪些函数被调用（这样当这些函数返回时，程序知道回到哪里），以及程序中的当前执行点（以便知道下一步执行哪条语句）。所有这些被跟踪的信息被称为您的程序状态（program state）（或简称状态state）。 <strong>程序状态</strong> （或简称 <em>状态</em>，简称）。</p><p>在之前的课程中，我们探讨了多种修改代码以帮助调试的方法，包括打印诊断信息或使用记录器。这些是在程序运行时检查程序状态的简单方法。虽然如果正确使用它们可以很有效，但它们仍有缺点：它们需要修改代码，这很耗时且可能引入新bug，并且它们会使代码杂乱，使现有代码更难理解。</p><p>到目前为止我们所展示的技术背后有一个未说明的假设：一旦我们运行代码，它将一直运行到结束（仅在接受输入时暂停），我们无法在任意时刻干预并检查程序的结果。</p><p>然而，如果我们能够消除这个假设呢？幸运的是，大多数现代IDE都附带了一个名为调试器的集成工具，正是为此而设计的。</p><p class="cpp-section cpp-topline" style="clear:both">调试器</p><p>一个 <strong>调试器</strong> 是一种计算机程序，允许程序员控制另一个程序的执行方式，并在该程序运行时检查程序状态。例如，程序员可以使用调试器逐行执行程序，同时检查变量的值。通过将变量的实际值与预期值进行比较，或者观察代码的执行路径，调试器可以极大地帮助追踪语义（逻辑）错误。</p><p>调试器背后的能力是双重的：精确控制程序执行的能力，以及查看（如果需要，还可以修改）程序状态的能力。</p><p>最初，调试器（例如 <a href="https://en.wikipedia.org/wiki/Gdb">gdb</a>）是独立的程序，具有命令行界面，程序员必须输入晦涩的命令才能使用它们。后来的调试器（如早期版本的Borland's <a href="https://en.wikipedia.org/wiki/Turbo_Debugger">turbo debugger</a>）仍然是独立的程序，但提供了“图形”前端以方便使用。如今，许多现代IDE都有一个 <strong>集成调试器</strong> ——即，一个使用与代码编辑器相同界面的调试器，这样你就可以使用编写代码的同一环境进行调试（而无需切换程序）。</p><p>尽管集成调试器非常方便，对初学者来说也是推荐使用的，但命令行调试器也得到很好的支持，并且仍然常用于不支持图形界面的环境（例如嵌入式系统）。</p><p>几乎所有现代调试器都包含相同的标准基本功能——然而，在访问这些功能的菜单布局方面却缺乏一致性，键盘快捷键的一致性就更差了。尽管我们的示例将使用来自Microsoft Visual Studio的截图（我们也会介绍如何在Code::Blocks中完成所有操作），但无论你使用哪种IDE，都应该不难找到我们所讨论的每个功能的访问方式。</p><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">提示</p><p>调试器的键盘快捷键仅在IDE/集成调试器是活动窗口时才有效。</p></div><p>本章剩余部分将用于学习如何使用调试器。</p><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">提示</p><p>不要忽视学习使用调试器。随着你的程序变得越来越复杂，你花在有效使用集成调试器上的时间将远少于你通过查找和修复问题所节省的时间。</p></div><div class="cpp-note cpp-lightredbackground"><p class="cpp-note-title cpp-bottomline">警告</p><p>在继续本课（以及后续与使用调试器相关的课程）之前，请确保你的项目使用调试构建配置进行编译（请参阅 <a href="configuring-your-compiler-build-configurations.html">0.9 -- 配置编译器：构建配置</a> 以了解更多信息）。</p><p>如果你改用发布配置编译项目，调试器的功能可能无法正常工作（例如，当你尝试单步执行程序时，它只会运行程序而不是逐步调试）。</p></div><div class="cpp-note cpp-lightyellowbackground"><p class="cpp-note-title cpp-bottomline">对于 Code::Blocks 用户</p><p>如果你使用Code::Blocks，你的调试器可能设置正确，也可能不正确。让我们检查一下。</p><p>首先，转到 <em>设置菜单 &gt; 调试器…</em>。接下来，打开 <em>GDB/CDB调试器</em> 左侧的树形结构，然后选择 <em>默认</em>。一个看起来像这样的对话框应该会打开：</p><div class="cpp-image-wrapper"><img alt="" src="assets/images/f04f4fa32babd4bfd856b224842e625c40415774b81ddfe9ce4efa6b01c8a79c.png"/></div><p>如果你在“可执行文件路径”处看到一条大的红色条，那么你需要找到你的调试器。为此，请点击 <em>…</em> 按钮，位于 <em>可执行文件路径</em> 字段。接下来，在你的系统上找到“gdb32.exe”文件——我的位于 <em>C:\Program Files (x86)\CodeBlocks\MinGW\bin\gdb32.exe</em>。然后点击 <em>OK</em>。</p></div><div class="cpp-note cpp-lightyellowbackground"><p class="cpp-note-title cpp-bottomline">对于 Code::Blocks 用户</p><p>有报告称，Code::Blocks 集成的调试器（GDB）在识别包含空格或非英文字符的文件路径时可能会出现问题。如果在学习这些课程过程中调试器似乎出现故障，那可能是原因之一。</p></div><div class="cpp-note cpp-lightyellowbackground"><p class="cpp-note-title cpp-bottomline">对于 VS Code 用户</p><p>要设置调试，请按下 <em>Ctrl+Shift+P</em> 并选择“C/C++: Add Debug Configuration”，接着选择“C/C++: g++ build and debug active file”。这应该会创建并打开 <code>launch.json</code> 配置文件。将“stopAtEntry”改为 true：<br/><code>"stopAtEntry": true,</code></p><p>然后打开 <em>main.cpp</em> 并通过按下 <em>F5</em> 或按下 <em>Ctrl+Shift+P</em> 并选择“Debug: Start Debugging and Stop on Entry”来开始调试。</p></div><p class="cpp-section cpp-topline" style="clear:both">单步执行</p><p>我们首先要检查一些允许我们控制程序执行方式的调试工具，以此来开始探索调试器。</p><p><strong>单步执行</strong> 是一组相关调试器功能的名称，它允许我们逐条语句地执行（单步执行）代码。</p><p>我们将依次介绍几个相关的单步执行命令。</p><p class="cpp-section cpp-topline" style="clear:both">步入</p><p>浮点类型的 <strong>步入</strong> 命令执行程序正常执行路径中的下一条语句，然后暂停程序的执行，以便我们可以使用调试器检查程序的状态。如果正在执行的语句包含函数调用， <em>步入</em> 导致程序跳转到被调用函数的顶部，并在那里暂停。</p><p>让我们来看一个非常简单的程序：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+void printValue(int value)
+{
+    std::cout &lt;&lt; value &lt;&lt; '\n';
+}
+
+int main()
+{
+    printValue(5);
+
+    return 0;
+}
+</code></pre><p>让我们使用 <em>步入</em> 命令。</p><p>首先，找到并执行 <em>步入</em> 调试命令一次。</p><div class="cpp-note cpp-lightyellowbackground"><p class="cpp-note-title cpp-bottomline">适用于 Visual Studio 用户</p><p>在Visual Studio中， <em>步入</em> 命令可以通过 <em>调试菜单 &gt; 单步进入</em>，或者按F11快捷键。</p></div><div class="cpp-note cpp-lightyellowbackground"><p class="cpp-note-title cpp-bottomline">对于 Code::Blocks 用户</p><p>在Code::Blocks中， <em>步入</em> 命令可以通过 <em>调试菜单 &gt; 单步进入</em>，或者按Shift-F7快捷键组合。</p></div><div class="cpp-note cpp-lightyellowbackground"><p class="cpp-note-title cpp-bottomline">对于 VS Code 用户</p><p>在VS Code中， <em>步入</em> 命令可以通过 <em>运行 &gt; 单步进入</em>。</p></div><div class="cpp-note cpp-lightyellowbackground"><p class="cpp-note-title cpp-bottomline">对于其他编译器/IDE</p><p>如果使用不同的IDE，你很可能会找到 <em>步入</em> 命令位于“调试”或“运行”菜单下。</p></div><p>当你的程序没有运行，并且执行第一个调试命令时，你可能会看到很多事情发生：</p><ul><li>如果需要，程序将重新编译。</li><li>程序将开始运行。由于我们的应用程序是一个控制台程序，应该会打开一个控制台输出窗口。该窗口将是空的，因为我们还没有输出任何内容。</li><li>您的IDE可能会打开一些诊断窗口，其名称可能包括“Diagnostic Tools”、“Call Stack”和“Watch”。我们稍后会介绍其中一些是什么——现在您可以忽略它们。</li></ul><p>因为我们执行了一个 <em>步入</em>，您现在应该会看到某种标记出现在函数的左大括号左侧 <em>main</em> (第9行)。在Visual Studio中，此标记是一个黄色箭头（Code::Blocks使用黄色三角形）。如果您使用其他IDE，您应该会看到具有相同用途的某种标记。</p><div class="cpp-image-wrapper"><img alt="" src="assets/images/327980bfe34e2b1ffadefe227d39c4f0aec35b7faeb3ad32e408fda105834326.png"/></div><p>此箭头标记表示指向的行接下来将被执行。在这种情况下，调试器告诉我们接下来要执行的行是函数的左大括号 <em>main</em> (第9行)。</p><p>选择 <em>步入</em> (使用上面列出的适用于您的IDE的相应命令)来执行左大括号，箭头将移动到下一个语句(第10行)。</p><div class="cpp-image-wrapper"><img alt="" src="assets/images/9fa6e130d6664b9133d401b8672c99ab8b4878afc2b78bddb6207779695753f3.png"/></div><p>这意味着下一个要执行的行是对函数的调用 <em>printValue</em>。</p><p>选择 <em>步入</em> again。由于此语句包含对函数的调用 <em>printValue</em>，我们将进入该函数，箭头将移动到函数体的顶部 <em>printValue</em> (第4行)。</p><div class="cpp-image-wrapper"><img alt="" src="assets/images/b92624d84d78a5c2d0cee9169c9727649093119e104ca51f31459661e7bcd57c.png"/></div><p>选择 <em>步入</em> again以执行函数的左大括号 <em>printValue</em>，这会将箭头推进到第5行。</p><div class="cpp-image-wrapper"><img alt="" src="assets/images/926de4b4c244f9baa481e474e5377a74a2c80d22529cf63e8dde75ba297cfa2d.png"/></div><p>选择 <em>步入</em> 再一次，这将执行语句 <code>std::cout &lt;&lt; value &lt;&lt; '\n'</code> 并将箭头移动到第6行。</p><div class="cpp-note cpp-lightredbackground"><p class="cpp-note-title cpp-bottomline">警告</p><p>用于输出的operator&lt;&lt;版本是作为函数实现的。因此，您的IDE可能会进入operator&lt;&lt;函数的实现中。</p><p>如果发生这种情况，您会看到您的IDE打开一个新的代码文件，并且箭头标记会移动到一个名为operator&lt;&lt;的函数顶部（这是标准库的一部分）。关闭刚刚打开的代码文件，然后找到并执行 <em>step out</em> 调试命令（如需帮助，见下方“step out”部分）。</p></div><p>现在因为 <code>std::cout &lt;&lt; value &lt;&lt; '\n'</code> 已经执行，我们应该看到值 <em>5</em> 出现在控制台窗口中。</p><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">提示</p><p>在之前的课程中，我们提到 std::cout 是有缓冲的，这意味着当你要求 std::cout 打印一个值时，到它实际打印之间可能会有延迟。因此，此时你可能看不到值5出现。为了确保 std::cout 的所有输出立即输出，你可以暂时在 main() 函数顶部添加以下语句：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">std::cout &lt;&lt; std::unitbuf; // 启用 std::cout 的自动刷新（用于调试）
+</code></pre><p>出于性能考虑，调试后应移除或注释掉该语句。</p><p>如果你不想频繁添加/移除/注释/取消注释上述内容，可以将该语句包裹在条件编译预处理指令中（详见第 <a href="introduction-to-the-preprocessor.html">2.10 -- 预处理器简介</a>)：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#ifdef DEBUG
+std::cout &lt;&lt; std::unitbuf; // 启用 std::cout 的自动刷新（用于调试）
+#endif
+</code></pre><p>你需要确保 DEBUG 预处理宏已定义，要么在该语句上方某处定义，要么作为编译器设置的一部分。</p></div><p>选择 <em>步入</em> 再次执行函数的右大括号 <em>printValue</em>。此时， <em>printValue</em> 已执行完毕，控制权返回给 <em>main</em>。</p><p>你会注意到箭头再次指向 <em>printValue</em>！</p><div class="cpp-image-wrapper"><img alt="" src="assets/images/9fa6e130d6664b9133d401b8672c99ab8b4878afc2b78bddb6207779695753f3.png"/></div><p>虽然你可能认为调试器打算调用 <em>printValue</em> 但实际上，调试器只是通知你它正在从函数调用返回。</p><p>选择 <em>步入</em> 三次。此时，我们已经执行了程序中的所有行，所以完成了。一些调试器会自动终止调试会话，另一些则不会。如果你的调试器没有自动终止，你可能需要在菜单中找到“Stop Debugging”命令（在 Visual Studio 中，该命令位于 <em>Debug &gt; Stop Debugging</em>)。</p><p>注意 <em>Stop Debugging</em> 可以在调试过程中的任何时候使用以结束调试会话。</p><p>恭喜，你现在已经单步执行了一个程序，并观察了每一行的执行！</p><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">提示</p><p>在未来的课程中，我们将探索其他调试器命令，其中一些命令只有在调试器已经运行时才可用。如果所需的调试命令不可用， <em>步入</em> 启动调试器并重试你的代码。</p></div><p class="cpp-section cpp-topline" style="clear:both">Step over</p><p>与 <em>步入</em>类似， <strong>step over</strong> 命令执行程序正常执行路径中的下一条语句。然而，与 <em>步入</em> 会进入函数调用并逐行执行它们不同， <em>step over</em> 会执行整个函数而不停止，并在函数执行完毕后将控制权交还给你。</p><div class="cpp-note cpp-lightyellowbackground"><p class="cpp-note-title cpp-bottomline">适用于 Visual Studio 用户</p><p>在Visual Studio中， <em>step over</em> 命令可以通过 <em>Debug menu &gt; Step Over</em>，或者按下 F10 快捷键。</p></div><div class="cpp-note cpp-lightyellowbackground"><p class="cpp-note-title cpp-bottomline">对于 Code::Blocks 用户</p><p>在Code::Blocks中， <em>step over</em> 命令称为 <em>Next line</em> ，可以通过 <em>Debug menu &gt; Next line</em>，或者按下 F7 快捷键来访问。</p></div><div class="cpp-note cpp-lightyellowbackground"><p class="cpp-note-title cpp-bottomline">对于 VS Code 用户</p><p>在VS Code中， <em>step over</em> 命令可以通过 <em>Run &gt; Step Over</em>，或者按下 <em>F10</em> 快捷键。</p></div><p>让我们来看一个例子，其中我们单步跳过函数调用到 <em>printValue</em>：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+void printValue(int value)
+{
+    std::cout &lt;&lt; value &lt;&lt; '\n';
+}
+
+int main()
+{
+    printValue(5);
+
+    return 0;
+}
+</code></pre><p>首先，使用 <em>步入</em> 在你的程序上，直到执行标记位于第10行：</p><div class="cpp-image-wrapper"><img alt="" src="assets/images/9fa6e130d6664b9133d401b8672c99ab8b4878afc2b78bddb6207779695753f3.png"/></div><p>现在，选择 <em>step over</em>。调试器将执行该函数（它会打印值 <em>5</em> 在控制台输出窗口中）然后将控制权返回到下一个语句（第12行）。</p><p>浮点类型的 <em>step over</em> 命令提供了一种便捷的方式，当你确定函数已经正常工作或者目前不感兴趣调试它们时，可以跳过这些函数。</p><p class="cpp-section cpp-topline" style="clear:both">单步跳出</p><p>与其他两个单步命令不同， <strong>单步跳出</strong> 不只是执行下一行代码。相反，它会执行当前正在执行的函数中的所有剩余代码，然后在函数返回后将控制权返回给你。</p><div class="cpp-note cpp-lightyellowbackground"><p class="cpp-note-title cpp-bottomline">适用于 Visual Studio 用户</p><p>在Visual Studio中， <em>step out</em> 命令可以通过 <em>调试菜单 &gt; Step Out</em>或者按 Shift-F11 快捷键组合。</p></div><div class="cpp-note cpp-lightyellowbackground"><p class="cpp-note-title cpp-bottomline">对于 Code::Blocks 用户</p><p>在Code::Blocks中， <em>step out</em> 命令可以通过 <em>Debug menu &gt; Step out</em>或者按 ctrl-F7 快捷键组合。</p></div><div class="cpp-note cpp-lightyellowbackground"><p class="cpp-note-title cpp-bottomline">对于 VS Code 用户</p><p>在VS Code中， <em>step out</em> 命令可以通过 <em>Run &gt; Step Out</em>，或者按下 <em>shift+F11</em> 快捷键组合。</p></div><p>让我们来看一个使用上面相同程序的例子：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+void printValue(int value)
+{
+    std::cout &lt;&lt; value &lt;&lt; '\n';
+}
+
+int main()
+{
+    printValue(5);
+
+    return 0;
+}
+</code></pre><p><em>步入</em> 程序直到你进入函数 <em>printValue</em>，并且执行标记位于第4行。</p><div class="cpp-image-wrapper"><img alt="" src="assets/images/b92624d84d78a5c2d0cee9169c9727649093119e104ca51f31459661e7bcd57c.png"/></div><p>然后选择 <em>step out</em>你会注意到值 <em>5</em> 会出现在输出窗口中，并且在函数终止后（在第10行）调试器将控制权返还给你。</p><div class="cpp-image-wrapper"><img alt="" src="assets/images/9fa6e130d6664b9133d401b8672c99ab8b4878afc2b78bddb6207779695753f3.png"/></div><p>当你无意中步入了一个不想调试的函数时，这个命令最有用。</p><p class="cpp-section cpp-topline" style="clear:both">步进过头</p><p>在单步执行程序时，通常只能向前步进。很容易不小心步进过（越过）你想要检查的位置。</p><p>如果你步进过了目标位置，通常的做法是停止调试并重新开始调试，这次小心一些不要越过目标。</p><p class="cpp-section cpp-topline" style="clear:both">后退步进</p><p>一些调试器（如 Visual Studio Enterprise Edition 和 <a href="https://github.com/rr-debugger/rr">rr</a>）引入了一种通常称为 <em>后退步进</em> 或 <em>反向调试</em>其目标是 <em>后退步进</em> 是回退上一步，以便将程序返回到先前的状态。如果你步进过头，或者想要重新检查刚刚执行的语句，这会很有用。</p><p>实现 <em>后退步进</em> 需要调试器具备极高的复杂性（因为它必须为每一步跟踪单独的程序状态）。由于复杂性，此功能尚未标准化，因调试器而异。截至撰写本文时（2019年1月），Visual Studio Community 版和最新版本的 Code::Blocks 都不支持此功能。希望在将来的某个时候，它能渗透到这些产品中并得到更广泛的应用。</p>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="more-debugging-tactics.html" rel="prev"><small>上一课</small><strong>3.5 — 更多调试策略</strong></a><a class="lesson-nav-index" href="index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="using-an-integrated-debugger-running-and-breakpoints.html" rel="next"><small>下一课</small><strong>3.7 — 使用集成调试器：运行和断点</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

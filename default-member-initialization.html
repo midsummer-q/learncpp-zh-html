@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/default-member-initialization/" name="learncpp:source-url"/>
+<meta content="c682bc2617881d0a9bd0a90e9a89ca584f5dab94fd0a762ef2a9ade5c8f4eb84" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:49:51.022429+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T17:41:16.814768+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>13.9 — Default member initialization</title>
+<link href="assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">13.9 — 默认成员初始化</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 13.9</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/default-member-initialization/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>当我们定义结构体（或类）类型时，可以为每个成员提供默认初始化值作为类型定义的一部分。对于未标记为 <code>static</code>的成员，此过程有时称为 <strong>非静态成员初始化</strong>。该初始化值称为 <strong>默认成员初始化器</strong>。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">相关内容</p><p>我们在课程 <a href="static-member-variables.html">15.6 -- 静态成员变量</a>。</p></div><p>下面是一个示例：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">struct Something
+{
+    int x;       // 无初始化值（不好）
+    int y {};    // 默认值初始化
+    int z { 2 }; // 显式默认值
+};
+
+int main()
+{
+    Something s1; // s1.x 未初始化，s1.y 为 0，s1.z 为 2
+
+    return 0;
+}
+</code></pre><p>中介绍了静态成员和静态成员初始化。在上面的定义中， <code>Something</code>， <code>x</code> 没有默认值， <code>y</code> 默认进行值初始化，而 <code>z</code> 具有默认值 <code>2</code>。如果用户在实例化类型为 <code>Something</code>。</p><p>的对象时未提供显式初始化值，则将使用这些默认成员初始化值。我们的 <code>s1</code> 对象没有初始化器，因此 <code>s1</code> 的成员被初始化为其默认值。 <code>s1.x</code> 没有默认初始化器，因此保持未初始化。 <code>s1.y</code> 默认进行值初始化，因此获得值 <code>0</code>。而 <code>s1.z</code> 被初始化为值 <code>2</code>。</p><p>请注意，即使我们没有为 <code>s1.z</code>提供显式初始化器，由于提供了默认成员初始化器，它也被初始化为非零值。</p><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">关键提示</p><p>使用默认成员初始化器（或我们稍后将介绍的其他机制），结构体和类可以在没有提供显式初始化器的情况下自我初始化！</p></div><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">进阶读者</p><p>CTAD（我们在课程 <a href="class-template-argument-deduction-ctad-and-deduction-guides.html">13.14 -- 类模板参数推导（CTAD）和推导指南</a>中介绍）不能在非静态成员初始化中使用。</p></div><p class="cpp-section cpp-topline" style="clear:both">显式初始化值优先于默认值</p><p>列表初始化器中的显式值始终优先于默认成员初始化值。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">struct Something
+{
+    int x;       // 无默认初始化值（不好）
+    int y {};    // 默认值初始化
+    int z { 2 }; // 显式默认值
+};
+
+int main()
+{
+    Something s2 { 5, 6, 7 }; // 为 s2.x、s2.y 和 s2.z 使用显式初始化器（不使用默认值）
+   
+    return 0;
+}
+</code></pre><p>在上述情况下， <code>s2</code> 为每个成员提供了显式初始化值，因此根本不使用默认成员初始化值。这意味着 <code>s2.x</code>， <code>s2.y</code> 和 <code>s2.z</code> 被初始化为值 <code>5</code>， <code>6</code>、和 <code>7</code> </p><p class="cpp-section cpp-topline" style="clear:both">存在默认值时初始化列表中缺少初始化器</p><p>在前一课（<a href="struct-aggregate-initialization.html">13.8 -- 结构体聚合初始化</a>）我们指出，如果聚合被初始化但初始化值的数量少于成员数量，则所有剩余成员将进行值初始化。但是，如果为给定成员提供了默认成员初始化器，则将使用该默认成员初始化器。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">struct Something
+{
+    int x;       // 无默认初始化值（不好）
+    int y {};    // 默认值初始化
+    int z { 2 }; // 显式默认值
+};
+
+int main()
+{
+    Something s3 {}; // 值初始化 s3.x，对 s3.y 和 s3.z 使用默认值
+   
+    return 0;
+}
+</code></pre><p>在上述情况下， <code>s3</code> 使用空列表进行列表初始化，因此所有初始化器都缺失。这意味着如果存在默认成员初始化器，则使用它，否则进行值初始化。因此， <code>s3.x</code> （没有默认成员初始化器）被值初始化为 <code>0</code>， <code>s3.y</code> 默认进行值初始化为 <code>0</code>、和 <code>s3.z</code> 默认值为 <code>2</code>。</p><p class="cpp-section cpp-topline" style="clear:both">回顾初始化可能性</p><p>如果聚合使用初始化列表定义：</p><ul><li>如果存在显式初始化值，则使用该显式值。</li><li>如果缺少初始化器且存在默认成员初始化器，则使用默认值。</li><li>如果缺少初始化器且没有默认成员初始化器，则进行值初始化。</li></ul><p>如果聚合体定义时没有初始化列表：</p><ul><li>如果存在默认成员初始化器，则使用默认值。</li><li>如果不存在默认成员初始化器，则该成员保持未初始化。</li></ul><p>成员总是按照声明顺序初始化。</p><p>以下示例总结了所有可能性：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">struct Something
+{
+    int x;       // 无默认初始化值（不好）
+    int y {};    // 默认值初始化
+    int z { 2 }; // 显式默认值
+};
+
+int main()
+{
+    Something s1;             // 无初始化列表：s1.x 未初始化，s1.y 和 s1.z 使用默认值
+    Something s2 { 5, 6, 7 }; // 显式初始化器：s2.x、s2.y 和 s2.z 使用显式值（不使用默认值）
+    Something s3 {};          // 缺少初始化器：s3.x 被值初始化，s3.y 和 s3.z 使用默认值
+   
+    return 0;
+}
+</code></pre><p>我们需要警惕的情况是 <code>s1.x</code>。因为 <code>s1</code> 没有初始化列表且 <code>x</code> 没有默认成员初始化器， <code>s1.x</code> 保持未初始化（这很糟糕，因为我们总是应该初始化变量）。</p><p class="cpp-section cpp-topline" style="clear:both">始终为成员提供默认值</p><p>为了避免未初始化成员的可能性，只需确保每个成员都有一个默认值（可以是显式默认值，也可以是一对空花括号）。这样，无论我们是否提供初始化列表，我们的成员都会被初始化为某个值。</p><p>考虑以下结构体，其所有成员都有默认值：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">struct Fraction
+{
+	int numerator { }; // 这里我们应该使用 { 0 }，但为了示例，我们改用值初始化
+	int denominator { 1 };
+};
+
+int main()
+{
+	Fraction f1;          // f1.numerator 值初始化为 0，f1.denominator 默认初始化为 1
+	Fraction f2 {};       // f2.numerator 值初始化为 0，f2.denominator 默认初始化为 1
+	Fraction f3 { 6 };    // f3.numerator 初始化为 6，f3.denominator 默认初始化为 1
+	Fraction f4 { 5, 8 }; // f4.numerator 初始化为 5，f4.denominator 初始化为 8
+
+	return 0;
+}
+</code></pre><p>在所有情况下，我们的成员都被初始化为值。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>为所有成员提供默认值。这确保即使变量定义不包含初始化列表，你的成员也会被初始化。</p></div><p class="cpp-section cpp-topline" style="clear:both">聚合体的默认初始化与值初始化</p><p>回顾上面示例中的两行：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">	Fraction f1;          // f1.numerator 值初始化为 0，f1.denominator 默认初始化为 1
+	Fraction f2 {};       // f2.numerator 值初始化为 0，f2.denominator 默认初始化为 1
+</code></pre><p>你会注意到 <code>f1</code> 是默认初始化，而 <code>f2</code> 是值初始化，但结果相同（<code>numerator</code> 被初始化为 <code>0</code> 和 <code>denominator</code> 被初始化为 <code>1</code>）。那么我们应该优先选择哪一种呢？</p><p>值初始化的情况（<code>f2</code>）更安全，因为它会确保任何没有默认值的成员被值初始化（尽管我们应该始终为成员提供默认值，但这可以防止遗漏的情况）。</p><p>优先选择值初始化还有一个好处——它与我们初始化其他类型对象的方式一致。一致性有助于防止错误。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>对于聚合体，优先选择值初始化（使用空花括号初始化器）而不是默认初始化（不使用花括号）。</p></div><p>尽管如此，程序员对类类型使用默认初始化而不是值初始化的情况并不少见。这 partly 是由于历史原因（值初始化直到 C++11 才引入），partly 是因为有一种特殊情况（对于非聚合体），默认初始化可能比值初始化更高效（我们在课程 <a href="default-constructors-and-default-arguments.html">14.11 -- 默认构造函数和默认参数</a>)。</p><p>中讨论这种情况）。因此，在本教程中，我们不会强制要求对结构体和类使用值初始化，但我们强烈推荐这样做。</p>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="struct-aggregate-initialization.html" rel="prev"><small>上一课</small><strong>13.8 — 结构体聚合初始化</strong></a><a class="lesson-nav-index" href="index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="passing-and-returning-structs.html" rel="next"><small>下一课</small><strong>13.10 — 传递和返回结构体</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

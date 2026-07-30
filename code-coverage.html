@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/code-coverage/" name="learncpp:source-url"/>
+<meta content="18b439f05d443d2843015587d6fc0a05f17b0ba938d0244e13fe66247fdac1c7" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:47:57.499244+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T17:28:19.348772+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>9.2 — Code coverage</title>
+<link href="assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">9.2 — 代码覆盖率</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 9.2</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/code-coverage/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>在上一节课 <a href="introduction-to-testing-your-code.html">9.1 -- Introduction to testing your code</a>我们讨论了如何编写和保留简单测试。在本课中，我们将讨论哪些类型的测试有助于确保代码的正确性。</p><p class="cpp-section cpp-topline" style="clear:both">代码覆盖率</p><p>术语 <strong>代码覆盖率</strong> 用于描述测试过程中程序源代码被执行的程度。有许多不同的指标用于衡量代码覆盖率。在接下来的章节中，我们将介绍一些更有用和流行的指标。</p><p class="cpp-section cpp-topline" style="clear:both">语句覆盖率</p><p>术语 <strong>语句覆盖率</strong> 指的是代码中被测试例程执行过的语句的百分比。</p><p>考虑以下函数：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int foo(int x, int y)
+{
+    int z{ y };
+    if (x &gt; y)
+    {
+        z = x;
+    }
+    return z;
+}
+</code></pre><p>调用此函数为 <code>foo(1, 0)</code> 将获得该函数的完全语句覆盖率，因为函数中的每条语句都会被执行。</p><p>对于我们的 <code>isLowerVowel()</code> 函数：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">bool isLowerVowel(char c)
+{
+    switch (c) // 语句1
+    {
+    case 'a':
+    case 'e':
+    case 'i':
+    case 'o':
+    case 'u':
+        return true; // 语句2
+    default:
+        return false; // 语句3
+    }
+}
+</code></pre><p>这个函数需要两次调用来测试所有语句，因为无法在同一次函数调用中到达语句2和3。</p><p>虽然追求100%的语句覆盖率是好的，但这通常不足以确保正确性。</p><p class="cpp-section cpp-topline" style="clear:both">分支覆盖率</p><p><strong>分支覆盖率</strong> 指的是已执行分支的百分比，每个可能的分支单独计数。一个 <code>if statement</code> 有两个分支——一个分支在条件为 <code>true</code>时执行，另一个分支在条件为 <code>false</code> 时执行（即使没有对应的 <code>else statement</code> 要执行）。一个switch语句可以有多个分支。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int foo(int x, int y)
+{
+    int z{ y };
+    if (x &gt; y)
+    {
+        z = x;
+    }
+    return z;
+}
+</code></pre><p>之前对foo(1, 0)的调用给了我们100%的语句覆盖率，并测试了 <code>x &gt; y</code>的情况，但这只给了我们50%的分支覆盖率。我们需要再调用一次， <code>foo(0, 1)</code>来测试 <code>if statement</code> 不执行的情况。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">bool isLowerVowel(char c)
+{
+    switch (c)
+    {
+    case 'a':
+    case 'e':
+    case 'i':
+    case 'o':
+    case 'u':
+        return true;
+    default:
+        return false;
+    }
+}
+</code></pre><p>在isLowerVowel()函数中，需要两次调用才能获得100%的分支覆盖率：一次（例如 <code>isLowerVowel('a')</code>）测试前几个case，另一次（例如 <code>isLowerVowel('q')</code>）测试default case。多个case进入同一个代码体不需要单独测试——如果一个能工作，它们都应该能工作。</p><p>现在考虑以下函数：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">void compare(int x, int y)
+{
+	if (x &gt; y)
+		std::cout &lt;&lt; x &lt;&lt; " is greater than " &lt;&lt; y &lt;&lt; '\n'; // // 情况1
+	else if (x &lt; y)
+		std::cout &lt;&lt; x &lt;&lt; " is less than " &lt;&lt; y &lt;&lt; '\n'; // // 情况2
+	else
+		std::cout &lt;&lt; x &lt;&lt; " is equal to " &lt;&lt; y &lt;&lt; '\n'; // // 情况3
+}
+</code></pre><p>这里需要3次调用才能获得100%的分支覆盖率： <code>compare(1, 0)</code> 测试第一个 <code>if statement</code>。 <code>compare(0, 1)</code> 的正用例， <code>if statement</code> 测试第一个 <code>if statement</code>。 <code>compare(0, 0)</code> 的负用例和第二个 <code>if statement</code> 的正用例， <code>else statement</code>测试第一个和第二个</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>的负用例，并执行</p></div><p class="cpp-section cpp-topline" style="clear:both">因此，我们可以说这个函数通过3次调用得到了可靠的测试（这比18百亿亿次略好）。</p><p><strong>因此，我们可以说这个函数通过3次调用得到了可靠的测试（这比18百亿亿次略好）。</strong> 争取达到代码的100%分支覆盖率。 <strong>循环覆盖率</strong>（非正式地称为</p><p>0, 1, 2测试</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+void spam(int timesToPrint)
+{
+    for (int count{ 0 }; count &lt; timesToPrint; ++count)
+         std::cout &lt;&lt; "Spam! ";
+}
+</code></pre><p>要正确测试此函数内的循环，应调用它三次： <code>spam(0)</code> 测试零次迭代的情况， <code>spam(1)</code> 测试一次迭代的情况，以及 <code>spam(2)</code> 测试两次迭代的情况。如果 <code>spam(2)</code> 有效，那么 <code>spam(n)</code> 应该有效，其中 <code>n &gt; 2</code>。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>使用 <code>0, 1, 2 test</code> 以确保你的循环在不同迭代次数下正常工作。</p></div><p class="cpp-section cpp-topline" style="clear:both">测试不同类别的输入</p><p>在编写接受参数的函数或接受用户输入时，考虑不同类别的输入会发生什么。在这里，我们使用术语“类别”来表示具有相似特征的一组输入。</p><p>例如，如果我编写一个函数来计算整数的平方根，用哪些值来测试它才有意义？你可能从一些正常值开始，比如 <code>4</code>。但用 <code>0</code>和负数来测试也是一个好主意。</p><p>以下是类别测试的一些基本指南：</p><p>对于整数，确保你已考虑函数如何处理负值、零和正值。如果相关，还应检查溢出。</p><p>对于浮点数，确保你已考虑函数如何处理有精度问题的值（略大于或略小于预期的值）。好的 <code>double</code> 类型值测试包括 <code>0.1</code> 和 <code>-0.1</code> （测试略大于预期的数字）和 <code>0.7</code> 和 <code>-0.7</code> （测试略小于预期的数字）。</p><p>对于字符串，确保你已考虑函数如何处理空字符串、字母数字字符串、包含空白（前导、尾部和内部）的字符串以及全空白字符串。</p><p>如果你的函数接受指针，别忘了测试 <code>nullptr</code> （如果这没有意义，别担心，我们还没讲到）。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>测试不同类别的输入值，以确保你的单元正确处理它们。</p></div><p class="cpp-section cpp-topline" style="clear:both">小测验时间</p><div class="quiz" style="clear:both"><p class="quiz-header">问题 #1</p><p>什么是分支覆盖率？</p><p><a aria-controls="cpp_solution_id_0" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_0" href="#cpp_solution_id_0">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_0">分支覆盖率是已执行分支的百分比，肯定情况和否定情况分别计数。</div><p></p></div><div class="quiz" style="clear:both"><p class="quiz-header">问题 #2</p><p>以下函数至少需要多少次测试才能最小化地验证其工作？</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">bool isLowerVowel(char c, bool yIsVowel)
+{
+    switch (c)
+    {
+    case 'a':
+    case 'e':
+    case 'i':
+    case 'o':
+    case 'u':
+        return true;
+    case 'y':
+        return yIsVowel;
+    default:
+        return false;
+    }
+}
+</code></pre><p><a aria-controls="cpp_solution_id_1" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_1" href="#cpp_solution_id_1">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_1">4次测试。一次测试a/e/i/o/u的情况。一次测试默认情况。一次测试 <code>isLowerVowel('y', true)</code>。以及一次测试 <code>isLowerVowel('y', false)</code>。</div><p></p></div>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="introduction-to-testing-your-code.html" rel="prev"><small>上一课</small><strong>9.1 — 测试代码简介</strong></a><a class="lesson-nav-index" href="index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="common-semantic-errors-in-c.html" rel="next"><small>下一课</small><strong>9.3 — C++ 中常见的语义错误</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

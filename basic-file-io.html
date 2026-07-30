@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/basic-file-io/" name="learncpp:source-url"/>
+<meta content="62860cee368f4fd5cc80b50dd6404f321cb8e9d398eea9eb9e0ca3bc21b70ada" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:55:11.553255+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T18:21:13.722186+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>28.6 — Basic file I/O</title>
+<link href="assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">28.6 — 基本文件I/O</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 28.6</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/basic-file-io/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>C++中的文件I/O与普通I/O非常相似（只有一些小的额外复杂性）。C++中有3个基本的文件I/O类：ifstream（派生自istream）、ofstream（派生自ostream）和fstream（派生自iostream）。这些类分别用于文件输入、输出和输入/输出。要使用文件I/O类，需要包含fstream头文件。</p><p>与cout、cin、cerr和clog流不同，它们已经准备好使用，文件流需要由程序员显式设置。然而，这非常简单：要打开一个文件进行读取和/或写入，只需实例化一个适当的文件I/O类对象，并将文件名作为参数。然后使用插入（&lt;&lt;）或提取（&gt;&gt;）运算符向文件写入或读取数据。完成后，有几种方法可以关闭文件：显式调用close()函数，或者让文件I/O变量离开作用域（文件I/O类的析构函数会为你关闭文件）。</p><p><strong>文件输出</strong></p><p>在下面的例子中，我们将使用ofstream类进行文件输出。这非常简单：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;fstream&gt;
+#include &lt;iostream&gt;
+ 
+int main()
+{
+    // ofstream用于写入文件
+    // 我们将创建一个名为Sample.txt的文件
+    std::ofstream outf{ "Sample.txt" };
+
+    // 如果无法打开输出文件流进行写入
+    if (!outf)
+    {
+        // 打印错误并退出
+        std::cerr &lt;&lt; "Uh oh, Sample.txt could not be opened for writing!\n";
+        return 1;
+    }
+
+    // 我们将向此文件写入两行
+    outf &lt;&lt; "This is line 1\n";
+    outf &lt;&lt; "This is line 2\n";
+
+    return 0;
+	
+    // 当outf超出作用域时，ofstream的
+    // 析构函数将关闭文件
+}
+</code></pre><p>如果你查看项目目录，应该会看到一个名为Sample.txt的文件。如果用文本编辑器打开它，你会看到它确实包含我们写入文件的两行内容。</p><p>注意，也可以使用put()函数向文件写入单个字符。</p><p><strong>文件输入</strong></p><p>现在，我们将读取上一个例子中写入的文件。注意，如果到达文件末尾（EOF），ifstream返回0。我们将利用这一点来确定读取多少内容。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;fstream&gt;
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+int main()
+{
+    // ifstream用于读取文件
+    // 我们将从一个名为Sample.txt的文件中读取
+    std::ifstream inf{ "Sample.txt" };
+
+    // 如果无法打开输出文件流进行读取
+    if (!inf)
+    {
+        // 打印错误并退出
+        std::cerr &lt;&lt; "Uh oh, Sample.txt could not be opened for reading!\n";
+        return 1;
+    }
+
+    // 当仍有内容可读时
+    std::string strInput{};
+    while (inf &gt;&gt; strInput)
+        std::cout &lt;&lt; strInput &lt;&lt; '\n';
+    
+    return 0;
+	
+    // 当inf超出作用域时，ifstream的
+    // 析构函数将关闭文件
+}
+</code></pre><p>这会产生以下结果：</p><pre>This
+is
+line
+1
+This
+is
+line
+2
+</pre><p>嗯，这不是我们想要的。记住，提取运算符会在空白处断开。为了读取整行，我们必须使用getline()函数。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;fstream&gt;
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+int main()
+{
+    // ifstream用于读取文件
+    // 我们将从一个名为Sample.txt的文件中读取
+    std::ifstream inf{ "Sample.txt" };
+
+    // 如果无法打开输入文件流进行读取
+    if (!inf)
+    {
+        // 打印错误并退出
+        std::cerr &lt;&lt; "Uh oh, Sample.txt could not be opened for reading!\n";
+        return 1;
+    }
+
+    // 当仍有内容可读时
+    std::string strInput{};
+    while (std::getline(inf, strInput))
+	std::cout &lt;&lt; strInput &lt;&lt; '\n';
+    
+    return 0;
+	
+    // 当inf超出作用域时，ifstream的
+    // 析构函数将关闭文件
+}
+</code></pre><p>这会产生以下结果：</p><pre>This is line 1
+This is line 2
+</pre><p><strong>缓冲输出</strong></p><p>C++中的输出可能是缓冲的。这意味着输出到文件流的任何内容可能不会立即写入磁盘。相反，多个输出操作可能会被批处理并一起处理。这主要是出于性能原因。当缓冲区被写入磁盘时，这被称为 <strong>刷新</strong> 缓冲区。导致缓冲区刷新的方法之一是关闭文件——缓冲区的内容将被刷新到磁盘，然后文件被关闭。</p><p>缓冲通常不是问题，但在某些情况下可能会给粗心的人带来麻烦。主要问题在于当缓冲区中有数据，然后程序立即终止（无论是崩溃还是调用exit()）。在这些情况下，文件流类的析构函数不会执行，这意味着文件从未关闭，因此缓冲区从未刷新。在这种情况下，缓冲区中的数据不会写入磁盘，并且会永久丢失。这就是为什么在调用exit()之前显式关闭所有打开的文件总是一个好主意。</p><p>可以使用ostream::flush()函数或向输出流发送std::flush来手动刷新缓冲区。这两种方法都可以确保缓冲区的内容立即写入磁盘，以防程序崩溃。</p><p>一个有趣的注意事项是，std::endl也会刷新输出流。因此，过度使用std::endl（导致不必要的缓冲区刷新）可能会对缓冲I/O的性能产生影响，因为刷新操作代价高昂（例如写入文件）。出于这个原因，注重性能的程序员通常使用'\n'而不是std::endl来向输出流插入换行符，以避免不必要的缓冲区刷新。</p><p><strong>文件模式</strong></p><p>如果我们尝试写入一个已经存在的文件会发生什么？再次运行输出示例会发现，每次程序运行时原始文件都会被完全覆盖。如果我们想将更多数据追加到文件末尾呢？事实证明，文件流构造函数接受一个可选的第二个参数，允许你指定文件应如何打开。这个参数称为模式，它接受的有效标志位于ios类中。</p><div class="cpp-table-wrapper"><p></p><p></p><table class="cpp-table"><tbody><tr><th>Ios文件模式</th><th>含义</th></tr><tr><td>app</td><td>以追加模式打开文件</td></tr><tr><td>ate</td><td>在读取/写入之前定位到文件末尾</td></tr><tr><td>二进制</td><td>以二进制模式打开文件（而不是文本模式）</td></tr><tr><td>在</td><td>以读取模式打开文件（ifstream的默认模式）</td></tr><tr><td>out</td><td>以写入模式打开文件（ofstream的默认模式）</td></tr><tr><td>trunc</td><td>如果文件已存在则将其清空</td></tr></tbody></table></div><p>可以通过按位或（使用|运算符）组合多个标志。ifstream默认使用std::ios::in文件模式。ofstream默认使用std::ios::out文件模式。而fstream默认使用std::ios::in | std::ios::out文件模式，这意味着默认情况下可以同时读取和写入。</p><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">提示</p><p>由于fstream的设计方式，如果使用std::ios::in且打开的文件不存在，它可能会失败。如果需要使用fstream创建新文件，请仅使用std::ios::out模式。</p></div><p>让我们编写一个程序，将另外两行追加到之前创建的Sample.txt文件中：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;fstream&gt;
+
+int main()
+{
+    // 我们将传递ios::app标志以告诉ofstream追加
+    // 而不是重写文件。我们不需要传递std::ios::out
+    // 因为ofstream默认使用std::ios::out
+    std::ofstream outf{ "Sample.txt", std::ios::app };
+
+    // 如果无法打开输出文件流进行写入
+    if (!outf)
+    {
+        // 打印错误并退出
+        std::cerr &lt;&lt; "Uh oh, Sample.txt could not be opened for writing!\n";
+        return 1;
+    }
+
+    outf &lt;&lt; "This is line 3\n";
+    outf &lt;&lt; "This is line 4\n";
+    
+    return 0;
+	
+    // 当outf超出作用域时，ofstream的
+    // 析构函数将关闭文件
+}
+</code></pre><p>现在，如果我们查看Sample.txt（使用上述示例程序之一打印其内容，或在文本编辑器中加载它），我们将看到以下内容：</p><pre>This is line 1
+This is line 2
+This is line 3
+This is line 4
+</pre><p><strong>使用open()显式打开文件</strong></p><p>就像可以显式关闭文件流一样，也可以使用open()显式打开文件流。open()的工作方式与文件流构造函数相同——它接受一个文件名和一个可选的模式。</p><p>例如：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">std::ofstream outf{ "Sample.txt" };
+outf &lt;&lt; "This is line 1\n";
+outf &lt;&lt; "This is line 2\n";
+outf.close(); // 显式关闭文件
+
+// 哎呀，我们忘记了一些东西
+outf.open("Sample.txt", std::ios::app);
+outf &lt;&lt; "This is line 3\n";
+outf.close();
+</code></pre><p>你可以在以下位置找到关于open()函数的更多信息 <a href="https://en.cppreference.com/w/cpp/io/basic_filebuf/open">这里</a>。</p>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="stream-states-and-input-validation.html" rel="prev"><small>上一课</small><strong>28.5 — 流状态与输入验证</strong></a><a class="lesson-nav-index" href="index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="random-file-io.html" rel="next"><small>下一课</small><strong>28.7 — 随机文件I/O</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

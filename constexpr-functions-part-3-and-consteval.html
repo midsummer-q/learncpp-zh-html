@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/constexpr-functions-part-3-and-consteval/" name="learncpp:source-url"/>
+<meta content="3e9c40f35531c649da47e5f0392e5cc384da396eac1e3b24f419ef38501380a0" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:48:56.584898+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T17:34:54.245598+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>F.3 — Constexpr functions (part 3) and consteval</title>
+<link href="assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">F.3 — Constexpr函数（第三部分）和consteval</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 F.3</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/constexpr-functions-part-3-and-consteval/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p class="cpp-section">强制constexpr函数在编译时求值</p><p>没有办法告诉编译器，constexpr函数应尽可能在编译时求值（例如，当constexpr函数的返回值用于非常量表达式时）。</p><p>然而，我们可以通过确保返回值用于需要常量表达式的地方，来强制一个符合编译时求值条件的constexpr函数实际在编译时求值。这需要在每次调用时单独处理。</p><p>最常见的方法是使用返回值初始化一个constexpr变量（这就是为什么我们在之前的例子中一直使用变量'g'）。不幸的是，这需要我们在程序中引入一个新变量来确保编译时求值，这既丑陋又降低了代码的可读性。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">进阶读者</p><p>人们尝试过几种hacky的方法来解决每次强制编译时求值时引入新constexpr变量的问题。参见 <a href="https://quuxplusone.github.io/blog/2018/08/07/force-constexpr/">这里</a> 和 <a href="https://artificial-mind.net/blog/2020/11/14/cpp17-consteval">这里</a>。</p></div><p>然而，在C++20中，有一个更好的解决方案来解决这个问题，我们稍后将介绍。</p><p class="cpp-section cpp-topline" style="clear:both">Consteval <span class="cpp-section-pill cpp-section-standard">C++20</span></p><p>C++20引入了关键字 <strong>consteval</strong>，用于指示函数 <em>必须</em> 必须在编译时求值，否则将导致编译错误。这样的函数称为 <strong>立即函数</strong>。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+consteval int greater(int x, int y) // Constexpr 函数（第 4 部分）
+{
+    return (x &gt; y ? x : y);
+}
+
+int main()
+{
+    constexpr int g { greater(5, 6) };              // 函数现在是 consteval
+    std::cout &lt;&lt; g &lt;&lt; '\n';
+
+    std::cout &lt;&lt; greater(5, 6) &lt;&lt; " is greater!\n"; // 函数现在是 consteval
+
+    int x{ 5 }; // 不是 constexpr
+    std::cout &lt;&lt; greater(x, 6) &lt;&lt; " is greater!\n"; // ok：将在编译时求值
+
+    return 0;
+}
+</code></pre><p>在上面的例子中，前两次调用 <code>greater()</code> 将在编译时求值。对 <code>greater(x, 6)</code> 的调用无法在编译时求值，因此会导致编译错误。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>使用 <code>consteval</code> 如果你有一个函数由于某种原因必须在编译时求值（例如，因为它执行只能在编译时完成的操作）。</p></div><p>也许令人惊讶的是，consteval函数的参数不是constexpr（即使consteval函数只能在编译时求值）。这个决定是为了保持一致性。</p><p class="cpp-section">判断constexpr函数调用是在编译时还是运行时求值</p><p>C++目前没有提供任何可靠的机制来实现这一点。</p><p class="cpp-section cpp-topline" style="clear:both">那么 <code>std::is_constant_evaluated</code> 或 <code>if consteval</code>？ <span class="cpp-section-pill cpp-section-advanced">高级</span></p><p>这两种能力都不能告诉你函数调用是在编译时还是运行时求值。</p><p><code>std::is_constant_evaluated()</code> （定义在&lt;type_traits&gt;头文件中）返回一个 <code>bool</code> ，指示当前函数是否在常量求值上下文中执行。 <strong>常量求值上下文</strong> （也称为 <strong>常量上下文</strong>）定义为需要常量表达式的上下文（例如constexpr变量的初始化）。因此，在编译器必须在编译时求值常量表达式的情况下 <code>std::is_constant_evaluated()</code> 会 <code>true</code> 如预期的那样。</p><p>这旨在允许你执行类似以下操作：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;type_traits&gt; // for std::is_constant_evaluated()
+
+constexpr int someFunction()
+{
+    if (std::is_constant_evaluated()) // 错误：consteval 函数必须在编译时求值
+        doSomething();
+    else
+        doSomethingElse();
+}
+</code></pre><p>然而，编译器也可能在不需要常量表达式的上下文中选择在编译时求值constexpr函数。在这种情况下， <code>std::is_constant_evaluated()</code> 将返回 <code>false</code> ，即使函数确实在编译时求值。所以 <code>std::is_constant_evaluated()</code> 实际上意味着“编译器被强制在编译时求值”，而不是“正在编译时求值”。</p><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">关键提示</p><p>虽然这看起来可能很奇怪，但有以下几个原因：</p><ol start="1"><li>正如 <a href="https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0595r2.html">提出该特性的论文</a> 所指出的，标准实际上并没有区分“编译时”和“运行时”。定义涉及这种区别的行为将是一个更大的变化。</li><li>优化不应改变程序的可观察行为（除非标准明确允许）。如果 <code>std::is_constant_evaluated()</code> 在函数因任何原因在编译时求值时返回 <code>true</code> ，那么优化器决定在编译时而不是运行时求值函数可能会改变函数的可观察行为。因此，你的程序可能会根据编译时的优化级别而有截然不同的行为！</li></ol><p>虽然这可以通过多种方式解决，但这些方式会给优化器增加额外的复杂性，和/或限制其优化某些情况的能力。</p></div><p>C++23 引入， <code>if consteval</code> 是 <code>if (std::is_constant_evaluated())</code> 的替代品，提供了更简洁的语法并修复了一些其他问题。然而，它的求值方式相同。</p><p class="cpp-section cpp-topline" style="clear:both">使用 consteval 强制 constexpr 在编译时执行 <span class="cpp-section-pill cpp-section-standard">C++20</span></p><p>consteval 函数的缺点是此类函数不能在运行时求值，这使得它们不如 constexpr 函数灵活，后者可以两者兼顾。因此，仍然需要一种方便的方法来强制 constexpr 函数在编译时求值（即使返回值用于不需要常量表达式的地方），以便我们可以在可能时显式强制编译时求值，而在不能时使用运行时求值。</p><p>下面是一个示例，展示了如何实现这一点：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+#define CONSTEVAL(...) [] consteval { return __VA_ARGS__; }()               // 如果在常量上下文中求值
+#define CONSTEVAL11(...) [] { constexpr auto _ = __VA_ARGS__; return _; }() // C++20 版本，作者 Jan Scultke (https://stackoverflow.com/a/77107431/460250)
+
+// C++11 版本，作者 Justin (https://stackoverflow.com/a/63637573/460250)
+// 如果在常量上下文中执行，此函数返回两个数中的较大者
+constexpr int compare(int x, int y) // 否则返回较小者
+{
+    if (std::is_constant_evaluated())
+        return (x &gt; y ? x : y);
+    else
+        return (x &lt; y ? x : y);
+}
+
+int main()
+{
+    int x { 5 };
+    std::cout &lt;&lt; compare(x, 6) &lt;&lt; '\n';                  // 函数是 constexpr
+
+    std::cout &lt;&lt; compare(5, 6) &lt;&lt; '\n';                  // 将在运行时执行并返回 5
+    std::cout &lt;&lt; CONSTEVAL(compare(5, 6)) &lt;&lt; '\n';       // 可能或可能不在编译时执行，但总是返回 5
+    
+
+    return 0;
+}
+</code></pre><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">进阶读者</p><p>这使用了一个可变参数预处理器宏（#define， <code>...</code>、和 <code>__VA_ARGS__</code>）来定义一个立即调用的 consteval lambda（通过尾随括号）。<br/>你可以在以下位置找到关于可变参数宏的信息： <a href="https://en.cppreference.com/w/cpp/preprocessor/replace">https://en.cppreference.com/w/cpp/preprocessor/replace</a>。<br/>我们在第 <a href="introduction-to-lambdas-anonymous-functions.html">20.6 -- lambda（匿名函数）简介</a>。</p></div><p>课中介绍了 lambda。</p><div class="cpp-note cpp-lightyellowbackground"><p class="cpp-note-title cpp-bottomline">对于 gcc 用户</p><p>以下方法也应该有效（并且更简洁，因为它不使用预处理器宏）：</p></div><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+// 将始终在编译时执行并返回 6
+// 使用缩写函数模板（C++20）和 `auto` 返回类型使此函数适用于任何类型的值
+// 有关更多信息，请参阅下面的“相关内容”框（你不需要了解这些函数的工作原理即可使用此函数）
+consteval auto CONSTEVAL(auto value)
+{
+    return value;
+}
+
+// C++11 版本，作者 Justin (https://stackoverflow.com/a/63637573/460250)
+// 如果在常量上下文中执行，此函数返回两个数中的较大者
+constexpr int compare(int x, int y) // 否则返回较小者
+{
+    if (std::is_constant_evaluated())
+        return (x &gt; y ? x : y);
+    else
+        return (x &lt; y ? x : y);
+}
+
+int main()
+{
+    std::cout &lt;&lt; CONSTEVAL(compare(5, 6)) &lt;&lt; '\n';       // 我们选择使用大写名称以与前面的示例保持一致，但也更容易看到调用
+
+    return 0;
+}
+</code></pre><p>GCC 14 及更高版本中存在一个错误，导致以下示例在启用任何级别的优化时产生错误结果。</p><p>由于 consteval 函数的参数总是明显常量求值的，因此如果我们将 constexpr 函数作为参数传递给 consteval 函数，则该 constexpr 函数必须在编译时求值！然后 consteval 函数将 constexpr 函数的结果作为其自身的返回值返回，因此调用者可以使用它。 <code>std::string</code>请注意，consteval 函数按值返回。虽然在运行时这样做可能效率低下（如果值是某种复制成本高昂的类型，例如</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">进阶读者</p><p>），但在编译时上下文中，这无关紧要，因为对 consteval 函数的整个调用将被替换为计算出的返回值。 <a href="type-deduction-for-functions.html">我们在第</a>。<br/>10.9 课中介绍了 auto 返回类型——函数的类型推导 <a href="function-templates-with-multiple-template-types.html">11.8 -- 具有多个模板类型的函数模板</a>。</p></div>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="constexpr-functions-part-2.html" rel="prev"><small>上一课</small><strong>F.2 — Constexpr 函数（第二部分）</strong></a><a class="lesson-nav-index" href="index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="constexpr-functions-part-4.html" rel="next"><small>下一课</small><strong>F.4 — Constexpr 函数（第 4 部分）</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

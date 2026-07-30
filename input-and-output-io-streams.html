@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/input-and-output-io-streams/" name="learncpp:source-url"/>
+<meta content="1ca3367d30e9ee0000e0192c63cf70bf44f6f03bbc0db359a56c2574e49d987a" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:55:01.159987+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T18:20:28.105024+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>28.1 — Input and output (I/O) streams</title>
+<link href="assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">28.1 — 输入和输出（I/O）流</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 28.1</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/input-and-output-io-streams/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>输入和输出功能并非C++核心语言的一部分，而是通过C++标准库提供的（因此位于std命名空间中）。在之前的课程中，你包含了iostream库头文件，并使用了cin和cout对象进行简单的I/O操作。在本课中，我们将更详细地了解iostream库。</p><p><strong>iostream库</strong></p><p>当你包含iostream头文件时，你可以访问一整套负责提供I/O功能的类层次结构（包括一个实际上名为iostream的类）。你可以在下面找到非文件I/O类的类层次结构图： <a href="https://en.cppreference.com/w/cpp/io">这里</a>。</p><p>关于这个层次结构，你可能首先注意到它使用了多重继承（我们告诉过你尽可能避免的东西）。然而，iostream库经过设计和广泛测试，以避免任何典型的多重继承问题，因此你可以放心使用它。</p><p><strong>流</strong></p><p>你可能注意到的第二件事是“流”这个词被大量使用。从根本上说，C++中的I/O是通过流实现的。抽象地说， <strong>流</strong> 只是一个可以顺序访问的字节序列。随着时间的推移，流可能产生或消耗无限量的数据。</p><p>通常我们处理两种不同类型的流。 <strong>输入流</strong> 用于保存来自数据生产者（如键盘、文件或网络）的输入。例如，当程序当前不期望任何输入时，用户可能按下键盘上的一个键。数据不会忽略用户的按键，而是被放入输入流中，等待程序准备好处理它。</p><p>相反， <strong>输出流</strong> 用于保存特定数据消费者（如显示器、文件或打印机）的输出。当向输出设备写入数据时，设备可能尚未准备好接收数据——例如，当程序向打印机的输出流写入数据时，打印机可能仍在预热。数据将停留在输出流中，直到打印机开始消耗它。</p><p>某些设备，如文件和网络，能够同时作为输入和输出源。</p><p>流的好处在于，程序员只需学习如何与流交互，就能向许多不同类型的设备读写数据。关于流如何与它们连接的实际设备交互的细节，则留给环境或操作系统处理。</p><p><strong>C++中的输入/输出</strong></p><p><code>ios</code> 是 <code>std::basic_ios&lt;char&gt;</code> 的一个typedef，它定义了许多输入和输出流共有的内容。我们将在未来的课程中处理这些内容。</p><p>浮点类型的 <strong>istream</strong> 类是处理输入流时使用的主要类。对于输入流， <strong>提取运算符（&gt;&gt;）</strong> 用于从流中移除值。这很合理：当用户在键盘上按下一个键时，键码被放入输入流中。然后你的程序从流中提取该值以便使用。</p><p>浮点类型的 <strong>ostream</strong> 类是处理输出流时使用的主要类。对于输出流， <strong>插入运算符（&lt;&lt;）</strong> 用于将值放入流中。这也合理：你将值插入流中，然后数据消费者（例如显示器）使用它们。</p><p>浮点类型的 <strong>iostream</strong> 类可以同时处理输入和输出，允许双向I/O。</p><p><strong>C++中的标准流</strong></p><p>一个 <strong>标准流</strong> 是由环境提供给计算机程序的预连接流。C++带有四个预定义的标准流对象，已经为你设置好。前三个你之前见过：</p><ol><li><b>cin</b> ——一个连接到标准输入（通常是键盘）的istream对象</li><li><b>cout</b> ——一个连接到标准输出（通常是显示器）的ostream对象</li><li><b>cerr</b> ——一个连接到标准错误（通常是显示器）的ostream对象，提供无缓冲输出</li><li><b>clog</b> ——一个连接到标准错误（通常是显示器）的ostream对象，提供缓冲输出</li></ol><p>无缓冲输出通常立即处理，而缓冲输出通常存储并作为块写入。由于clog不常用，它经常从标准流列表中省略。</p><p>在下一课中，我们将更详细地了解一些与I/O相关的功能。</p>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="chapter-27-summary-and-quiz.html" rel="prev"><small>上一课</small><strong>27.x — 第27章 总结与测验</strong></a><a class="lesson-nav-index" href="index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="input-with-istream.html" rel="next"><small>下一课</small><strong>28.2 — 使用istream进行输入</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

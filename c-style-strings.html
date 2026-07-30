@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/c-style-strings/" name="learncpp:source-url"/>
+<meta content="5a01e055a849840f4f8a3a95698e22b2a40982335f91149d27789dc77620c127" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:51:51.577072+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-29T01:49:36.340604+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>17.10 — C-style strings</title>
+<link href="assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">17.10 — C风格字符串</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 17.10</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/c-style-strings/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>在课程 <a href="introduction-to-c-style-arrays.html">17.7 -- C风格数组简介</a>我们介绍了C风格数组，它允许我们定义一个顺序元素集合：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">    int testScore[30] {}; // 一个包含30个int的数组，索引0到29
+</code></pre><p>在课程 <a href="literals.html">5.2 -- 字面量</a>我们将字符串定义为顺序字符的集合（例如“Hello, world!”），并介绍了C风格字符串字面量。我们还注意到C风格字符串字面量“Hello, world!”的类型是 <code>const char[14]</code> （13个显式字符加上1个隐藏的空终止符）。</p><p>如果你之前没有意识到，现在应该清楚了：C风格字符串就是元素类型为 <code>char</code> 或 <code>const char</code>！</p><p>的C风格数组。尽管C风格字符串字面量在代码中使用没有问题，但C风格字符串对象在现代C++中已不再受欢迎，因为它们难以使用且危险（ <code>std::string</code> 和 <code>std::string_view</code> 是现代替代品）。不过，你仍然可能在旧代码中遇到C风格字符串对象的使用，我们也不能完全不提及它们。</p><p>因此，在本课中，我们将介绍现代C++中关于C风格字符串对象的最重要知识点。</p><p class="cpp-section cpp-topline" style="clear:both">定义C风格字符串</p><p>要定义一个C风格字符串变量，只需声明一个 <code>char</code> （或 <code>const char</code> / <code>constexpr char</code>)：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">char str1[8]{};                    // 一个包含8个char的数组，索引0到7
+
+const char str2[]{ "string" };     // 一个包含7个char的数组，索引0到6
+constexpr char str3[] { "hello" }; // 一个包含6个const char的数组，索引0到5
+</code></pre><p>类型的C风格数组变量。记住，我们需要一个额外的字符来存放隐式的空终止符。</p><p>在定义带有初始化器的C风格字符串时，我们强烈建议省略数组长度，让编译器计算长度。这样，如果将来初始化器发生变化，你就不必记得更新长度，也不会忘记包含一个额外的元素来存放空终止符。</p><p class="cpp-section cpp-topline" style="clear:both">C风格字符串会退化</p><p>在课程 <a href="c-style-array-decay.html">17.8 -- C 风格数组退化</a>我们讨论了C风格数组在大多数情况下会退化为指针。由于C风格字符串是C风格数组，它们也会退化——C风格字符串字面量退化为 <code>const char*</code>，而C风格字符串数组根据数组是否为const退化为 <code>const char*</code> 或 <code>char*</code> 或</p><p>当C风格字符串退化为指针时，字符串的长度（编码在类型信息中）就丢失了。这种长度信息的丢失正是C风格字符串拥有空终止符的原因。字符串的长度可以通过计算从字符串开头到空终止符之间的元素数量来（低效地）重新生成。</p><p class="cpp-section cpp-topline" style="clear:both">输出C风格字符串</p><p>当输出C风格字符串时， <code>std::cout</code> 会输出字符直到遇到空终止符。这个空终止符标记了字符串的结束，因此退化的字符串（丢失了长度信息）仍然可以被打印。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+void print(char ptr[])
+{
+    std::cout &lt;&lt; ptr &lt;&lt; '\n'; // 输出字符串
+}
+
+int main()
+{
+    char str[]{ "string" };
+    std::cout &lt;&lt; str &lt;&lt; '\n'; // 输出字符串
+
+    print(str);
+
+    return 0;
+}
+</code></pre><p>如果你试图打印一个没有空终止符的字符串（例如，因为空终止符被意外覆盖），结果将是未定义行为。最可能的结果是，字符串中的所有字符都会被打印，然后它会继续打印相邻内存中的所有内容（解释为字符），直到碰巧遇到一个包含0的内存字节（这将被解释为空终止符）！</p><p class="cpp-section cpp-topline" style="clear:both">输入C风格字符串</p><p>考虑这样一种情况：我们要求用户随意掷骰子多次，并输入掷出的数字，不带空格（例如 <code>524412616</code>）。用户会输入多少个字符？我们无从知晓。</p><p>由于C风格字符串是固定大小的数组，解决方案是声明一个比我们可能需要的更大的数组：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+    char rolls[255] {}; // 声明足够容纳254个字符加空终止符的数组
+    std::cout &lt;&lt; "Enter your rolls: ";
+    std::cin &gt;&gt; rolls;
+    std::cout &lt;&lt; "You entered: " &lt;&lt; rolls &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>在 C++20 之前， <code>std::cin &gt;&gt; rolls</code> 会提取尽可能多的字符到 <code>rolls</code> （在第一个非前导空白处停止）。没有什么能阻止用户输入超过254个字符（无论是无意还是恶意）。如果发生这种情况，用户的输入将溢出 <code>rolls</code> 数组，导致未定义行为。</p><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">关键提示</p><p><strong>数组溢出</strong> 或 <strong>缓冲区溢出</strong> 是一种计算机安全问题，当复制到存储中的数据超过存储容量时发生。在这种情况下，存储之后的内存会被覆盖，导致未定义行为。恶意行为者可能利用此类漏洞覆盖内存内容，试图以某种有利的方式改变程序的行为。</p></div><p>在C++20中， <code>operator&gt;&gt;</code> 已被修改，使其仅适用于输入未退化的C风格字符串。这允许 <code>operator&gt;&gt;</code> 只提取C风格字符串长度允许的字符数，防止溢出。但这也意味着你不能再使用 <code>operator&gt;&gt;</code> 来输入退化的C风格字符串。</p><p>使用 <code>std::cin</code> 读取C风格字符串的推荐方式如下：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;iterator&gt; // for std::size
+
+int main()
+{
+    char rolls[255] {}; // 声明足够容纳254个字符加空终止符的数组
+    std::cout &lt;&lt; "Enter your rolls: ";
+    std::cin.getline(rolls, std::size(rolls));
+    std::cout &lt;&lt; "You entered: " &lt;&lt; rolls &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>这个对 <code>cin.getline()</code> 的调用将读取最多254个字符（包括空白）到 <code>rolls</code>中。任何多余的字符将被丢弃。因为 <code>getline()</code> 接受一个长度参数，我们可以提供要接受的最大字符数。对于未退化的数组，这很容易——我们可以使用 <code>std::size()</code> 来获取数组长度。对于退化的数组，我们必须通过其他方式确定长度。如果我们提供了错误的长度，程序可能会发生故障或出现安全问题。</p><p>在现代C++中，当存储用户输入的文本时，使用 <code>std::string</code>更安全，因为 <code>std::string</code> 会自动调整以容纳所需数量的字符。</p><p class="cpp-section cpp-topline" style="clear:both">修改C风格字符串</p><p>需要注意的一个重要点是，C风格字符串遵循与C风格数组相同的规则。这意味着你可以在创建时初始化字符串，但之后不能使用赋值运算符给它赋值！</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">char str[]{ "string" }; // ok
+str = "rope";           // 不行！
+</code></pre><p>这使得使用C风格字符串有些不便。</p><p>由于C风格字符串是数组，你可以使用[]运算符来更改字符串中的单个字符：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+    char str[]{ "string" };
+    std::cout &lt;&lt; str &lt;&lt; '\n';
+    str[1] = 'p';
+    std::cout &lt;&lt; str &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>该程序打印出：</p><pre>string
+spring
+</pre><p class="cpp-section cpp-topline" style="clear:both">获取C风格字符串的长度</p><p>因为C风格字符串是C风格数组，你可以使用 <code>std::size()</code> （或在C++20中， <code>std::ssize()</code>）来获取字符串作为数组的长度。这里有两个注意事项：</p><ol start="1"><li>这不适用于退化的字符串。</li><li>返回的是C风格数组的实际长度，而不是字符串的长度。</li></ol><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+    char str[255]{ "string" }; // 6个字符加空终止符
+    std::cout &lt;&lt; "length = " &lt;&lt; std::size(str) &lt;&lt; '\n'; // 打印 length = 255
+
+    char *ptr { str };
+    std::cout &lt;&lt; "length = " &lt;&lt; std::size(ptr) &lt;&lt; '\n'; // 编译错误
+
+    return 0;
+}
+</code></pre><p>另一种解决方案是使用 <code>strlen()</code> 函数，它位于 <code>&lt;cstring&gt;</code> 头文件中。 <code>strlen()</code> 可以用于退化的数组，并返回所保存字符串的长度（不包括空终止符）：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;cstring&gt; // for std::strlen
+#include &lt;iostream&gt;
+
+int main()
+{
+    char str[255]{ "string" }; // 6个字符加空终止符
+    std::cout &lt;&lt; "length = " &lt;&lt; std::strlen(str) &lt;&lt; '\n'; // 打印 length = 6
+
+    char *ptr { str };
+    std::cout &lt;&lt; "length = " &lt;&lt; std::strlen(ptr) &lt;&lt; '\n';   // 打印 length = 6
+
+    return 0;
+}
+</code></pre><p>然而， <code>std::strlen()</code> 速度较慢，因为它必须遍历整个数组，计数直到遇到空终止符。</p><p class="cpp-section cpp-topline" style="clear:both">其他C风格字符串操作函数</p><p>由于C风格字符串是C语言中的主要字符串类型，C语言提供了许多用于操作C风格字符串的函数。这些函数作为 <code>&lt;cstring&gt;</code> 头文件中。</p><p>的一部分被C++继承。以下是一些在旧代码中可能看到的最有用的函数：</p><ul><li>strlen() -- 返回C风格字符串的长度</li><li>strcpy(), strncpy(), strcpy_s() -- 将一个C风格字符串覆盖到另一个</li><li>strcat(), strncat() -- 将一个C风格字符串追加到另一个的末尾</li><li>strcmp(), strncmp() -- 比较两个C风格字符串（如果相等则返回 <code>0</code> ）</li></ul><p>除了 <code>strlen()</code>之外，我们通常建议避免使用这些函数。</p><p class="cpp-section cpp-topline" style="clear:both">避免使用非常量C风格字符串对象</p><p>除非你有特定且令人信服的理由使用非常量C风格字符串，否则最好避免使用它们，因为它们使用起来不方便，并且容易发生溢出，从而导致未定义行为（并且是潜在的安全问题）。</p><p>在极少数情况下，如果你确实需要处理C风格字符串或固定缓冲区大小（例如，用于内存受限的设备），我们建议使用经过良好测试的第三方定长字符串库。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>避免使用非常量C风格字符串对象，而应使用 <code>std::string</code>。</p></div><p class="cpp-section cpp-topline" style="clear:both">小测验时间</p><p class="cpp-quiz-question" style="clear:both">问题 #1</p><p>编写一个函数，逐个字符打印C风格字符串。使用指针和指针算术遍历字符串的每个字符并打印该字符。编写一个 <code>main</code> 函数，用字符串字面量“Hello, world!”测试该函数。</p><p><a aria-controls="cpp_solution_id_0" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_0" href="#cpp_solution_id_0">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_0"><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+// str 将指向 C 风格字符串的第一个字符。
+// 注意 str 指向 const char，因此我们不能修改它指向的值。
+// 但是，我们可以让 str 指向其他内容。这不会改变参数的值。
+void printCString(const char str[])
+{
+    // 当我们还没有遇到空终止符时
+    while (*str != '\0')
+    {
+        // 打印当前字符
+        std::cout &lt;&lt; *str;
+
+        // 并使用指针算术将 str 移动到下一个字符
+        ++str;
+    }
+}
+
+int main()
+{
+    printCString("Hello world!");
+
+    std::cout &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre></div><p class="cpp-quiz-question cpp-topline" style="clear:both">问题 #2</p><p>重复测验#1，但这次函数应反向打印字符串。</p><p><a aria-controls="cpp_solution_id_1" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_1" href="#cpp_solution_id_1">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_1"><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+void printCStringBackwards(const char str[])
+{
+    // 这次我们不能修改 str（后面还需要它）
+    // 所以我们将定义一个与 str 地址相同的新指针
+    const char *ptr{ str };
+
+    // 找到空终止符
+    while (*ptr != '\0')
+        ++ptr;
+
+    // 现在向后遍历并打印字符，直到 ptr 再次回到 str
+    while (ptr-- != str)
+    {
+        std::cout &lt;&lt; *ptr;
+    } 
+}
+
+int main()
+{
+    printCStringBackwards("Hello world!");
+
+    std::cout &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre></div>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="pointer-arithmetic-and-subscripting.html" rel="prev"><small>上一课</small><strong>17.9 — 指针算术和下标</strong></a><a class="lesson-nav-index" href="index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="c-style-string-symbolic-constants.html" rel="next"><small>下一课</small><strong>17.11 — C风格字符串符号常量</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

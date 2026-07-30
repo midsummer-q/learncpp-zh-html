@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/stream-states-and-input-validation/" name="learncpp:source-url"/>
+<meta content="906c268910913cb09e584a9028f7dcc7812f949d237df90ee64cd412e421d8cc" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:55:10.796638+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T18:21:02.603849+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>28.5 — Stream states and input validation</title>
+<link href="assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">28.5 — 流状态与输入验证</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 28.5</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/stream-states-and-input-validation/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p class="cpp-section">流状态</p><p>ios_base 类包含多个状态标志，用于指示使用流时可能发生的各种情况：</p><div class="cpp-table-wrapper"><p></p><p></p><table class="cpp-table"><tbody><tr><th>标志</th><th>含义</th></tr><tr><td>goodbit</td><td>一切正常</td></tr><tr><td>badbit</td><td>发生了某种致命错误（例如，程序试图读取文件末尾之后的内容）</td></tr><tr><td>eofbit</td><td>流已到达文件末尾</td></tr><tr><td>failbit</td><td>发生了非致命错误（例如，用户输入了字母，而程序期望输入整数）</td></tr></tbody></table></div><p>尽管这些标志位于 ios_base 中，但由于 ios 派生自 ios_base 且 ios 比 ios_base 更简短，通常通过 ios 访问它们（例如 std::ios::failbit）。</p><p>ios 还提供了许多成员函数，以便方便地访问这些状态：</p><div class="cpp-table-wrapper"><p></p><p></p><table class="cpp-table"><tbody><tr><th>成员函数</th><th>含义</th></tr><tr><td>good()</td><td>如果设置了 goodbit（流正常），则返回 true</td></tr><tr><td>bad()</td><td>如果设置了 badbit（发生了致命错误），则返回 true</td></tr><tr><td>eof()</td><td>如果设置了 eofbit（流位于文件末尾），则返回 true</td></tr><tr><td>fail()</td><td>如果设置了 failbit（发生了非致命错误），则返回 true</td></tr><tr><td>clear()</td><td>清除所有标志并将流恢复到 goodbit 状态</td></tr><tr><td>clear(state)</td><td>清除所有标志并设置传入的状态标志</td></tr><tr><td>rdstate()</td><td>返回当前设置的标志</td></tr><tr><td>setstate(state)</td><td>设置传入的状态标志</td></tr></tbody></table></div><p>最常处理的位是 failbit，当用户输入无效输入时，该位被设置。例如，考虑以下程序：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">std::cout &lt;&lt; "Enter your age: ";
+int age {};
+std::cin &gt;&gt; age;
+</code></pre><p>注意，该程序期望用户输入一个整数。但是，如果用户输入非数字数据，例如“Alex”，cin 将无法将任何内容提取到 age，并且 failbit 将被设置。</p><p>如果发生错误并且流被设置为 goodbit 以外的任何状态，则对该流的进一步流操作将被忽略。可以通过调用 clear() 函数清除此条件。</p><p class="cpp-section cpp-topline" style="clear:both">输入验证</p><p><strong>输入验证</strong> 是检查用户输入是否满足某些条件集的过程。输入验证通常可以分为两种类型：字符串验证和数值验证。</p><p>对于字符串验证，我们将所有用户输入作为字符串接受，然后根据字符串格式是否正确来接受或拒绝该字符串。例如，如果我们要求用户输入电话号码，我们可能希望确保他们输入的数据有十位数字。在大多数语言（尤其是脚本语言，如 Perl 和 PHP）中，这是通过正则表达式完成的。C++ 标准库也有一个 <a href="https://en.cppreference.com/w/cpp/regex">正则表达式库</a> 由于正则表达式比手动字符串验证慢，因此只有在性能（编译时和运行时）无关紧要或手动验证过于繁琐时才应使用它们。</p><p>对于数值验证，我们通常关心确保用户输入的数字在特定范围内（例如，0 到 20 之间）。然而，与字符串验证不同，用户可能输入根本不是数字的内容——我们也需要处理这些情况。</p><p>为了帮助我们，C++ 提供了许多有用的函数，我们可以用它们来确定特定字符是数字还是字母。以下函数位于 cctype 头文件中：</p><div class="cpp-table-wrapper"><p></p><p></p><table class="cpp-table"><tbody><tr><th>函数</th><th>含义</th></tr><tr><td>std::isalnum(int)</td><td>如果参数是字母或数字，则返回非零值</td></tr><tr><td>std::isalpha(int)</td><td>如果参数是字母，则返回非零值</td></tr><tr><td>std::iscntrl(int)</td><td>如果参数是控制字符，则返回非零值</td></tr><tr><td>std::isdigit(int)</td><td>如果参数是数字，则返回非零值</td></tr><tr><td>std::isgraph(int)</td><td>如果参数是可打印字符且不是空白，则返回非零值</td></tr><tr><td>std::isprint(int)</td><td>如果参数是可打印字符（包括空白），则返回非零值</td></tr><tr><td>std::ispunct(int)</td><td>如果参数既不是字母数字也不是空白，则返回非零值</td></tr><tr><td>std::isspace(int)</td><td>如果参数是空白，则返回非零值</td></tr><tr><td>std::isxdigit(int)</td><td>如果参数是十六进制数字（0-9, a-f, A-F），则返回非零值</td></tr></tbody></table></div><p class="cpp-section cpp-topline" style="clear:both">字符串验证</p><p>让我们通过要求用户输入姓名来做一个简单的字符串验证案例。我们的验证标准是用户只输入字母字符或空格。如果遇到其他任何内容，输入将被拒绝。</p><p>对于可变长度输入，验证字符串的最佳方法（除了使用正则表达式库）是逐个字符地遍历字符串，并确保它满足验证标准。这正是我们在这里要做的，或者更确切地说，这就是 <code>std::all_of</code> 为我们所做的。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;algorithm&gt; // std::all_of
+#include &lt;cctype&gt; // std::isalpha, std::isspace
+#include &lt;iostream&gt;
+#include &lt;ranges&gt;
+#include &lt;string&gt;
+#include &lt;string_view&gt;
+
+bool isValidName(std::string_view name)
+{
+  return std::ranges::all_of(name, [](char ch) {
+    return std::isalpha(ch) || std::isspace(ch);
+  });
+
+  // 在 C++20 之前，不使用 ranges
+  // return std::all_of(name.begin(), name.end(), [](char ch) {
+  //    return std::isalpha(ch) || std::isspace(ch);
+  // });
+}
+
+int main()
+{
+  std::string name{};
+
+  do
+  {
+    std::cout &lt;&lt; "Enter your name: ";
+    std::getline(std::cin, name); // 获取整行，包括空格
+  } while (!isValidName(name));
+
+  std::cout &lt;&lt; "Hello " &lt;&lt; name &lt;&lt; "!\n";
+}
+</code></pre><p>请注意，这段代码并不完美：用户可以说他们的名字是“asf w jweo s di we ao”或其他一些胡言乱语，甚至更糟，只是一堆空格。我们可以通过细化验证标准来部分解决这个问题，只接受至少包含一个字符且最多一个空格的字符串。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">作者注</p><p>读者“Waldo”提供了一个C++20解决方案（使用std::ranges）来解决这些缺点 <a href="https://www.learncpp.com/cpp-tutorial/stream-states-and-input-validation/#comment-571052">这里</a></p></div><p>现在让我们看另一个例子，我们将要求用户输入他们的电话号码。与用户姓名不同，姓名是可变长度的，并且每个字符的验证标准相同，而电话号码是固定长度的，但验证标准根据字符的位置而不同。因此，我们将采用不同的方法来验证电话号码输入。在这种情况下，我们将编写一个函数，根据预定的模板检查用户的输入，看是否匹配。模板的工作方式如下：</p><p># 将匹配用户输入中的任何数字。<br/>@ 将匹配用户输入中的任何字母字符。<br/>_ 将匹配任何空白。<br/>? 将匹配任何内容。<br/>否则，用户输入和模板中的字符必须完全匹配。</p><p>因此，如果我们要求函数匹配模板“(###) ###-####”，这意味着我们期望用户输入一个‘(’字符，三个数字，一个‘)’字符，一个空格，三个数字，一个短横，再四个数字。如果其中任何一项不匹配，输入将被拒绝。</p><p>以下是代码：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;algorithm&gt; // std::equal
+#include &lt;cctype&gt; // std::isdigit, std::isspace, std::isalpha
+#include &lt;iostream&gt;
+#include &lt;map&gt;
+#include &lt;ranges&gt;
+#include &lt;string&gt;
+#include &lt;string_view&gt;
+
+bool inputMatches(std::string_view input, std::string_view pattern)
+{
+    if (input.length() != pattern.length())
+    {
+        return false;
+    }
+
+    // 此表定义了所有可以匹配用户输入范围的特殊符号
+    // 每个符号映射到一个函数，该函数确定输入对该符号是否有效
+    static const std::map&lt;char, int (*)(int)&gt; validators{
+      { '#', &amp;std::isdigit },
+      { '_', &amp;std::isspace },
+      { '@', &amp;std::isalpha },
+      { '?', [](int) { return 1; } }
+    };
+
+    // 在 C++20 之前，使用
+    // return std::equal(input.begin(), input.end(), pattern.begin(), [](char ch, char mask) -&gt; bool {
+    // ...
+
+    return std::ranges::equal(input, pattern, [](char ch, char mask) -&gt; bool {
+        auto found{ validators.find(mask) };
+        
+        if (found != validators.end())
+        {
+            // 模式的当前元素在验证器中找到。调用
+            // 相应的函数。
+            return (*found-&gt;second)(ch);
+        }
+
+        // 模式的当前元素未在验证器中找到。
+        // 字符必须精确匹配。
+        return ch == mask;
+        }); // lambda 结束
+}
+
+int main()
+{
+    std::string phoneNumber{};
+
+    do
+    {
+        std::cout &lt;&lt; "Enter a phone number (###) ###-####: ";
+        std::getline(std::cin, phoneNumber);
+    } while (!inputMatches(phoneNumber, "(###) ###-####"));
+
+    std::cout &lt;&lt; "You entered: " &lt;&lt; phoneNumber &lt;&lt; '\n';
+}
+</code></pre><p>使用这个函数，我们可以强制用户精确匹配我们的特定格式。然而，这个函数仍然受到几个限制：如果#、@、_和?是用户输入中的有效字符，这个函数将无法工作，因为这些符号被赋予了特殊含义。此外，与正则表达式不同，没有模板符号表示“可以输入可变数量的字符”。因此，这样的模板不能用于确保用户输入由空白分隔的两个单词，因为它无法处理单词长度可变的事实。对于这类问题，非模板方法通常更合适。</p><p class="cpp-section cpp-topline" style="clear:both">数值验证</p><p>处理数值输入时，显而易见的方法是使用提取运算符将输入提取到数值类型。通过检查failbit，我们可以判断用户是否输入了数字。</p><p>让我们尝试这种方法：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;limits&gt;
+
+int main()
+{
+    int age{};
+
+    while (true)
+    {
+        std::cout &lt;&lt; "Enter your age: ";
+        std::cin &gt;&gt; age;
+
+        if (std::cin.fail()) // 没有进行提取
+        {
+            std::cin.clear(); // 将状态位重置为 goodbit 以便使用 ignore()
+            std::cin.ignore(std::numeric_limits&lt;std::streamsize&gt;::max(), '\n'); // 从流中清除错误的输入
+            continue; // 重试
+        }
+
+        if (age &lt;= 0) // 确保年龄为正数
+            continue;
+
+        break;
+    }
+
+    std::cout &lt;&lt; "You entered: " &lt;&lt; age &lt;&lt; '\n';
+}
+</code></pre><p>如果用户输入一个整数，提取将成功。std::cin.fail()将求值为false，跳过条件语句，并且（假设用户输入了正数），我们将遇到break语句，退出循环。</p><p>如果用户输入以字母开头的内容，提取将失败。std::cin.fail()将求值为true，我们将进入条件语句。在条件语句块结束时，我们将遇到continue语句，它将跳回while循环的顶部，并再次要求用户输入。</p><p>然而，还有一种情况我们还没有测试，那就是用户输入以数字开头但包含字母的字符串（例如“34abcd56”）。在这种情况下，开头的数字（34）将被提取到age中，字符串的其余部分（“abcd56”）将留在输入流中，并且failbit不会被设置。这会导致两个潜在问题：</p><ol start="1"><li>如果你希望这是有效输入，那么你的流中现在有垃圾数据。</li><li>如果你不希望这是有效输入，它不会被拒绝（并且你的流中有垃圾数据）。</li></ol><p>让我们修复第一个问题。这很简单：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;limits&gt;
+
+int main()
+{
+    int age{};
+
+    while (true)
+    {
+        std::cout &lt;&lt; "Enter your age: ";
+        std::cin &gt;&gt; age;
+
+        if (std::cin.fail()) // 没有进行提取
+        {
+            std::cin.clear(); // 将状态位重置为 goodbit 以便使用 ignore()
+            std::cin.ignore(std::numeric_limits&lt;std::streamsize&gt;::max(), '\n'); // 从流中清除错误的输入
+            continue; // 重试
+        }
+
+        std::cin.ignore(std::numeric_limits&lt;std::streamsize&gt;::max(), '\n'); // 从流中清除任何额外的输入
+
+        if (age &lt;= 0) // 确保年龄为正数
+            continue;
+
+      break;
+    }
+
+    std::cout &lt;&lt; "You entered: " &lt;&lt; age &lt;&lt; '\n';
+}
+</code></pre><p>如果你不希望这样的输入有效，我们就需要多做一点工作。幸运的是，之前的解决方案已经完成了一半。我们可以使用 gcount() 函数来确定被忽略的字符数。如果我们的输入有效，gcount() 应该返回 1（被丢弃的换行符）。如果返回大于 1，说明用户输入了未被正确提取的内容，我们应该要求他们重新输入。下面是一个示例：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;limits&gt;
+
+int main()
+{
+    int age{};
+
+    while (true)
+    {
+        std::cout &lt;&lt; "Enter your age: ";
+        std::cin &gt;&gt; age;
+
+        if (std::cin.fail()) // 没有进行提取
+        {
+            std::cin.clear(); // 将状态位重置为 goodbit 以便使用 ignore()
+            std::cin.ignore(std::numeric_limits&lt;std::streamsize&gt;::max(), '\n'); // 从流中清除错误的输入
+            continue; // 重试
+        }
+
+        std::cin.ignore(std::numeric_limits&lt;std::streamsize&gt;::max(), '\n'); // 从流中清除任何额外的输入
+        if (std::cin.gcount() &gt; 1) // 如果我们清除了超过一个额外的字符
+        {
+            continue; // 我们将认为此输入无效
+        }
+
+        if (age &lt;= 0) // 确保年龄为正数
+        {
+            continue;
+        }
+
+        break;
+    }
+
+    std::cout &lt;&lt; "You entered: " &lt;&lt; age &lt;&lt; '\n';
+}
+</code></pre><p class="cpp-section cpp-topline" style="clear:both">将数值验证作为字符串处理</p><p>上面的例子为了获取一个简单的值做了相当多的工作！另一种处理数值输入的方法是将其作为字符串读取，然后尝试将其转换为数值类型。下面的程序使用了这种方法：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;charconv&gt; // std::from_chars
+#include &lt;iostream&gt;
+#include &lt;limits&gt;
+#include &lt;optional&gt;
+#include &lt;string&gt;
+#include &lt;string_view&gt;
+
+// std::optional&lt;int&gt; 返回一个 int 或空
+std::optional&lt;int&gt; extractAge(std::string_view age)
+{
+    int result{};
+    const auto end{ age.data() + age.length() }; // 获取底层 C 风格字符串的结束迭代器
+
+    // 尝试从 age 解析 int
+    // 如果出现某种错误...
+    if (std::from_chars(age.data(), end, result).ec != std::errc{})
+    {
+        return {}; // 返回空
+    }
+
+    if (result &lt;= 0) // 确保年龄为正数
+    {
+        return {}; // 返回空
+    }
+
+    return result; // 返回一个 int 值
+}
+
+int main()
+{
+    int age{};
+
+    while (true)
+    {
+        std::cout &lt;&lt; "Enter your age: ";
+        std::string strAge{};
+
+        // 尝试获取一行输入
+        if (!std::getline(std::cin &gt;&gt; std::ws, strAge))
+        {
+            // 如果失败，清理并重试
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits&lt;std::streamsize&gt;::max(), '\n');    
+            continue;
+        }
+
+        // 尝试提取年龄
+        auto extracted{ extractAge(strAge) };
+
+        // 如果失败，重试
+        if (!extracted)
+            continue;
+
+        age = *extracted; // 获取值
+        break;
+    }
+
+  std::cout &lt;&lt; "You entered: " &lt;&lt; age &lt;&lt; '\n';
+}
+</code></pre><p>这种方法与直接数值提取相比是更复杂还是更简单，取决于你的验证参数和限制条件。</p><p>如你所见，在 C++ 中进行输入验证需要做很多工作。幸运的是，许多这样的任务（例如将数值验证作为字符串处理）可以轻松地转化为函数，并在各种情况下重用。</p>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="stream-classes-for-strings.html" rel="prev"><small>上一课</small><strong>28.4 — 字符串流类</strong></a><a class="lesson-nav-index" href="index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="basic-file-io.html" rel="next"><small>下一课</small><strong>28.6 — 基本文件I/O</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

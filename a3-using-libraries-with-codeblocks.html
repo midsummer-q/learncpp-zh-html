@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/a3-using-libraries-with-codeblocks/" name="learncpp:source-url"/>
+<meta content="98dd2ae31a696d6365544cd4a2d7494203e27e8c2c4dd0ef3378af237e13b7e6" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:55:19.556689+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T18:21:47.963135+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>A.3 — Using libraries with Code::Blocks</title>
+<link href="assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">A.3 — 在Code::Blocks中使用库</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 A.3</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/a3-using-libraries-with-codeblocks/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>回顾使用库所需的过程：</p><p>每个库一次：</p><ol start="1"><li>获取库。从网站下载或通过包管理器获取。</li><li>安装库。解压到目录或通过包管理器安装。</li><li>告诉编译器在哪里查找库的头文件。</li><li>告诉链接器在哪里查找库的库文件（如果有的话）。</li></ol><p>每个项目一次：</p><ol start="5"><li>告诉链接器要链接哪些静态库或导入库文件（如果有的话）。</li><li>在程序中 #include 库的头文件。</li><li>确保程序知道在哪里找到正在使用的任何动态库。</li></ol><p><strong>步骤 1 和 2 -- 获取并安装库</strong></p><p>下载并将库安装到硬盘。有关此步骤的更多信息，请参阅关于 <a href="a1-static-and-dynamic-libraries.html">静态库和动态库</a> 的教程。</p><p><strong>步骤 3 和 4 -- 告诉编译器在哪里查找头文件和库文件</strong></p><p>我们将全局执行此操作，以便该库可用于我们所有的项目。因此，以下步骤每个库只需执行一次。</p><p>A) 转到“设置菜单”并选择“编译器”。</p><p><img src="assets/images/67173a9533c129b892f5b63e2bc466d5c76052fbbcd0de299da42b9dc4086e3f.webp"/></p><p>B) 单击“目录”选项卡。编译器选项卡将已为您选中。</p><p>C) 按下“添加”按钮，并添加库的.h文件的路径。如果您运行的是Linux并通过包管理器安装了库，请确保 <em>/usr/include</em> 已列在此处。</p><p><img src="assets/images/1ee3d219b1f1395a5ccb087cb9d33468600042be66bf0c272636792922ed9fe6.webp"/></p><p>D) 单击“链接器”选项卡。按下“添加”按钮，并添加库的.lib文件的路径（如果有的话）。如果您运行的是Linux并通过包管理器安装了库，请确保 <em>/usr/lib</em> 已列在此处。</p><p><img src="assets/images/44ba19204ccb92cd27b8ff37221ba571d52373df00e8fee00c32ee7f2e142e53.webp"/></p><p>E) 按下“确定”按钮。</p><p><strong>步骤 5 -- 告诉链接器你的程序正在使用哪些库</strong></p><p>对于步骤5，我们需要将库中的库文件添加到我们的项目中（如果有的话——如果没有，可以跳过此步骤）。我们按单个项目进行此操作。</p><p>A) 右键单击默认工作区下加粗的项目名称（可能是“Console application”，除非您更改了它）。从菜单中选择“构建选项”。</p><p><img src="assets/images/4e0f46c10822cec5e3ffd2d08280339ad4a9d63d88a9d7e7c48cfabe1607d06c.png"/></p><p>B) 单击链接器选项卡。在“链接库”窗口中，按下“添加”按钮并添加您希望项目使用的库。</p><p><img src="assets/images/4e20f5f258c511e2ba1896f173cc8549398caf747f9b2ac305d78825ea0424a4.webp"/></p><p>C) 按下“确定”按钮</p><p><strong>步骤 6 和 7 -- #include 头文件并确保项目可以找到 DLL</strong></p><p>只需在项目中#include库中的头文件即可。</p><p>有关步骤 7 的更多信息，请参阅教程 <a href="a1-static-and-dynamic-libraries.html">A.1 -- 静态库和动态库</a> 有关步骤7的更多信息。</p>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="a2-using-libraries-with-visual-studio-2005-express.html" rel="prev"><small>上一课</small><strong>A.2 — 在 Visual Studio 中使用库</strong></a><a class="lesson-nav-index" href="index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="cpp-faq.html" rel="next"><small>下一课</small><strong>A.4 — C++ 常见问题解答</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

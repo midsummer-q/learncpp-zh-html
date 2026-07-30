@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/for-statements/" name="learncpp:source-url"/>
+<meta content="2a611651f4dbc00a19f99e31057bb0fcde9148143458876bb655213ab6908247" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:47:38.669948+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T17:26:17.924579+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>8.10 — For statements</title>
+<link href="assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">8.10 — for 语句</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 8.10</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/for-statements/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>到目前为止，C++ 中最常用的循环语句是 for 语句。 <strong>for 语句</strong> （也称为 <strong>for 循环</strong>）在我们有明确的循环变量时更受青睐，因为它让我们能够轻松简洁地定义、初始化、测试和改变循环变量的值。</p><p>从 C++11 开始，有两种不同的 for 循环。我们将在本课中介绍经典的 for 语句，并在未来的课程（<a href="range-based-for-loops-for-each.html">16.8 -- 基于范围的 for 循环（for-each）</a>）中介绍更新的基于范围的 for 语句，前提是我们已经涵盖了一些其他先决主题。</p><p style="clear:both"></p><p>for 语句在抽象形式上看起来相当简单：</p><pre>for (init-statement; condition; end-expression)
+   statement;
+</pre><p>最初理解 for 语句如何工作的最简单方法是将其转换为等效的 while 语句：</p><pre>{ // note the block here
+    init-statement; // used to define variables used in the loop
+    while (condition)
+    {
+        statement; 
+        end-expression; // used to modify the loop variable prior to reassessment of the condition
+    }
+} // variables defined inside the loop go out of scope here
+</pre><p class="cpp-section cpp-topline" style="clear:both">for 语句的求值</p><p>for 语句分 3 部分求值：</p><p>首先，执行 init-statement。这仅在循环启动时发生一次。init-statement 通常用于变量定义和初始化。这些变量具有“循环作用域”，这实际上是一种块作用域，其中这些变量从定义点开始存在，直到循环语句结束。在我们的 while 循环等效中，您可以看到 init-statement 位于包含循环的块内，因此 init-statement 中定义的变量在包含循环的块结束时超出作用域。</p><p>其次，每次循环迭代时，都会对条件进行求值。如果求值为 <code>true</code>，则执行语句。如果求值为 <code>false</code>，则循环终止，并继续执行循环之后的下一语句。</p><p>最后，在语句执行后，对 end-expression 进行求值。通常，此表达式用于递增或递减在 init-statement 中定义的循环变量。在 end-expression 求值后，执行返回到第二步（并再次对条件进行求值）。</p><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">关键提示</p><p>for 语句不同部分的执行顺序如下：</p><ul><li>Init-statement</li><li>条件（如果为 false，则循环在此终止）。</li><li>循环体</li><li>End-expression（然后跳回条件）</li></ul><p>请注意，end-expression 在 <em>之后</em> 循环语句之后执行，然后重新对条件进行求值。</p></div><p>让我们看一个示例 for 循环并讨论其工作原理：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+    for (int i{ 1 }; i &lt;= 10; ++i)
+        std::cout &lt;&lt; i &lt;&lt; ' ';
+
+    std::cout &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>首先，我们声明一个名为 <code>i</code>的循环变量，并将其初始化为值 <code>1</code>。</p><p>其次， <code>i &lt;= 10</code> 被求值，由于 <code>i</code> 等于 <code>1</code>，这求值为 <code>true</code>。因此，语句执行，打印 <code>1</code> 和一个空格。</p><p>最后， <code>++i</code> 被求值，将 <code>i</code> 切换到 <code>2</code>递增。然后循环回到第二步。</p><p>现在， <code>i&lt;= 10</code> 再次被求值。由于 <code>i</code> 值为 <code>2</code>，这求值为 <code>true</code>，所以循环再次迭代。语句打印 <code>2</code> 和一个空格，并且 <code>i</code> 递增到 <code>3</code>。循环继续迭代，直到最终 <code>i</code> 递增到 <code>11</code>，此时 <code>i &lt;= 10</code> 求值为<code>false</code>，循环退出。</p><p>因此，该程序输出结果：</p><pre>1 2 3 4 5 6 7 8 9 10
+</pre><p>为了举例说明，让我们将上述 for 循环转换为等效的 while 循环：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+    { // 这里的块确保i具有块作用域
+        int i{ 1 }; // 我们的初始化语句
+        while (i &lt;= 10) // 我们的条件
+        {
+            std::cout &lt;&lt; i &lt;&lt; ' '; // 我们的语句
+            ++i; // 我们的末尾表达式
+        }
+    }
+
+    std::cout &lt;&lt; '\n';
+}
+</code></pre><p>看起来没那么糟糕，对吧？注意，这里外层的大括号是必需的，因为 <code>i</code> 在循环结束时超出作用域。</p><p>For 循环对于新手程序员来说可能难以阅读——然而，经验丰富的程序员喜欢它们，因为它们是一种非常紧凑的方式来进行带计数器的循环，所有关于循环变量、循环条件和循环变量修改器的必要信息都呈现在前面。这有助于减少错误。</p><p class="cpp-section cpp-topline" style="clear:both">更多 for 循环示例</p><p>下面是一个使用 for 循环计算整数指数的函数示例：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;cstdint&gt; // for fixed-width integers
+
+// 返回 base ^ exponent 的值——注意溢出！
+std::int64_t pow(int base, int exponent)
+{
+    std::int64_t total{ 1 };
+
+    for (int i{ 0 }; i &lt; exponent; ++i)
+        total *= base;
+
+    return total;
+}
+</code></pre><p>该函数返回 base^exponent（base 的 exponent 次幂）的值。</p><p>这是一个简单的递增 for 循环，其中 <code>i</code> 从 <code>0</code> 循环到（但不包括） <code>exponent</code>。</p><p>在所有情况下，total 初始化为 <code>1</code>。<br/>如果 <code>exponent</code> 为 0 时，for 循环将执行 0 次。 <code>total</code> （值为 <code>1</code>）被返回，这相当于 <code>base^0</code>。<br/>如果 <code>exponent</code> 为 1 时，for 循环将执行 1 次。 <code>total</code> （值为 <code>1</code>）乘以 <code>base</code>，所以现在它的值为 <code>base</code>，这相当于 <code>base^1</code>，然后被返回。<br/>如果 <code>exponent</code> 为 2 时，for 循环将执行 2 次。 <code>total</code> （值为 <code>1</code>）乘以 <code>base</code> 两次，所以现在它的值为 <code>base * base</code>，这相当于 <code>base^2</code>，然后被返回。</p><p>虽然大多数 for 循环将循环变量递增 1，但我们也可以递减它：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+    for (int i{ 9 }; i &gt;= 0; --i)
+        std::cout &lt;&lt; i &lt;&lt; ' ';
+
+    std::cout &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>这将输出结果：</p><pre>9 8 7 6 5 4 3 2 1 0
+</pre><p>或者，我们可以在每次迭代中将循环变量的值改变超过 1：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+    for (int i{ 0 }; i &lt;= 10; i += 2) // 每次迭代增加2
+        std::cout &lt;&lt; i &lt;&lt; ' ';
+
+    std::cout &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>这将输出结果：</p><pre>0 2 4 6 8 10
+</pre><p class="cpp-section cpp-topline" style="clear:both">在 for 循环条件中使用 <code>operator!=</code> 的危险</p><p>在编写涉及数值的循环条件时，我们通常可以用多种不同的方式编写条件。以下两个循环执行相同：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+    for (int i { 0 }; i &lt; 10; ++i) // 使用 &lt;
+         std::cout &lt;&lt; i;
+
+    for (int i { 0 }; i != 10; ++i) // 使用 !=
+         std::cout &lt;&lt; i;
+
+     return 0;
+}
+</code></pre><p>那么我们应该选择哪一个？前者是更好的选择，因为即使 <code>i</code> 跳过值 <code>10</code>，它也会终止，而后者则不会。以下示例演示了这一点：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+    for (int i { 0 }; i &lt; 10; ++i) // 使用 &lt;，仍然终止
+    {
+         std::cout &lt;&lt; i;
+         if (i == 9) ++i; // 跳过值10
+    }
+
+    for (int i { 0 }; i != 10; ++i) // 使用 !=，无限循环
+    {
+         std::cout &lt;&lt; i;
+         if (i == 9) ++i; // 跳过值10
+    }
+
+     return 0;
+}
+</code></pre><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>在 for 循环条件中进行数值比较时，避免使用 <code>operator!=</code> 尽可能优先使用 <code>operator&lt;</code> 或 <code>operator&lt;=</code> </p></div><p class="cpp-section cpp-topline" style="clear:both">差一错误</p><p>新手程序员在使用 for 循环（以及其他使用计数器的循环）时遇到的最大问题之一是差一错误。 <strong>差一错误</strong> 当循环迭代次数比产生期望结果多一次或少一次时，就会发生差一错误。</p><p>下面是一个示例：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+    // 哎呀，我们用了 operator&lt; 而不是 operator&lt;=
+    for (int i{ 1 }; i &lt; 5; ++i)
+    {
+        std::cout &lt;&lt; i &lt;&lt; ' ';
+    }
+
+    std::cout &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>该程序本应打印 <code>1 2 3 4 5</code>，但它只打印了 <code>1 2 3 4</code> ，因为我们使用了错误的关系运算符。</p><p>虽然这些错误最常见的原因是使用了错误的关系运算符，但有时也可能是因为使用了前置递增或前置递减代替后置递增或后置递减，反之亦然。</p><p class="cpp-section cpp-topline" style="clear:both">省略表达式</p><p>可以编写 <em>for 循环</em> 省略任意或全部语句或表达式。例如，在下面的例子中，我们将省略初始化语句和末尾表达式，只保留条件：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+    int i{ 0 };
+    for ( ; i &lt; 10; ) // 没有初始化语句或结束表达式
+    {
+        std::cout &lt;&lt; i &lt;&lt; ' ';
+        ++i;
+    }
+
+    std::cout &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>这 <em>for 循环</em> 产生结果：</p><pre>0 1 2 3 4 5 6 7 8 9
+</pre><p>我们没有让 <em>for 循环</em> 进行初始化和递增，而是手动完成了。在这个例子中，我们纯粹出于学术目的这样做，但在某些情况下，不定义循环变量（因为已经有一个）或不在末尾表达式中递增它（因为以其他方式递增）是可取的。</p><p>虽然不常见，但值得注意的是，下面的例子会产生一个无限循环：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">for (;;)
+    statement;
+</code></pre><p>上面的例子等价于：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">while (true)
+    statement;
+</code></pre><p>这可能有点出乎意料，因为你可能期望省略的条件表达式被视为 <code>false</code>。然而，C++标准明确（且不一致地）规定，for循环中省略的条件表达式应被视为 <code>true</code>。</p><p>我们建议完全避免这种形式的for循环，而使用 <code>while (true)</code> 的别名。</p><p class="cpp-section cpp-topline" style="clear:both">带多个计数器的for循环</p><p>虽然for循环通常只迭代一个变量，但有时for循环需要处理多个变量。为此，程序员可以在初始化语句中定义多个变量，并在末尾表达式中使用逗号运算符来改变多个变量的值：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+    for (int x{ 0 }, y{ 9 }; x &lt; 10; ++x, --y)
+        std::cout &lt;&lt; x &lt;&lt; ' ' &lt;&lt; y &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>这个循环定义并初始化了两个新变量： <code>x</code> 和 <code>y</code>。它迭代 <code>x</code> 范围 <code>0</code> 切换到 <code>9</code>，每次迭代后 <code>x</code> 递增， <code>y</code> 递减。</p><p>该程序产生结果：</p><pre>0 9
+1 8
+2 7
+3 6
+4 5
+5 4
+6 3
+7 2
+8 1
+9 0
+</pre><p>这几乎是C++中唯一被认为可以接受在同一语句中定义多个变量以及使用逗号运算符的地方。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">相关内容</p><p>我们在第 <a href="the-comma-operator.html">6.5课——逗号运算符</a>。</p></div><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>中介绍了逗号运算符。在for语句中定义多个变量（在初始化语句中）和使用逗号运算符（在末尾表达式中）是可以接受的。</p></div><p class="cpp-section cpp-topline" style="clear:both">嵌套for循环</p><p>与其他类型的循环一样，for循环可以嵌套在其他循环内部。在下面的例子中，我们将一个for循环嵌套在另一个for循环内部：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+	for (char c{ 'a' }; c &lt;= 'e'; ++c) // 外层循环遍历字母
+	{
+		std::cout &lt;&lt; c; // 先打印我们的字母
+		
+		for (int i{ 0 }; i &lt; 3; ++i) // 内层循环遍历所有数字
+			std::cout &lt;&lt; i;
+
+		std::cout &lt;&lt; '\n';
+	}
+
+	return 0;
+}
+</code></pre><p>对于外层循环的每次迭代，内层循环完整运行。因此，输出是：</p><pre>a012
+b012
+c012
+d012
+e012
+</pre><p>以下是更详细的解释。外层循环首先运行，char <code>c</code> 被初始化为 <code>'a'</code>。然后 <code>c &lt;= 'e'</code> 被求值，结果为 <code>true</code>，因此循环体执行。由于 <code>c</code> 被设置为 <code>'a'</code>，首先打印 <code>a</code>。接着内层循环完整执行（打印 <code>0</code>， <code>1</code>、和 <code>2</code>）。然后打印换行符。现在外层循环体结束，因此外层循环返回顶部， <code>c</code> 递增到 <code>'b'</code>，循环条件重新求值。由于循环条件仍然为 <code>true</code> ，外层循环的下一次迭代开始。这次打印 <code>b012\n</code>。以此类推。</p><p class="cpp-section cpp-topline" style="clear:both">仅在循环内部使用的变量应在循环内部定义</p><p>新手程序员常常认为创建变量代价高昂，因此最好只创建一次变量（然后赋值），而不是多次创建（并使用初始化）。这导致循环看起来像以下某种变体：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+    int i {}; // i 在循环外定义
+    for (i = 0; i &lt; 10; ++i) // i 被赋值
+    {
+        std::cout &lt;&lt; i &lt;&lt; ' ';        
+    }
+
+    // 这里仍然可以访问 i
+
+    std::cout &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>然而，创建变量本身没有成本——有成本的是初始化，而初始化和赋值之间通常没有成本差异。上面的例子使得 <code>i</code> 在循环之外可用。除非需要在循环之外使用变量，否则在循环外部定义变量可能会带来两个后果：</p><ol start="1"><li>它使程序更复杂，因为我们必须阅读更多代码才能看到变量在哪里使用。</li><li>它实际上可能更慢，因为编译器可能无法有效地优化作用域较大的变量。</li></ol><p>与我们在尽可能小的合理作用域内定义变量的最佳实践一致，仅在循环内使用的变量应该在循环内部定义，而不是在外部。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>仅在循环内部使用的变量应该在循环的作用域内定义。</p></div><p class="cpp-section cpp-topline" style="clear:both">总结</p><p>for语句是C++语言中最常用的循环，因为它将所有关于循环变量、循环条件和循环变量修改的必要信息都放在循环的顶部，这有助于减少错误。尽管其语法对新手程序员来说通常有点令人困惑，但你会经常看到for循环，很快就能理解它们！</p><p>当你有计数器变量时，for语句表现出色。如果没有计数器，while语句可能是更好的选择。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>当存在明显的循环变量时，优先使用for循环而不是while循环。<br/>当没有明显的循环变量时，优先使用while循环而不是for循环。</p></div><p class="cpp-section cpp-topline" style="clear:both">小测验时间</p><p class="cpp-quiz-question" style="clear:both">问题 #1</p><p>编写一个for循环，打印从0到20的所有偶数。</p><p><a aria-controls="cpp_solution_id_0" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_0" href="#cpp_solution_id_0">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_0"><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">for (int i{ 0 }; i &lt;= 20; i += 2)
+    std::cout &lt;&lt; i &lt;&lt; '\n';
+</code></pre></div><p class="cpp-quiz-question cpp-topline" style="clear:both">问题 #2</p><p>编写一个名为 <code>sumTo()</code> 的函数，它接受一个整数参数value，并返回从1到value的所有数字之和。</p><p>例如， <code>sumTo(5)</code> 应返回15，即1 + 2 + 3 + 4 + 5。</p><p>提示：使用一个非循环变量来累加和，当你从1迭代到输入值时，就像上面的 <code>pow()</code> 示例使用total变量每次迭代累加返回值一样。</p><p><a aria-controls="cpp_solution_id_1" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_1" href="#cpp_solution_id_1">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_1"><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int sumTo(int value)
+{
+    int total{ 0 };
+    for (int i{ 1 }; i &lt;= value; ++i)
+        total += i;
+
+    return total;
+}
+</code></pre></div><p class="cpp-quiz-question cpp-topline" style="clear:both">问题 #3</p><p>下面的for循环有什么问题？</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">// 打印从9到0的所有数字
+for (unsigned int i{ 9 }; i &gt;= 0; --i)
+    std::cout &lt;&lt; i&lt;&lt; ' ';
+</code></pre><p><a aria-controls="cpp_solution_id_2" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_2" href="#cpp_solution_id_2">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_2"><p>这个for循环执行的条件是 <code>i &gt;= 0</code>。换句话说，它一直运行直到 <code>i</code> 为负数。然而，因为 <code>i</code> 是无符号的， <code>i</code> 永远不可能为负。因此，这个循环将永远运行（哈哈）！通常，除非必要，否则最好避免对无符号变量进行循环。</p></div><p class="cpp-quiz-question cpp-topline" style="clear:both">问题 #4</p><p><a href="https://en.m.wikipedia.org/wiki/Fizz_buzz">Fizz Buzz</a> 是一个简单的数学游戏，用于教孩子们整除性。它有时也被用作面试问题来评估基本编程技能。</p><p>游戏规则很简单：从1开始向上数，将任何仅能被3整除的数字替换为单词“fizz”，任何仅能被5整除的数字替换为“buzz”，任何同时能被3和5整除的数字替换为“fizzbuzz”。</p><p>在一个名为 <code>fizzbuzz()</code> 的函数中实现这个游戏，该函数接受一个参数，决定数到哪个数字。使用for循环和一个单一的if-else链（意味着你可以使用任意多个else-if）。</p><p>的输出 <code>fizzbuzz(15)</code> 应与以下内容匹配：</p><pre>1
+2
+fizz
+4
+buzz
+fizz
+7
+8
+fizz
+buzz
+11
+fizz
+13
+14
+fizzbuzz
+</pre><p><a aria-controls="cpp_solution_id_3" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_3" href="#cpp_solution_id_3">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_3"><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">// 感谢读者 Waldo 提出这个测验
+#include &lt;iostream&gt;
+
+void fizzbuzz(int count)
+{
+	for (int i{ 1 }; i &lt;= count; ++i)
+	{
+		if (i % 3 == 0 &amp;&amp; i % 5 == 0)
+		{
+			std::cout &lt;&lt; "fizzbuzz\n";
+		}
+		else if (i % 3 == 0)
+		{
+			std::cout &lt;&lt; "fizz\n";
+		}
+		else if (i % 5 == 0)
+		{
+			std::cout &lt;&lt; "buzz\n";
+		}
+		else
+		{
+			std::cout &lt;&lt; i &lt;&lt; '\n';
+		}
+	} // 结束 for 循环
+}
+
+int main()
+{
+	fizzbuzz(15);
+
+	return 0;
+}
+</code></pre></div><p class="cpp-quiz-question cpp-topline" style="clear:both">问题 #5</p><p>修改你在上一个测验中编写的FizzBuzz程序，添加一条规则：能被7整除的数字应替换为“pop”。运行程序150次迭代。</p><p>在这个版本中，使用if/else链显式覆盖每个可能的单词组合会导致函数过长。优化你的函数，使其只使用4个if语句：一个用于每个非复合单词（“fizz”、“buzz”、“pop”），一个用于打印数字的情况。</p><p><a aria-controls="cpp_hint_id_0" aria-expanded="false" class="hint_link_show" data-hide-label="隐藏提示" data-hint-target="cpp_hint_id_0" data-show-label="显示提示" href="#cpp_hint_id_0">显示提示</a></p><div class="wphint" hidden="" id="cpp_hint_id_0">提示：使用一个布尔变量来跟踪数字是否匹配了某个条件。</div><p>以下是预期输出的一些片段：</p><pre>4
+buzz
+fizz
+pop
+8
+</pre><pre>19
+buzz
+fizzpop
+22
+</pre><pre>104
+fizzbuzzpop
+106
+</pre><p><a aria-controls="cpp_solution_id_4" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_4" href="#cpp_solution_id_4">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_4"><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">// 感谢读者 Waldo 提出这个测验
+#include &lt;iostream&gt;
+
+void fizzbuzz(int count)
+{
+	for (int i{ 1 }; i &lt;= count; ++i)
+	{
+		bool printed{ false };
+		if (i % 3 == 0)
+		{
+			std::cout &lt;&lt; "fizz";
+			printed = true;
+		}
+		if (i % 5 == 0)
+		{
+			std::cout &lt;&lt; "buzz";
+			printed = true;
+		}
+		if (i % 7 == 0)
+		{
+			std::cout &lt;&lt; "pop";
+			printed = true;
+		}
+
+		if (!printed)
+			std::cout &lt;&lt; i;
+
+		std::cout &lt;&lt; '\n';
+	} // 结束 for 循环
+}
+
+int main()
+{
+	fizzbuzz(150);
+
+	return 0;
+}
+</code></pre></div>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="do-while-statements.html" rel="prev"><small>上一课</small><strong>8.9 — do while 语句</strong></a><a class="lesson-nav-index" href="index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="break-and-continue.html" rel="next"><small>下一课</small><strong>8.11 — Break 和 continue</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

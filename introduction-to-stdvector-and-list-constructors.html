@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/introduction-to-stdvector-and-list-constructors/" name="learncpp:source-url"/>
+<meta content="a7779c3cb57354122fff8a7cf9b8d311bc00a8cf8457d7726ab1eb74849e6e66" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:51:09.025537+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T17:51:43.033823+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>16.2 — Introduction to std::vector and list constructors</title>
+<link href="assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">16.2 — std::vector 和列表构造函数简介</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 16.2</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/introduction-to-stdvector-and-list-constructors/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>在上一节课 <a href="introduction-to-containers-and-arrays.html">16.1 -- 容器和数组简介</a>中，我们介绍了容器和数组。在本课中，我们将介绍本章剩余部分重点关注的数组类型： <code>std::vector</code>我们还将解决上一课中介绍的可扩展性挑战的一部分。</p><p class="cpp-section cpp-topline" style="clear:both">std::vector 简介 <code>std::vector</code></p><p><code>std::vector</code> 是 C++ 标准容器库中的容器类之一，它实现了一个数组。 <code>std::vector</code> 定义在 &lt;vector&gt; 头文件中，作为一个类模板，带有一个模板类型参数，用于定义元素的类型。因此， <code>std::vector&lt;int&gt;</code> 声明了一个 <code>std::vector</code> 其元素类型为 <code>int</code>。</p><p>实例化一个 <code>std::vector</code> 对象很简单：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;vector&gt;
+
+int main()
+{
+	// 值初始化（使用默认构造函数）
+	std::vector&lt;int&gt; empty{}; // 包含 0 个 int 元素的向量
+
+	return 0;
+}
+</code></pre><p>变量 <code>empty</code> 被定义为 <code>std::vector</code> 其元素类型为 <code>int</code>。由于我们使用了值初始化，我们的 vector 将初始为空（即没有元素）。</p><p>一个没有元素的 vector 现在可能看起来没什么用，但我们将在未来的课程中再次遇到它（特别是 <a href="stdvector-and-stack-behavior.html">16.11 -- std::vector 和栈行为</a>)。</p><p class="cpp-section cpp-topline" style="clear:both">初始化一个 <code>std::vector</code> 使用值列表初始化 std::vector</p><p>由于容器的目标是管理一组相关的值，我们通常希望用这些值来初始化我们的容器。我们可以通过使用列表初始化并提供特定的初始化值来实现。例如：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;vector&gt;
+
+int main()
+{
+	// 列表构造（使用列表构造函数）
+	std::vector&lt;int&gt; primes{ 2, 3, 5, 7 };          // 包含 4 个 int 元素（值为 2、3、5、7）的向量
+	std::vector vowels { 'a', 'e', 'i', 'o', 'u' }; // 包含 5 个 char 元素（值为 'a'、'e'、'i'、'o'、'u'）的向量。使用 CTAD（C++17）推导元素类型 char（首选）。
+
+	return 0;
+}
+</code></pre><p>使用 <code>primes</code>，我们明确指定想要一个 <code>std::vector</code> 其元素类型为 <code>int</code>。由于我们提供了 4 个初始化值， <code>primes</code> 将包含 4 个元素，其值为 <code>2</code>， <code>3</code>， <code>5</code>、和 <code>7</code>。</p><p>使用 <code>vowels</code>，我们没有显式指定元素类型。相反，我们使用 C++17 的 CTAD（类模板参数推导）让编译器从初始化器中推导元素类型。由于我们提供了 5 个初始化值， <code>vowels</code> 将包含 5 个元素，其值为 <code>'a'</code>， <code>'e'</code>， <code>'i'</code>， <code>'o'</code>、和 <code>'u'</code>。</p><p class="cpp-section cpp-topline" style="clear:both">列表构造函数和初始化器列表</p><p>让我们更详细地讨论一下上述内容是如何工作的。</p><p>在课程 <a href="struct-aggregate-initialization.html">13.8 -- 结构体聚合初始化</a>中，我们将初始化器列表定义为一个用花括号括起来的逗号分隔的值列表（例如 <code>{ 1, 2, 3 }</code>)。</p><p>容器通常有一个特殊的构造函数，称为 <strong>列表构造函数</strong> ，它允许我们使用初始化器列表来构造容器的实例。列表构造函数做三件事：</p><ul><li>确保容器有足够的存储空间来容纳所有初始化值（如果需要）。</li><li>将容器的长度设置为初始化器列表中元素的数量（如果需要）。</li><li>将元素初始化为初始化器列表中的值（按顺序）。</li></ul><p>因此，当我们向容器提供一个初始化器列表的值时，列表构造函数被调用，容器使用该值列表构造！</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>使用带有初始化器值列表的列表初始化来构造一个具有这些元素值的容器。</p></div><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">相关内容</p><p>我们将在课程 <a href="stdinitializer_list.html">23.7 -- std::initializer_list</a>。</p></div><p class="cpp-section cpp-topline" style="clear:both">中讨论如何将列表构造函数添加到您自己程序定义的类中。</p><p>使用下标运算符 (operator[]) 访问数组元素</p><p>那么，既然我们已经创建了一个元素数组……我们如何访问它们呢？</p><p>让我们暂时用一个类比。考虑一组并排的相同邮箱。为了更容易识别邮箱，每个邮箱前面都印有一个数字。第一个邮箱编号为 0，第二个编号为 1，等等……所以，如果有人让你把东西放进编号为 0 的邮箱，你就知道那是第一个邮箱。<code>operator[]</code>在 C++ 中，访问数组元素最常见的方式是使用数组名称和下标运算符（ <strong>下标</strong> （或非正式地称为 <strong>索引</strong>）。就像我们的邮箱一样，第一个元素使用索引0访问，第二个使用索引1访问，以此类推……</p><p>例如， <code>primes[0]</code> 将返回索引为 <code>0</code> （第一个元素）的元素，来自 <code>prime</code> 数组。下标运算符返回的是实际元素的引用，而不是副本。一旦我们访问了数组元素，就可以像普通对象一样使用它（例如，为其赋值、输出等）。</p><p>因为索引从0开始而不是1，所以我们说C++中的数组是 <strong>零基的</strong>。这可能令人困惑，因为我们习惯于从1开始计数对象。</p><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">关键提示</p><p>索引实际上是距离数组第一个元素的偏移量。</p><p>如果你从数组的第一个元素开始，移动0个元素，你仍然在第一个元素上。因此索引0是第一个元素。</p><p>如果你从数组的第一个元素开始，移动1个元素，你现在在第二个元素上。因此索引1是第二个元素。</p><p>我们在课程中讨论了索引如何是相对距离（而不是绝对位置） <a href="pointer-arithmetic-and-subscripting.html">17.9 -- 指针算术和下标</a></p></div><p>这也会导致一些语言上的歧义，因为当我们谈论数组元素1时，可能不清楚我们是在谈论第一个数组元素（索引0）还是第二个数组元素（索引1）。通常，我们会根据位置而不是索引来谈论数组元素（所以“第一个元素”是索引为0的那个）。</p><p>下面是一个示例：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+int main()
+{
+    std::vector primes { 2, 3, 5, 7, 11 }; // 保存前 5 个质数（作为 int）
+
+    std::cout &lt;&lt; "The first prime number is: " &lt;&lt; primes[0] &lt;&lt; '\n';
+    std::cout &lt;&lt; "The second prime number is: " &lt;&lt; primes[1] &lt;&lt; '\n';
+    std::cout &lt;&lt; "The sum of the first 5 primes is: " &lt;&lt; primes[0] + primes[1] + primes[2] + primes[3] + primes[4] &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>这会打印：</p><pre>The first prime number is: 2
+The second prime number is: 3
+The sum of the first 5 primes is: 28
+</pre><p>通过使用数组，我们不再需要定义5个不同名称的变量来保存5个质数。相反，我们可以定义一个包含5个元素的单个数组（<code>primes</code>），只需更改索引的值即可访问不同的元素！</p><p>我们将在下一课中进一步讨论 <code>operator[]</code> 以及一些其他访问数组元素的方法 <a href="stdvector-and-the-unsigned-length-and-subscript-problem.html">16.3 -- std::vector 和无符号长度与下标问题</a>。</p><p class="cpp-section cpp-topline" style="clear:both">下标越界</p><p>在对数组进行索引时，提供的索引必须选择数组中的一个有效元素。也就是说，对于长度为N的数组，下标必须是0到N-1（包含）之间的值。</p><p><code>operator[]</code> 不进行任何 <strong>边界检查</strong>，这意味着它不检查索引是否在0到N-1（包含）的范围内。将无效索引传递给 <code>operator[]</code> 将导致未定义行为。</p><p>记住不使用负下标相当容易。但不太容易记住的是，没有索引为N的元素！数组的最后一个元素的索引是N-1，因此使用索引N会导致编译器尝试访问数组末尾之后的一个元素。</p><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">提示</p><p>在包含N个元素的数组中，第一个元素的索引为0，第二个为1，最后一个元素的索引为N-1。没有索引为N的元素！</p><p>使用N作为下标会导致未定义行为（因为这实际上是在尝试访问第N+1个元素，而该元素不属于数组）。</p></div><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">提示</p><p>一些编译器（如Visual Studio）提供了运行时断言来检查索引是否有效。在这种情况下，如果在调试模式下提供了无效索引，程序将断言退出。在发布模式下，断言被编译掉，因此没有性能损失。</p></div><p class="cpp-section cpp-topline" style="clear:both">数组在内存中是连续的</p><p>数组的定义特征之一是元素总是在内存中连续分配，这意味着所有元素在内存中都是相邻的（它们之间没有间隙）。</p><p>作为说明：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+int main()
+{
+    std::vector primes { 2, 3, 5, 7, 11 }; // 保存前 5 个质数（作为 int）
+
+    std::cout &lt;&lt; "An int is " &lt;&lt; sizeof(int) &lt;&lt; " bytes\n";
+    std::cout &lt;&lt; &amp;(primes[0]) &lt;&lt; '\n';
+    std::cout &lt;&lt; &amp;(primes[1]) &lt;&lt; '\n';
+    std::cout &lt;&lt; &amp;(primes[2]) &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>在作者的机器上，上述程序的一次运行产生了以下结果：</p><pre>An int is 4 bytes
+00DBF720
+00DBF724
+00DBF728
+</pre><p>你会注意到这些int元素的内存地址相隔4个字节，与作者机器上 <code>int</code> 的大小相同。</p><p>这意味着数组没有每个元素的额外开销。它还允许编译器快速计算数组中任何元素的地址。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">相关内容</p><p>我们将在课程中讨论下标背后的数学原理 <a href="pointer-arithmetic-and-subscripting.html">17.9 -- 指针算术和下标</a>。</p></div><p>数组是少数允许 <strong>随机访问的容器类型之一</strong>，这意味着容器中的任何元素都可以直接访问（与顺序访问相反，顺序访问中元素必须按特定顺序访问）。对数组元素的随机访问通常很高效，并且使数组非常易于使用。这是数组通常比其他容器更受青睐的主要原因。</p><p class="cpp-section cpp-topline" style="clear:both">构造一个 <code>std::vector</code> 特定长度的</p><p>考虑这样一种情况：我们希望用户输入10个值，并将它们存储在一个 <code>std::vector</code>中。在这种情况下，我们需要一个长度为10的 <code>std::vector</code> ，然后才能将任何值放入 <code>std::vector</code>。我们该如何解决这个问题？</p><p>我们可以创建一个 <code>std::vector</code> ，并用包含10个占位值的初始化列表来初始化它：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">	std::vector&lt;int&gt; data { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }; // 包含 10 个 int 值的向量
+</code></pre><p>但这有很多缺点。需要大量输入。不容易看出有多少个初始化器。而且如果以后决定需要不同数量的值，也不容易更新。</p><p>幸运的是， <code>std::vector</code> 有一个显式构造函数（<code>explicit std::vector&lt;T&gt;(std::size_t)</code>），它接受一个单一的 <code>std::size_t</code> 值来定义要构造的 <code>std::vector</code> 的长度：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">	std::vector&lt;int&gt; data( 10 ); // 包含 10 个 int 元素，值初始化为 0
+</code></pre><p>每个创建的元素都会被值初始化，对于 <code>int</code> 来说，这执行零初始化（对于类类型，调用默认构造函数）。</p><p>然而，使用这个构造函数有一个不太明显的地方：必须使用直接初始化来调用它。</p><p class="cpp-section cpp-topline" style="clear:both">非空初始化列表优先选择列表构造函数</p><p>为了理解为什么前面的构造函数必须使用直接初始化来调用，考虑这个定义：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">	std::vector&lt;int&gt; data{ 10 }; // 这做什么？
+</code></pre><p>有两个不同的构造函数可以匹配这个初始化：</p><ul><li><code>{ 10 }</code> 可以被解释为一个初始化列表，并与列表构造函数匹配，构造一个长度为1、值为10的向量。</li><li><code>{ 10 }</code> 可以被解释为一个单一的括号初始化值，并与 <code>std::vector&lt;T&gt;(std::size_t)</code> 构造函数匹配，构造一个长度为10、元素值初始化为0的向量。</li></ul><p>通常，当一个类类型定义匹配多个构造函数时，匹配被视为有歧义，导致编译错误。然而，C++对此有一个特殊规则：当初始化列表非空时，匹配的列表构造函数将优先于其他匹配的构造函数。如果没有这个规则，列表构造函数将与任何接受单一类型参数的构造函数产生歧义匹配。</p><p>由于 <code>{ 10 }</code> 可以被解释为一个初始化列表，并且 <code>std::vector</code> 有一个列表构造函数，因此列表构造函数在这种情况下优先。</p><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">关键提示</p><p>当使用初始化列表构造类类型对象时：</p><ul><li>如果初始化列表为空，默认构造函数优先于列表构造函数。</li><li>如果初始化列表非空，匹配的列表构造函数优先于其他匹配的构造函数。</li></ul></div><p>为了进一步澄清各种初始化情况下发生的情况，让我们看看使用复制初始化、直接初始化和列表初始化的类似情况：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">	// 拷贝初始化
+	std::vector&lt;int&gt; v1 = 10;     // 10 不是初始化列表，拷贝初始化无法匹配显式构造函数：编译错误
+
+	// 直接初始化
+	std::vector&lt;int&gt; v2(10);      // 10 不是初始化列表，匹配显式单参数构造函数
+
+	// 列表初始化
+	std::vector&lt;int&gt; v3{ 10 };    // { 10 } 被解释为初始化列表，匹配列表构造函数
+
+	// 拷贝列表初始化
+	std::vector&lt;int&gt; v4 = { 10 }; // { 10 } 被解释为初始化列表，匹配列表构造函数
+	std::vector&lt;int&gt; v5({ 10 });  // { 10 } 被解释为初始化列表，匹配列表构造函数
+
+        // 默认初始化
+        std::vector&lt;int&gt; v6 {};       // {} 是空初始化列表，匹配默认构造函数
+        std::vector&lt;int&gt; v7 = {};     // {} 是空初始化列表，匹配默认构造函数
+</code></pre><p>在情况 <code>v1</code>中，初始化值 <code>10</code> 不是一个初始化列表，因此列表构造函数不匹配。单参数构造函数 <code>explicit std::vector&lt;T&gt;(std::size_t)</code> 也不匹配，因为复制初始化不会匹配显式构造函数。由于没有构造函数匹配，这是一个编译错误。</p><p>在情况 <code>v2</code>中，初始化值 <code>10</code> 不是一个初始化列表，因此列表构造函数不匹配。单参数构造函数 <code>explicit std::vector&lt;T&gt;(std::size_t)</code> 是匹配的，因此选择了单参数构造函数。</p><p>在情况 <code>v3</code> （列表初始化）， <code>{ 10 }</code> 可以与列表构造函数或 <code>explicit std::vector&lt;T&gt;(std::size_t)</code>匹配。列表构造函数优先于其他匹配的构造函数并被选中。</p><p>在情况 <code>v4</code> （复制列表初始化）， <code>{ 10 }</code> 可以与列表构造函数（这是一个非显式构造函数，因此可以用于拷贝初始化）匹配。列表构造函数被选中。</p><p>情况 <code>v5</code> 令人惊讶的是，这是拷贝列表初始化（而非直接初始化）的另一种语法，与 <code>v4</code>。</p><p>相同。这是 C++ 初始化的一个缺陷： <code>{ 10 }</code> 如果存在列表构造函数，则会匹配列表构造函数；如果不存在，则会匹配单参数构造函数。这意味着你得到的行为取决于列表构造函数是否存在！通常可以假设容器具有列表构造函数。</p><div class="cpp-note cpp-lightredbackground"><p class="cpp-note-title cpp-bottomline">警告</p><p>如果一个类没有列表构造函数，但后来添加了一个，那么对于所有使用非空初始化列表初始化的对象，调用的构造函数将会改变。</p></div><p><code>v6</code> 和 <code>v7</code> 都是使用空初始化列表初始化的。在这种情况下，默认构造函数优先。</p><p>总结一下，列表初始化器通常设计用于允许我们用元素值列表初始化容器，并且应该用于此目的。大多数情况下这正是我们想要的。因此， <code>{ 10 }</code> 是合适的，如果 <code>10</code> 旨在作为一个元素值。如果 <code>10</code> 旨在作为容器的非列表构造函数的参数，请使用直接初始化。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>当使用非元素值的初始化器构造容器（或任何具有列表构造函数的类型）时，请使用直接初始化。</p></div><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">提示</p><p>当一个 <code>std::vector</code> 是类类型的成员时，如何提供默认初始化器来设置 <code>std::vector</code> 的长度为某个初始值并不明显：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;vector&gt;
+
+struct Foo
+{
+    std::vector&lt;int&gt; v1(8); // 编译错误：成员默认初始化器不允许直接初始化
+};
+</code></pre><p>这不起作用，因为直接（括号）初始化不允许用于成员默认初始化器。</p><p>为类类型的成员提供默认初始化器时：</p><ul><li>我们必须使用拷贝初始化或列表初始化（直接或拷贝）。</li><li>不允许 CTAD（因此我们必须显式指定元素类型）。</li></ul><p>答案如下：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">struct Foo
+{
+    std::vector&lt;int&gt; v{ std::vector&lt;int&gt;(8) }; // ok 
+};
+</code></pre><p>这会创建一个 <code>std::vector</code> 容量为 8，然后将其用作 <code>v</code>。</p></div><p class="cpp-section cpp-topline" style="clear:both">的初始化器。Const 和 constexpr <code>std::vector</code></p><p>类型为 <code>std::vector</code> 的对象可以设为 <code>const</code>：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;vector&gt;
+
+int main()
+{
+    const std::vector&lt;int&gt; prime { 2, 3, 5, 7, 11 }; // prime 及其元素不能被修改
+
+    return 0;
+}
+</code></pre><p>一个 <code>const std::vector</code> 必须初始化，之后不能修改。这种向量的元素被视为 const。</p><p>的元素类型不能定义为 const（例如 <code>std::vector</code> 是不允许的）。 <code>std::vector&lt;const int&gt;</code> 是不允许的）。</p><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">关键提示</p><p>根据 <a href="https://stackoverflow.com/questions/6954906/does-c11-allow-vectorconst-t#comment8294604_6955332">Howard Hinnant 在此处的评论</a>，标准库容器并非设计为具有 const 元素。</p><p>容器的 const 性质来自容器本身的 const，而不是元素。</p></div><p>最大的缺点之一是它不能设为 <code>std::vector</code> 如果你需要一个 <code>constexpr</code>数组，请使用 <code>constexpr</code> 数组，请使用 <code>std::array</code>。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">相关内容</p><p>我们介绍 <code>std::array</code> 在课程 <a href="introduction-to-stdarray.html">17.1 -- std::array简介</a>。</p></div><p class="cpp-section cpp-topline" style="clear:both">为什么叫 vector？</p><p>当人们在对话中使用术语“vector”时，通常指的是几何向量，即具有大小和方向的对象。那么 <code>std::vector</code> 是如何得名的，尽管它不是几何向量？</p><p>在《从数学到泛型编程》一书中，Alexander Stepanov 写道：“STL 中的 vector 名称取自早期的编程语言 Scheme 和 Common Lisp。不幸的是，这与该术语在数学中更古老的含义不一致……这种数据结构本应称为 array。可悲的是，如果你犯了错误并违反了这些原则，结果可能会持续很长时间。”</p><p>所以，基本上， <code>std::vector</code> 命名不当，但现在改已经太晚了。</p><p class="cpp-section cpp-topline" style="clear:both">小测验时间</p><p class="cpp-quiz-question" style="clear:both">问题 #1</p><p>定义一个 <code>std::vector</code> ，使用 CTAD 并用前 5 个正平方数（1、4、9、16 和 25）初始化它。</p><p><a aria-controls="cpp_solution_id_0" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_0" href="#cpp_solution_id_0">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_0"><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">std::vector squares{ 1, 4, 9, 16, 25 };
+</code></pre></div><p class="cpp-quiz-question cpp-topline" style="clear:both">问题 #2</p><p>这两个定义的行为差异是什么？</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">std::vector&lt;int&gt; v1 { 5 };
+std::vector&lt;int&gt; v2 ( 5 );
+</code></pre><p><a aria-controls="cpp_solution_id_1" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_1" href="#cpp_solution_id_1">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_1"><p><code>v1</code> 调用列表构造函数定义一个包含值 <code>5</code>。<br/><code>v2</code> 的 1 元素向量，调用非列表构造函数定义一个 5 元素向量，其元素被值初始化。</p></div><p class="cpp-quiz-question cpp-topline" style="clear:both">问题 #3</p><p>定义一个 <code>std::vector</code> （使用显式模板类型参数）来保存一年中每一天的最高温度（精确到十分之一度，假设一年有 365 天）。</p><p><a aria-controls="cpp_solution_id_2" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_2" href="#cpp_solution_id_2">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_2"><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">std::vector&lt;double&gt; temperature (365); // 创建一个向量来保存 365 个 double 值
+</code></pre></div><p class="cpp-quiz-question cpp-topline" style="clear:both">问题 #4</p><p>使用 <code>std::vector</code>，编写一个程序，要求用户输入 3 个整数值。打印这些值的和与积。</p><p>输出应与以下内容匹配：</p><pre>Enter 3 integers: 3 4 5
+The sum is: 12
+The product is: 60
+</pre><p><a aria-controls="cpp_solution_id_3" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_3" href="#cpp_solution_id_3">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_3"><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+int main()
+{
+	std::vector&lt;int&gt; arr(3); // 创建一个长度为 3 的向量
+	
+	std::cout &lt;&lt; "Enter 3 integers: ";
+	std::cin &gt;&gt; arr[0] &gt;&gt; arr[1] &gt;&gt; arr[2];
+
+	std::cout &lt;&lt; "The sum is: " &lt;&lt; arr[0] + arr[1] + arr[2] &lt;&lt; '\n';
+	std::cout &lt;&lt; "The product is: " &lt;&lt; arr[0] * arr[1] * arr[2] &lt;&lt; '\n';
+
+	return 0;
+}
+</code></pre></div>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="introduction-to-containers-and-arrays.html" rel="prev"><small>上一课</small><strong>16.1 — 容器和数组简介</strong></a><a class="lesson-nav-index" href="index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="stdvector-and-the-unsigned-length-and-subscript-problem.html" rel="next"><small>下一课</small><strong>16.3 — std::vector 与无符号长度和下标问题</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

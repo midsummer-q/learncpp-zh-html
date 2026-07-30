@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/introduction-to-local-scope/" name="learncpp:source-url"/>
+<meta content="cda7b92dcd7b927df7098cc82545c6f5c13c9acb6684ccfa739f822fa6c257e7" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:44:56.625372+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T17:18:22.896797+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>2.5 — Introduction to local scope</title>
+<link href="assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">2.5 — 局部作用域简介</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 2.5</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/introduction-to-local-scope/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p class="cpp-section">局部变量</p><p>在函数体内定义的变量被称为 <strong>局部变量</strong> （与之相对的是 <em>全局变量</em>，我们将在后续章节中讨论）：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int add(int x, int y)
+{
+    int z{ x + y }; // z 是一个局部变量
+
+    return z;
+}
+</code></pre><p>函数参数通常也被视为局部变量，我们将它们一并归入：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int add(int x, int y) // 函数参数 x 和 y 是局部变量
+{
+    int z{ x + y };
+
+    return z;
+}
+</code></pre><p>在本课中，我们将更详细地了解局部变量的一些属性。</p><p class="cpp-section cpp-topline" style="clear:both">局部变量的生命周期</p><p>在课程 <a href="introduction-to-objects-and-variables.html">1.3 -- 对象与变量简介</a>，我们讨论了变量定义如 <code>int x;</code> 会导致变量在该语句执行时被实例化。函数参数在进入函数时被创建并初始化，函数体内的变量在定义点被创建并初始化。</p><p>例如：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int add(int x, int y) // 在这里创建并初始化 x 和 y
+{ 
+    int z{ x + y };   // 在这里创建并初始化 z
+
+    return z;
+}
+</code></pre><p>接下来的自然问题是：“那么实例化的变量何时被销毁？” 局部变量在定义它的花括号集合结束时以创建顺序的相反顺序销毁（对于函数参数，则在函数结束时销毁）。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int add(int x, int y)
+{ 
+    int z{ x + y };
+
+    return z;
+} // 在这里销毁 z、y 和 x
+</code></pre><p>就像人的生命周期被定义为其出生与死亡之间的时间一样，对象的 <strong>生命周期</strong> 被定义为其创建与销毁之间的时间。请注意，变量的创建和销毁发生在程序运行时（称为运行时），而不是编译时。因此，生命周期是一个运行时属性。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">进阶读者</p><p>上述关于创建、初始化和销毁的规则是保证。也就是说，对象必须在不晚于定义点被创建和初始化，并且不得早于定义它的花括号集合结束（对于函数参数，则在函数结束时）被销毁。</p><p>实际上，C++ 规范赋予编译器很大的灵活性来决定局部变量的创建和销毁时机。为了优化，对象可能会被提前创建或延后销毁。最常见的做法是，局部变量在进入函数时被创建，并在退出函数时以创建顺序的相反顺序销毁。我们将在未来关于调用堆栈的课程中更详细地讨论这一点。</p></div><p>下面是一个稍复杂的程序，演示名为 <code>x</code>：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+void doSomething()
+{
+    std::cout &lt;&lt; "Hello!\n";
+}
+
+int main()
+{
+    int x{ 0 };    // x 的生命周期从这里开始
+
+    doSomething(); // 在此函数调用期间 x 仍然存活
+
+    return 0;
+} // x 的生命周期在这里结束
+</code></pre><p>在上述程序中， <code>x</code> 从定义点开始到函数末尾为止 <code>main</code>. 这包括函数执行期间的时间 <code>doSomething</code>。</p><p class="cpp-section cpp-topline" style="clear:both">对象被销毁时会发生什么？</p><p>在大多数情况下，什么也不会发生。被销毁的对象只是变成无效。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">进阶读者</p><p>如果对象是类类型对象，在销毁之前，会调用一个称为析构函数的特殊函数。在许多情况下，析构函数什么也不做，因此不会产生额外开销。我们在课程 <a href="introduction-to-destructors.html">15.4 -- 析构函数简介</a>。</p></div><p>在对象被销毁后对其进行任何使用都将导致未定义行为。</p><p>在销毁后的某个时刻，对象所使用的内存将被 <strong>释放</strong> （腾出以供重用）。</p><p class="cpp-section cpp-topline" style="clear:both">局部作用域（块作用域）</p><p>标识符的 <strong>作用域</strong> 决定了标识符在源代码中可见和可用的位置。当一个标识符可见且可用时，我们说它 <strong>在作用域内</strong>当一个标识符不可见时，我们就不能使用它，我们说它 <strong>超出作用域</strong>. 作用域是编译时属性，尝试在标识符不在作用域内时使用它会导致编译错误。</p><p>局部变量的标识符具有局部作用域。具有 <strong>局部作用域</strong> （技术上称为 <strong>块作用域</strong>) 从定义点到包含该标识符的最内层大括号对结束（对于函数参数，到函数结束）都可用。这确保了局部变量不能在定义点之前（即使编译器选择在此之前创建它们）或销毁之后使用。在一个函数中定义的局部变量也不在调用的其他函数的作用域内。</p><p>下面是一个程序，演示名为 <code>x</code>：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+// 在此函数中的任何位置，x 都不在作用域内
+void doSomething()
+{
+    std::cout &lt;&lt; "Hello!\n";
+}
+
+int main()
+{
+    // 这里不能使用 x，因为它尚未进入作用域
+
+    int x{ 0 }; // x 在此处进入作用域，现在可以在该函数中使用
+
+    doSomething();
+
+    return 0;
+} // x 在此处离开作用域，不能再使用
+</code></pre><p>在上面的程序中，变量 <code>x</code> 在定义点进入作用域。 <code>x</code> 在包含该标识符的最内层大括号对结束处离开作用域，即函数 <code>main()</code>的右花括号。注意，变量 <code>x</code> 在函数 <code>doSomething</code>内部的任何地方都不在作用域内。函数 <code>main</code> 调用函数 <code>doSomething</code> 在这一上下文中无关紧要。</p><p class="cpp-section cpp-topline" style="clear:both">“超出作用域”与“离开作用域”</p><p>术语“超出作用域”和“离开作用域”可能会让新程序员感到困惑。</p><p>标识符在代码中无法访问的任何地方都是超出作用域的。在上面的例子中，标识符 <code>x</code> 从其定义点到 <code>main</code> 函数结束都处于作用域内。标识符 <code>x</code> 在该代码区域之外是超出作用域的。</p><p>术语“离开作用域”通常应用于对象而非标识符。我们说一个对象在其被实例化的作用域结束处（右花括号）离开作用域。在上面的例子中，名为 <code>x</code> 的对象在函数 <code>main</code>。</p><p>局部变量的生命周期在其离开作用域时结束，因此局部变量此时被销毁。</p><p>请注意，并非所有类型的变量在超出作用域时都会被销毁。我们将在后续课程中看到这些例子。</p><p class="cpp-section cpp-topline" style="clear:both">另一个示例</p><p>这里有一个稍微复杂的例子。请记住，生命周期是运行时属性，而作用域是编译时属性，因此尽管我们在同一程序中讨论两者，但它们在不同的时刻生效。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int add(int x, int y) // x 和 y 被创建并在此处进入作用域
+{
+    // x 和 y 仅在 add() 内可用
+    return x + y;
+} // y 和 x 离开作用域并在此处被销毁
+
+int main()
+{
+    int a{ 5 }; // a 被创建、初始化并在此处进入作用域
+    int b{ 6 }; // b 在此处创建、初始化并进入作用域
+
+    // a 和 b 仅在 main() 内可用
+
+    std::cout &lt;&lt; add(a, b) &lt;&lt; '\n'; // 调用 add(5, 6)，其中 x=5, y=6
+
+    return 0;
+} // b 和 a 在此处离开作用域并被销毁
+</code></pre><p>参数 <code>x</code> 和 <code>y</code> 在函数被调用时创建 <code>add</code> 函数被调用，只能在函数内部看到/使用 <code>add</code>并在函数结束时销毁 <code>add</code>。变量 <code>a</code> 和 <code>b</code> 在函数内部创建 <code>main</code>只能在函数内部看到/使用 <code>main</code>并在函数结束时销毁 <code>main</code>。</p><p>为了加深你对所有这些如何配合的理解，让我们更详细地追踪这个程序。以下是按顺序发生的情况：</p><ul><li>执行从顶部开始 <code>main</code>。</li><li><code>main</code> 变量 <code>a</code> 被创建并赋予值 <code>5</code>。</li><li><code>main</code> 变量 <code>b</code> 被创建并赋予值 <code>6</code>。</li><li>函数 <code>add</code> 被调用，参数值为 <code>5</code> 和 <code>6</code>。</li><li><code>add</code> 参数 <code>x</code> 和 <code>y</code> 被创建并使用值初始化 <code>5</code> 和 <code>6</code> </li><li>表达式 <code>x + y</code> 被求值以产生值 <code>11</code>。</li><li><code>add</code> 将值复制 <code>11</code> 返回给调用者 <code>main</code>。</li><li><code>add</code> 参数 <code>y</code> 和 <code>x</code> 被销毁。</li><li><code>main</code> 打印 <code>11</code> 到控制台。</li><li><code>main</code> 返回 <code>0</code> 给操作系统。</li><li><code>main</code> 变量 <code>b</code> 和 <code>a</code> 被销毁。</li></ul><p>我们就完成了。</p><p>注意，如果函数 <code>add</code> 被调用两次，参数 <code>x</code> 和 <code>y</code> 会被创建和销毁两次——每次调用各一次。在一个包含许多函数和函数调用的程序中，变量会频繁地创建和销毁。</p><p class="cpp-section cpp-topline" style="clear:both">函数分离</p><p>在上面的例子中，很容易看出变量 <code>a</code> 和 <code>b</code> 是与...不同的变量 <code>x</code> 和 <code>y</code>。</p><p>现在考虑以下类似的程序：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int add(int x, int y) // add 的 x 和 y 在此处创建并进入作用域
+{
+    // add 的 x 和 y 仅在此函数内可见/可用
+    return x + y;
+} // add 的 y 和 x 在此处离开作用域并被销毁
+
+int main()
+{
+    int x{ 5 }; // main 的 x 在此处创建、初始化并进入作用域
+    int y{ 6 }; // main 的 y 在此处创建、初始化并进入作用域
+
+    // main 的 x 和 y 仅在此函数内可用
+    std::cout &lt;&lt; add(x, y) &lt;&lt; '\n'; // 以 x=5, y=6 调用函数 add()
+
+    return 0;
+} // main 的 y 和 x 在此处离开作用域并被销毁
+</code></pre><p>在这个例子中，我们只是改变了变量 <code>a</code> 和 <code>b</code> 在函数内部 <code>main</code> 切换到 <code>x</code> 和 <code>y</code>。这个程序编译和运行完全相同，尽管函数 <code>main</code> 和 <code>add</code> 都有名为...的变量 <code>x</code> 和 <code>y</code>。为什么这样可行？</p><p>首先，我们需要认识到，尽管函数 <code>main</code> 和 <code>add</code> 都有名为...的变量 <code>x</code> 和 <code>y</code>，这些变量是不同的。 <code>x</code> 和 <code>y</code> 在函数 <code>main</code> 与...无关 <code>x</code> 和 <code>y</code> 在函数 <code>add</code> ——它们只是恰好共享相同的名称。</p><p>第二，当在函数 <code>main</code>内部时，名字 <code>x</code> 和 <code>y</code> 指的是main的局部作用域变量 <code>x</code> 和 <code>y</code>。这些变量只能在 <code>main</code>内部被看到（和使用）。类似地，当在函数 <code>add</code>内部时，名字 <code>x</code> 和 <code>y</code> 内部时，名字 <code>x</code> 和 <code>y</code>指的是函数参数，这些参数只能在 <code>add</code>。</p><p>内部被看到（和使用）。简而言之，既不是 <code>add</code> 也不是 <code>main</code> 知道另一个函数有相同名字的变量。因为作用域不重叠，编译器始终清楚哪个 <code>x</code> 和 <code>y</code> 在任何时候被引用。</p><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">关键提示</p><p>用于函数参数或在函数体内声明的变量的名称仅在该函数内部可见。这意味着函数内的局部变量可以命名，而无需考虑其他函数中变量的名称。这有助于保持函数的独立性。</p></div><p>我们将在未来的章节中进一步讨论局部作用域以及其他类型的作用域。</p><p class="cpp-section cpp-topline" style="clear:both">在哪里定义局部变量</p><p>在现代C++中，最佳实践是函数体内的局部变量应在合理的情况下尽可能靠近其首次使用处定义：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+	std::cout &lt;&lt; "Enter an integer: ";
+	int x{};       // x 在此处定义
+	std::cin &gt;&gt; x; // 并在此处使用
+
+	std::cout &lt;&lt; "Enter another integer: ";
+	int y{};       // y 在此处定义
+	std::cin &gt;&gt; y; // 并在此处使用
+
+	int sum{ x + y }; // sum 可以用预期值初始化
+	std::cout &lt;&lt; "The sum is: " &lt;&lt; sum &lt;&lt; '\n';
+
+	return 0;
+}
+</code></pre><p>在上面的例子中，每个变量都在首次使用前定义。对此不必过于严格——如果你喜欢交换第5行和第6行，那也是可以的。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>在合理的情况下，将局部变量定义在尽可能靠近其首次使用的地方。</p></div><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">顺便说一句……</p><p>由于较老、较原始的编译器的限制，C语言曾要求所有局部变量在函数顶部定义。使用那种风格的等效C++程序如下所示：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+	int x{}, y{}, sum{}; // 这些是如何使用的？
+
+	std::cout &lt;&lt; "Enter an integer: ";
+	std::cin &gt;&gt; x;
+
+	std::cout &lt;&lt; "Enter another integer: ";
+	std::cin &gt;&gt; y;
+
+	sum = x + y;
+	std::cout &lt;&lt; "The sum is: " &lt;&lt; sum &lt;&lt; '\n';
+
+	return 0;
+}
+</code></pre><p>这种风格因以下几个原因而并非最佳：</p><ul><li>这些变量的预期用途在定义点并不明显。你必须扫描整个函数才能确定每个变量在哪里以及如何使用。</li><li>预期的初始化值可能在函数顶部不可用（例如，我们无法初始化 <code>sum</code> 为其预期的值，因为我们不知道 <code>x</code> 和 <code>y</code> 还不知道）。</li><li>在变量的初始化器与其首次使用之间可能有很多行代码。如果我们不记得它被初始化为什么值，就必须滚动回函数顶部，这会分散注意力。</li></ul><p>这一限制在C99语言标准中被解除。</p></div><p class="cpp-section cpp-topline" style="clear:both">何时使用函数参数 vs 局部变量</p><p>由于函数参数和局部变量都可以在函数体中使用，初学者有时难以理解何时应使用它们。当调用者将传入初始化值作为实参时，应使用函数参数。否则，应使用局部变量。</p><p>当应该使用局部变量时却使用了函数参数，会导致代码像这样：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int getValueFromUser(int val) // val 是一个函数参数
+{
+    std::cout &lt;&lt; "Enter a value: ";
+    std::cin &gt;&gt; val;
+    return val;
+}
+
+int main()
+{
+    int x {};
+    int num { getValueFromUser(x) }; // main 必须将 x 作为参数传递
+
+    std::cout &lt;&lt; "You entered " &lt;&lt; num &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>在上面的例子中， <code>getValueFromUser()</code> 定义了 <code>val</code> 作为一个函数参数。因此， <code>main()</code> 必须定义 <code>x</code> 以便有东西可以作为实参传递。然而，实际的值 <code>x</code> 从未被使用，而 <code>val</code> 被初始化的值也从未被使用。让调用者定义并传递一个从未使用的变量增加了不必要的复杂性。</p><p>正确的写法如下：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int getValueFromUser()
+{
+    int val {}; // val 是一个局部变量
+    std::cout &lt;&lt; "Enter a value: ";
+    std::cin &gt;&gt; val;
+    return val;
+}
+
+int main()
+{
+    int num { getValueFromUser() }; // main 不需要传递任何内容
+
+    std::cout &lt;&lt; "You entered " &lt;&lt; num &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>在这个例子中， <code>val</code> 现在是一个局部变量。 <code>main()</code> 现在更简单，因为它不需要定义或传递变量来调用 <code>getValueFromUser()</code>。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>当函数内部需要一个变量时：</p><ul><li>当调用者将变量的初始化值作为实参传递时，请使用函数参数。</li><li>否则使用局部变量。</li></ul></div><p class="cpp-section cpp-topline" style="clear:both"><a name="temporaries"></a>临时对象简介 <a href="#temporaries"><i class="fa fa-link" style="font-size:.8em"></i></a></p><p>一个 <strong>临时对象</strong> （有时也称为 <strong>匿名对象</strong>）是一种未命名的对象，用于仅需短暂持有的值。临时对象在需要时由编译器生成。</p><p>有多种方式可以创建临时值，但以下是一种常见情况：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int getValueFromUser()
+{
+ 	std::cout &lt;&lt; "Enter an integer: ";
+	int input{};
+	std::cin &gt;&gt; input;
+
+	return input; // 将 input 的值返回给调用者
+}
+
+int main()
+{
+	std::cout &lt;&lt; getValueFromUser() &lt;&lt; '\n'; // 返回的值存储在哪里？
+
+	return 0;
+}
+</code></pre><p>在上述程序中，函数 <code>getValueFromUser()</code> 返回存储在局部变量 <code>input</code> 中的值给调用者。由于 <code>input</code> 会在函数结束时被销毁，调用者会收到该值的副本，这样即使在 <code>input</code> 被销毁后，它也能拥有一个可用的值。</p><p>但是复制给调用者的值存储在哪里？我们并没有在 <code>main()</code>中定义任何变量。答案是返回值存储在一个临时对象中。然后这个临时对象被传递给 <code>std::cout</code> 以进行打印。</p><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">关键提示</p><p>按值返回会将一个临时对象（包含返回值的副本）返回给调用者。</p></div><p>临时对象完全没有作用域（这很合理，因为作用域是标识符的属性，而临时对象没有标识符）。</p><p>临时对象在创建它们的完整表达式结束时被销毁。这意味着临时对象总是在下一条语句执行之前被销毁。</p><p>在我们上面的例子中，用于保存 <code>getValueFromUser()</code> 返回值的临时对象在之后被销毁。 <code>std::cout &lt;&lt; getValueFromUser() &lt;&lt; '\n'</code> 执行。</p><p>当使用临时对象初始化变量时，初始化发生在临时对象销毁之前。</p><p>在现代C++（尤其是自C++17起），编译器有许多技巧可以避免生成以前需要生成的临时对象。例如，当我们使用返回值初始化变量时，通常会产生一个包含返回值的临时对象，然后用该临时对象初始化变量。然而，在现代C++中，编译器通常会跳过创建临时对象，直接使用返回值初始化变量。</p><p>类似地，在上例中，由于 <code>getValueFromUser()</code> 的返回值被立即输出，编译器可以跳过中临时对象的创建和销毁 <code>main()</code>，并使用的返回值 <code>getValueFromUser()</code> 直接初始化参数 <code>operator&lt;&lt;</code>。</p><p class="cpp-section cpp-topline" style="clear:both">小测验时间</p><div class="quiz" style="clear:both"><p class="quiz-header">问题 #1</p><p>以下程序会打印什么？</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+void doIt(int x)
+{
+    int y{ 4 };
+    std::cout &lt;&lt; "doIt: x = " &lt;&lt; x &lt;&lt; " y = " &lt;&lt; y &lt;&lt; '\n';
+
+    x = 3;
+    std::cout &lt;&lt; "doIt: x = " &lt;&lt; x &lt;&lt; " y = " &lt;&lt; y &lt;&lt; '\n';
+}
+
+int main()
+{
+    int x{ 1 };
+    int y{ 2 };
+
+    std::cout &lt;&lt; "main: x = " &lt;&lt; x &lt;&lt; " y = " &lt;&lt; y &lt;&lt; '\n';
+
+    doIt(x);
+
+    std::cout &lt;&lt; "main: x = " &lt;&lt; x &lt;&lt; " y = " &lt;&lt; y &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p><a aria-controls="cpp_solution_id_0" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_0" href="#cpp_solution_id_0">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_0"><pre>main: x = 1 y = 2
+doIt: x = 1 y = 4
+doIt: x = 3 y = 4
+main: x = 1 y = 2
+</pre><p>以下是该程序中的执行过程：</p><ul><li>执行从顶部开始 <code>main</code></li><li><code>main</code>的变量 <code>x</code> 被创建并初始化为值 <code>1</code></li><li><code>main</code>的变量 <code>y</code> 被创建并初始化为值 <code>2</code></li><li><code>std::cout</code> 打印 <code>main: x = 1 y = 2</code></li><li><code>doIt</code> 被调用，参数为 <code>1</code></li><li><code>doIt</code>的参数 <code>x</code> 被创建并初始化为值 <code>1</code></li><li><code>doIt</code>的变量 <code>y</code> 被创建并初始化为值 <code>4</code></li><li><code>doIt</code> 打印 <code>doIt: x = 1 y = 4</code></li><li><code>doIt</code>的变量 <code>x</code> 被赋值为新值 <code>3</code></li><li><code>std::cout</code> 打印 <code>doIt: x = 3 y = 4</code></li><li><code>doIt</code>的 <code>y</code> 和 <code>x</code> 被销毁</li><li><code>std::cout</code> 打印 <code>main: x = 1 y = 2</code></li><li><code>main</code> 返回 <code>0</code> 给操作系统</li><li><code>main</code>的 <code>y</code> 和 <code>x</code> 被销毁</li></ul><p>注意，尽管 <code>doIt</code>的变量 <code>x</code> 和 <code>y</code> 其值被初始化或赋值为不同于 <code>main</code> 's, <code>main</code>的 <code>x</code> 和 <code>y</code> 不受影响，因为它们是不同的变量。</p></div><p></p></div>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="introduction-to-function-parameters-and-arguments.html" rel="prev"><small>上一课</small><strong>2.4 — 函数参数与实参简介</strong></a><a class="lesson-nav-index" href="index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="why-functions-are-useful-and-how-to-use-them-effectively.html" rel="next"><small>下一课</small><strong>2.6 — 为什么函数很有用，以及如何有效使用它们</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

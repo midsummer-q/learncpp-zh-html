@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/stdvector-and-stack-behavior/" name="learncpp:source-url"/>
+<meta content="45c70dd61ba442821325f769580d8fff7e25d603daf451b7b85c075c41e53eaf" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:51:28.858475+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T17:54:49.890094+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>16.11 — std::vector and stack behavior</title>
+<link href="assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">16.11 — std::vector 与栈行为</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 16.11</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/stdvector-and-stack-behavior/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>考虑这样一种情况：你正在编写一个程序，用户将输入一系列值（例如一堆测试分数）。在这种情况下，用户将要输入的值的数量在编译时是未知的，并且每次运行程序时都可能不同。你将把这些值存储在一个 <code>std::vector</code> 中，以便显示和/或处理。</p><p>根据我们目前讨论的内容，有几种方法可以处理这个问题：</p><p>首先，你可以询问用户有多少个条目，创建一个具有该长度的 vector，然后要求用户输入相应数量的值。</p><p>这不是一个糟糕的方法，但它要求用户事先确切知道有多少个条目，并且计数不能出错。手动计数超过十个或二十个项目可能会很繁琐——既然我们应该为用户计数，为什么还要让用户自己数呢？</p><p>或者，我们可以假设用户不会想输入超过某个数量的值（例如 30），并创建一个（或调整大小）具有那么多元素的 vector。然后我们可以要求用户输入数据，直到他们完成（或直到达到 30 个输入值）。由于 vector 的长度应表示已使用的元素数量，我们可以随后将 vector 的大小调整为用户实际输入的值数量。</p><p>这种方法的缺点是用户被限制为只能输入 30 个值，而我们不知道这个数字是太多还是太少。如果用户想输入更多值，那就没办法了。</p><p>我们可以通过添加一些逻辑来解决这个问题，当用户达到最大值时，将 vector 调整得更大。但这意味着我们现在必须将数组大小管理与程序逻辑混合在一起，这将显著增加程序的复杂性（这不可避免地会导致错误）。</p><p>真正的问题在于，我们试图猜测用户可能输入多少个元素，以便适当地管理 vector 的大小。对于确实事先不知道要输入多少个元素的情况，有一种更好的方法。</p><p>但在我们讨论之前，需要先稍微岔开话题。</p><p class="cpp-section cpp-topline" style="clear:both">什么是栈？</p><p>打个比方！想象一下自助餐厅里的一叠盘子。出于某种未知原因，这些盘子特别重，一次只能拿起一个。由于盘子是叠放的且很重，你只能通过以下两种方式之一修改这叠盘子：</p><ol start="1"><li>在盘子堆顶部放一个新盘子（如果下面有盘子，则将其隐藏）</li><li>从盘子堆顶部移除盘子（如果下面有盘子，则将其暴露出来）</li></ol><p>不允许从中间或底部添加或移除盘子，因为那样需要一次拿起多个盘子。</p><p>项目添加到栈和从栈中移除的顺序可以描述为 <strong>后进先出（LIFO）</strong>。最后添加到栈中的盘子将是第一个被移除的盘子。</p><p class="cpp-section cpp-topline" style="clear:both">编程中的栈</p><p>在编程中， <strong>栈</strong> 是一种容器数据类型，其中元素的插入和移除以 LIFO 方式进行。这通常通过两个操作实现，分别称为 <strong>push</strong> 和 <strong>pop</strong>：</p><div class="cpp-table-wrapper"><table class="cpp-table"><tbody><tr><th>操作名称</th><th>行为</th><th>必需？</th><th>备注</th></tr><tr><td>Push</td><td>将新元素放在栈顶</td><td>是</td><td></td></tr><tr><td>Pop</td><td>从栈中移除顶部元素</td><td>是</td><td>可能返回被移除的元素或 void</td></tr></tbody></table></div><p>许多栈实现还可选地支持其他有用的操作：</p><div class="cpp-table-wrapper"><table class="cpp-table"><tbody><tr><th>操作名称</th><th>行为</th><th>必需？</th><th>备注</th></tr><tr><td>Top 或 Peek</td><td>获取栈顶元素</td><td>可选</td><td>不移除元素</td></tr><tr><td>Empty</td><td>判断栈是否为空</td><td>可选</td><td></td></tr><tr><td>Size</td><td>栈中元素的数量</td><td>可选</td><td></td></tr></tbody></table></div><p>栈在编程中很常见。在课程 <a href="using-an-integrated-debugger-the-call-stack.html">3.9 -- 使用集成调试器：调用堆栈</a>中，我们讨论了调用栈，它跟踪哪些函数已被调用。调用栈就是一个栈！（我知道，这个揭示有点令人失望）。当一个函数被调用时，一个包含该函数信息的条目被添加到调用栈的顶部。当函数返回时，包含该函数信息的条目从调用栈顶部移除。这样，调用栈的顶部始终代表当前正在执行的函数，而每个后续条目代表先前正在执行的函数。</p><p>例如，下面是一个简短的序列，展示了压栈和出栈是如何工作的：</p><pre>       (Stack: empty)
+Push 1 (Stack: 1)
+Push 2 (Stack: 1 2)
+Push 3 (Stack: 1 2 3)
+Pop    (Stack: 1 2)
+Push 4 (Stack: 1 2 4)
+Pop    (Stack: 1 2)
+Pop    (Stack: 1)
+Pop    (Stack: empty)
+</pre><p class="cpp-section cpp-topline" style="clear:both">C++ 中的栈</p><p>在某些语言中，栈被实现为独立的容器类型（与其他容器分开）。但这可能相当受限。考虑这样一种情况：我们想要打印栈中的所有值而不修改栈。纯栈接口不提供直接执行此操作的方法。</p><p>在 C++ 中，类似栈的操作被添加（作为成员函数）到现有的标准库容器类中，这些容器支持在一端高效插入和移除元素（<code>std::vector</code>， <code>std::deque</code> 和 <code>std::list</code>）。这使得这些容器除了自身的原生功能外，还可以用作栈。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">顺便说一句……</p><p>盘子堆的类比很好，但我们可以做一个更好的类比，帮助我们理解如何使用数组实现栈。考虑一个由邮箱堆叠而成的柱子，而不是一个当前盘子数量可变的盘子堆。每个邮箱只能容纳一个物品，并且所有邮箱最初都是空的。每个邮箱都钉在下面的邮箱上，柱子的顶部覆盖着有毒的尖刺，因此无法在任何地方插入新邮箱。</p><p>如果我们不能改变邮箱的数量，我们如何获得类似栈的行为？</p><p>首先，我们使用一个标记（比如便利贴）来跟踪栈顶的位置——这始终是最低的空邮箱。开始时，栈是空的，所以标记放在最底部的邮箱上。</p><p>当我们向邮箱栈压入一个物品时，我们将其放入标记的邮箱（即最低的空邮箱），并将标记向上移动一个邮箱。当我们从栈中弹出一个物品时，我们将标记向下移动一个邮箱（使其指向顶部非空邮箱），并从该邮箱中移除物品，使其现在为空。</p><p>标记下方的物品被视为“在栈上”。标记处或标记上方的物品不在栈上。</p><p>现在，将标记称为 <code>length</code>，邮箱数量称为 <code>capacity</code>…</p></div><p>在本课的剩余部分，我们将研究 <code>std::vector</code> 的栈接口如何工作，然后我们将通过展示它如何帮助我们解决本课开头提出的挑战来结束。</p><p class="cpp-section cpp-topline" style="clear:both">使用 <code>std::vector</code></p><p>的栈行为 <code>std::vector</code> 中的栈行为通过以下成员函数实现：</p><div class="cpp-table-wrapper"><table class="cpp-table"><tbody><tr><th>函数名</th><th>栈操作</th><th>行为</th><th>备注</th></tr><tr><td>push_back()</td><td>Push</td><td>将新元素放在栈顶</td><td>将元素添加到 vector 的末尾</td></tr><tr><td>pop_back()</td><td>Pop</td><td>从栈中移除顶部元素</td><td>返回 void，移除 vector 末尾的元素</td></tr><tr><td>back()</td><td>Top 或 Peek</td><td>获取栈顶元素</td><td>不移除元素</td></tr><tr><td>emplace_back()</td><td>Push</td><td>push_back() 的替代形式，可能更高效（见下文）</td><td>将元素添加到 vector 的末尾</td></tr></tbody></table></div><p>让我们看一个使用其中一些函数的示例：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+void printStack(const std::vector&lt;int&gt;&amp; stack)
+{
+	if (stack.empty()) // 如果 stack.size == 0
+		std::cout &lt;&lt; "Empty";
+
+	for (auto element : stack)
+		std::cout &lt;&lt; element &lt;&lt; ' ';
+
+	// \t 是一个制表符，用于帮助对齐文本
+	std::cout &lt;&lt; "\tCapacity: " &lt;&lt; stack.capacity() &lt;&lt; "  Length " &lt;&lt; stack.size() &lt;&lt; "\n";
+}
+
+int main()
+{
+	std::vector&lt;int&gt; stack{}; // 空栈
+
+	printStack(stack);
+
+	stack.push_back(1); // push_back() 将一个元素压入栈
+	printStack(stack);
+
+	stack.push_back(2);
+	printStack(stack);
+
+	stack.push_back(3);
+	printStack(stack);
+
+	std::cout &lt;&lt; "Top: " &lt;&lt; stack.back() &lt;&lt; '\n'; // back() 返回最后一个元素
+
+	stack.pop_back(); // pop_back() 从栈中弹出一个元素
+	printStack(stack);
+
+	stack.pop_back();
+	printStack(stack);
+
+	stack.pop_back();
+	printStack(stack);
+
+	return 0;
+}
+</code></pre><p>在 GCC 或 Clang 上，输出为：</p><pre>Empty   Capacity: 0  Length: 0
+1       Capacity: 1  Length: 1
+1 2     Capacity: 2  Length: 2
+1 2 3   Capacity: 4  Length: 3
+Top:3
+1 2     Capacity: 4  Length: 2
+1       Capacity: 4  Length: 1
+Empty   Capacity: 4  Length: 0
+</pre><p>记住，length 是 vector 中的元素数量，在这种情况下，就是栈上的元素数量。</p><p>与下标运算符 <code>operator[]</code> 还是我们定义的 <code>at()</code> 成员函数不同， <code>push_back()</code> （以及 <code>emplace_back()</code>）会增加 vector 的长度，并且如果容量不足以插入该值，将导致重新分配。</p><p>在上面的示例中，vector 被重新分配了 3 次（容量从 0 到 1，1 到 2，以及 2 到 4）。</p><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">关键提示</p><p><code>push_back()</code> 和 <code>emplace_back()</code> 会增加 <code>std::vector</code>的长度，并且如果容量不足以插入该值，将导致重新分配。</p></div><p class="cpp-section cpp-topline" style="clear:both">压入带来的额外容量</p><p>在上面的输出中，注意当三次重新分配中的最后一次发生时，容量从 2 跳到了 4（即使我们只压入了一个元素）。当压入触发重新分配时， <code>std::vector</code> 通常会分配一些额外的容量，以便在下次添加元素时无需再次触发重新分配。</p><p>分配多少额外容量取决于编译器的实现 <code>std::vector</code>，不同的编译器通常有不同的做法：</p><ul><li>GCC 和 Clang 将当前容量加倍。当最后一次调整大小时，容量从 2 翻倍到 4。</li><li>Visual Studio 2022 将当前容量乘以 1.5。当最后一次调整大小时，容量从 2 变为 3。</li></ul><p>因此，根据使用的编译器，上述程序的输出可能略有不同。</p><p class="cpp-section cpp-topline" style="clear:both">调整 vector 大小不适用于栈行为</p><p>重新分配 vector 的计算成本很高（与 vector 的长度成正比），因此我们希望尽可能避免重新分配。在上面的示例中，如果我们在程序开始时手动将 vector 的大小调整为容量 3，就可以避免 vector 被重新分配 3 次。</p><p>让我们看看如果将上面示例中的第 18 行改为以下内容会发生什么：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">std::vector&lt;int&gt; stack(3); // 使用圆括号初始化将 vector 的容量设置为 3
+</code></pre><p>现在当我们再次运行程序时，得到以下输出：</p><pre>0 0 0 	Capacity: 3  Length 3
+0 0 0 1 	Capacity: 6  Length 4
+0 0 0 1 2 	Capacity: 6  Length 5
+0 0 0 1 2 3 	Capacity: 6  Length 6
+Top: 3
+0 0 0 1 2 	Capacity: 6  Length 5
+0 0 0 1 	Capacity: 6  Length 4
+0 0 0 	Capacity: 6  Length 3
+</pre><p>这不对——不知何故，我们的栈开头有一堆 <code>0</code> 值！问题在于，使用括号初始化（设置 vector 的初始大小）和 <code>resize()</code> 函数同时设置了容量和长度。我们的 vector 初始容量为 3（这正是我们想要的），但长度也被设置为 3。因此，我们的 vector 一开始就有 3 个值为 0 的元素。之后压入的元素会压在这些初始元素之上。</p><p>浮点类型的 <code>resize()</code> 成员函数改变 vector 的长度，当我们打算使用下标访问元素时是可以的（因为索引必须小于长度才有效），但当我们把 vector 用作栈时就会导致问题。</p><p>我们真正想要的是某种改变容量（以避免未来的重新分配）而不改变长度（这会产生向栈中添加新元素的副作用）的方法。</p><p class="cpp-section cpp-topline" style="clear:both">浮点类型的 <code>reserve()</code> 成员函数改变容量（但不改变长度）</p><p>浮点类型的 <code>reserve()</code> 成员函数可用于重新分配 <code>std::vector</code> 而不改变当前长度。</p><p>以下是相同的示例，但添加了对 <code>reserve()</code> 的调用来设置容量：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+void printStack(const std::vector&lt;int&gt;&amp; stack)
+{
+	if (stack.empty()) // 如果 stack.size == 0
+		std::cout &lt;&lt; "Empty";
+
+	for (auto element : stack)
+		std::cout &lt;&lt; element &lt;&lt; ' ';
+
+	// \t 是一个制表符，用于帮助对齐文本
+	std::cout &lt;&lt; "\tCapacity: " &lt;&lt; stack.capacity() &lt;&lt; "  Length " &lt;&lt; stack.size() &lt;&lt; "\n";
+}
+
+int main()
+{
+	std::vector&lt;int&gt; stack{};
+
+	printStack(stack);
+
+	stack.reserve(6); // 为 6 个元素预留空间（但不改变长度）
+	printStack(stack);
+
+	stack.push_back(1);
+	printStack(stack);
+
+	stack.push_back(2);
+	printStack(stack);
+
+	stack.push_back(3);
+	printStack(stack);
+
+	std::cout &lt;&lt; "Top: " &lt;&lt; stack.back() &lt;&lt; '\n';
+
+	stack.pop_back();
+	printStack(stack);
+
+	stack.pop_back();
+	printStack(stack);
+
+	stack.pop_back();
+	printStack(stack);
+
+	return 0;
+}
+</code></pre><p>在作者的机器上，这会打印：</p><pre>Empty   Capacity: 0  Length: 0
+Empty   Capacity: 6  Length: 0
+1       Capacity: 6  Length: 1
+1 2     Capacity: 6  Length: 2
+1 2 3   Capacity: 6  Length: 3
+Top: 3
+1 2     Capacity: 6  Length: 2
+1       Capacity: 6  Length: 1
+Empty   Capacity: 6  Length: 0
+</pre><p>你可以看到调用 <code>reserve(6)</code> 将容量更改为 6，但没有影响长度。不再发生重新分配，因为 std::vector 足够大，可以容纳我们压入的所有元素。</p><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">关键提示</p><p>浮点类型的 <code>resize()</code> 成员函数改变 vector 的长度，并在必要时改变容量。<br/>浮点类型的 <code>reserve()</code> 成员函数仅改变容量（如果需要）</p></div><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">提示</p><p>要增加 <code>std::vector</code>：<br/>使用 <code>resize()</code> 中的元素数量，当通过索引访问 vector 时使用。这会改变 vector 的长度，使你的索引有效。<br/>使用 <code>reserve()</code> 当使用栈操作访问 vector 时使用。这会增加容量而不改变 vector 的长度。</p></div><p class="cpp-section cpp-topline" style="clear:both"><a name="push_vs_emplace"></a><code>push_back()</code> vs <code>emplace_back()</code> <a href="#push_vs_emplace"><i class="fa fa-link" style="font-size:.8em"></i></a></p><p>两者都 <code>push_back()</code> 和 <code>emplace_back()</code> 将一个元素压入栈。如果要压入的对象已经存在， <code>push_back()</code> 和 <code>emplace_back()</code> 是等价的，并且 <code>push_back()</code> 应该优先使用。</p><p>然而，在为了将临时对象压入 vector 而创建临时对象（与 vector 元素类型相同）的情况下， <code>emplace_back()</code> 可能更高效：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;string_view&gt;
+#include &lt;vector&gt;
+
+class Foo
+{
+private:
+    std::string m_a{};
+    int m_b{};
+
+public:
+    Foo(std::string_view a, int b)
+        : m_a { a }, m_b { b }
+        {}
+
+    explicit Foo(int b)
+        : m_a {}, m_b { b }
+        {};
+};
+
+int main()
+{
+	std::vector&lt;Foo&gt; stack{};
+
+	// 当我们已经有一个对象时，push_back 和 emplace_back 的效率相似
+	Foo f{ "a", 2 };
+	stack.push_back(f);    // 优先使用这个
+	stack.emplace_back(f);
+
+	// 当我们需要创建一个临时对象来压入时，emplace_back 更高效
+	stack.push_back({ "a", 2 }); // 创建一个临时对象，然后将其复制到 vector 中
+	stack.emplace_back("a", 2);  // 转发参数，以便对象可以直接在 vector 中创建（无需复制）
+
+	// push_back 不会使用显式构造函数，emplace_back 会
+	stack.push_back({ 2 }); // 编译错误：Foo(int) 是显式的
+	stack.emplace_back(2);  // ok
+    
+	return 0;
+}
+</code></pre><p>在上面的示例中，我们有一个 <code>Foo</code> 对象的 vector。使用 <code>push_back({ "a", 2 })</code>时，我们创建并初始化一个临时 <code>Foo</code> 对象，然后将其复制到 vector 中。对于复制成本高的类型（如 <code>std::string</code>），这种复制可能导致性能损失。</p><p>使用 <code>emplace_back()</code>，我们不需要创建临时对象来传递。相反，我们传递用于创建临时对象的参数，然后 <code>emplace_back()</code> 将它们转发（使用一种称为完美转发的特性）到 vector，在那里它们被用于创建和初始化 vector 内部的对象。这避免了原本会发生的复制。</p><p>值得注意的是， <code>push_back()</code> 不会使用显式构造函数，而 <code>emplace_back()</code> 会。这使得 <code>emplace_back</code> 更危险，因为更容易意外调用显式构造函数来执行某些无意义的转换。</p><p>在 C++20 之前， <code>emplace_back()</code> 不适用于聚合初始化。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>优先使用 <code>emplace_back()</code> 当创建新的临时对象添加到容器时，或者当需要访问显式构造函数时。</p><p>优先使用 <code>push_back()</code> 如果它是空指针，否则为</p><p><a href="https://abseil.io/tips/112">本文</a> 对此最佳实践有更多解释。</p></div><p class="cpp-section cpp-topline" style="clear:both">使用栈操作解决我们的挑战</p><p>现在应该清楚如何解决课程开头提出的挑战了。如果我们事先不知道会有多少元素添加到 <code>std::vector</code>中，那么使用栈函数来插入这些元素就是正确的方法。</p><p>下面是一个示例：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;limits&gt;
+#include &lt;vector&gt;
+
+int main()
+{
+	std::vector&lt;int&gt; scoreList{};
+
+	while (true)
+	{
+		std::cout &lt;&lt; "Enter a score (or -1 to finish): ";
+		int x{};
+		std::cin &gt;&gt; x;
+
+		if (!std::cin) // 处理错误输入
+		{
+			std::cin.clear();
+			std::cin.ignore(std::numeric_limits&lt;std::streamsize&gt;::max(), '\n');
+			continue;
+		}
+
+		// 如果完成，跳出循环
+		if (x == -1)
+			break;
+
+		// 用户输入了有效元素，将其压入 vector
+		scoreList.push_back(x);
+	}
+
+	std::cout &lt;&lt; "Your list of scores: \n";
+
+	for (const auto&amp; score : scoreList)
+		std::cout &lt;&lt; score &lt;&lt; ' ';
+
+	return 0;
+}
+</code></pre><p>该程序让用户输入测试分数，并将每个分数添加到 vector 中。用户完成添加分数后，打印 vector 中的所有值。</p><p>注意，在这个程序中，我们根本不需要进行任何计数、索引或处理数组长度！我们只需专注于程序逻辑，让 vector 处理所有存储问题！</p><p></p><p class="cpp-section cpp-topline" style="clear:both">小测验时间</p><p class="cpp-quiz-question" style="clear:both">问题 #1</p><p></p><p>编写一个程序，执行压栈和出栈操作，并输出以下序列：</p><pre>       (Stack: empty)
+Push 1 (Stack: 1)
+Push 2 (Stack: 1 2)
+Push 3 (Stack: 1 2 3)
+Pop    (Stack: 1 2)
+Push 4 (Stack: 1 2 4)
+Pop    (Stack: 1 2)
+Pop    (Stack: 1)
+Pop    (Stack: empty)
+</pre><p><a aria-controls="cpp_solution_id_0" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_0" href="#cpp_solution_id_0">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_0"><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+void printStackValues(const std::vector&lt;int&gt;&amp; v)
+{
+    std::cout &lt;&lt; "\t(Stack:";
+    
+    for (auto e : v)
+        std::cout &lt;&lt; ' ' &lt;&lt; e;
+
+    if (v.empty()) // 如果 v.size == 0
+        std::cout &lt;&lt; " empty";
+
+    std::cout &lt;&lt; ")\n";
+}
+
+void pushAndPrint(std::vector&lt;int&gt;&amp; v, int val)
+{
+    v.push_back(val);
+    std::cout &lt;&lt; "Push " &lt;&lt; val;
+    printStackValues(v);
+}
+
+void popAndPrint(std::vector&lt;int&gt;&amp; v)
+{
+    v.pop_back();
+    std::cout &lt;&lt; "Pop ";
+    printStackValues(v);
+}
+
+int main()
+{
+    std::vector&lt;int&gt; v {};
+
+    printStackValues(v);
+
+    pushAndPrint(v, 1);
+    pushAndPrint(v, 2);
+    pushAndPrint(v, 3);
+    popAndPrint(v);
+    pushAndPrint(v, 4);
+    popAndPrint(v);
+    popAndPrint(v);
+    popAndPrint(v);
+
+    return 0;
+}
+</code></pre></div>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="stdvector-resizing-and-capacity.html" rel="prev"><small>上一课</small><strong>16.10 — std::vector 调整大小与容量</strong></a><a class="lesson-nav-index" href="index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="stdvector-bool.html" rel="next"><small>下一课</small><strong>16.12 — std::vector&lt;bool&gt;</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

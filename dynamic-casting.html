@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/dynamic-casting/" name="learncpp:source-url"/>
+<meta content="c0b0c1d4767e763f163290c171a9b6075762f4b9eb5296be0ce3573123719439" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:54:19.077271+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T18:16:27.163923+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>25.10 — Dynamic casting</title>
+<link href="assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">25.10 — 动态转换</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 25.10</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/dynamic-casting/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>早在课程 <a href="explicit-type-conversion-casting-and-static-cast.html">10.6 -- 显式类型转换（强制转换）和 static_cast</a>我们探讨了转换的概念，以及使用 static_cast 将变量从一种类型转换为另一种类型。</p><p>在本节课中，我们将继续探讨另一种转换：dynamic_cast。</p><p><strong>dynamic_cast 的必要性</strong></p><p>在处理多态时，你经常会遇到这样的情况：你有一个指向基类的指针，但你想访问仅存在于派生类中的某些信息。</p><p>考虑以下（略显刻意）的程序：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;string_view&gt;
+
+class Base
+{
+protected:
+	int m_value{};
+
+public:
+	Base(int value)
+		: m_value{value}
+	{
+	}
+	
+	virtual ~Base() = default;
+};
+
+class Derived : public Base
+{
+protected:
+	std::string m_name{};
+
+public:
+	Derived(int value, std::string_view name)
+		: Base{value}, m_name{name}
+	{
+	}
+
+	const std::string&amp; getName() const { return m_name; }
+};
+
+Base* getObject(bool returnDerived)
+{
+	if (returnDerived)
+		return new Derived{1, "Apple"};
+	else
+		return new Base{2};
+}
+
+int main()
+{
+	Base* b{ getObject(true) };
+
+	// 我们如何在这里打印 Derived 对象的名称，只拥有一个 Base 指针？
+
+	delete b;
+
+	return 0;
+}
+</code></pre><p>在这个程序中，函数 getObject() 总是返回一个 Base 指针，但该指针可能指向 Base 对象或 Derived 对象。当 Base 指针实际上指向 Derived 对象时，我们如何调用 Derived::getName()？</p><p>一种方法是向 Base 添加一个名为 getName() 的虚函数（这样我们就可以通过 Base 指针/引用来调用它，并让它动态解析为 Derived::getName()）。但是，如果你通过实际指向 Base 对象的 Base 指针/引用来调用它，这个函数会返回什么？实际上没有任何合理的值。此外，我们会用本应只属于 Derived 类关注的东西来污染 Base 类。</p><p>我们知道 C++ 会隐式地允许你将 Derived 指针转换为 Base 指针（实际上，getObject() 就是这么做的）。这个过程有时被称为 <strong>向上转换</strong>。然而，如果有办法将 Base 指针转换回 Derived 指针呢？那么我们就可以直接使用该指针调用 Derived::getName()，而完全不必担心虚函数解析。</p><p><strong>dynamic_cast</strong></p><p>C++ 提供了一种名为 <strong>dynamic_cast</strong> 的转换运算符，正是用于此目的。虽然 dynamic_cast 有几种不同的功能，但到目前为止，dynamic_cast 最常见的用途是将基类指针转换为派生类指针。这个过程称为 <strong>向下转换</strong>。</p><p>使用 dynamic_cast 就像使用 static_cast 一样。下面是我们上面例子中的 main() 函数，使用 dynamic_cast 将 Base 指针转换回 Derived 指针：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int main()
+{
+	Base* b{ getObject(true) };
+
+	Derived* d{ dynamic_cast&lt;Derived*&gt;(b) }; // 使用 dynamic_cast 将 Base 指针转换为 Derived 指针
+
+	std::cout &lt;&lt; "The name of the Derived is: " &lt;&lt; d-&gt;getName() &lt;&lt; '\n';
+
+	delete b;
+
+	return 0;
+}
+</code></pre><p>这会打印：</p><pre>The name of the Derived is: Apple
+</pre><p><strong>dynamic_cast 失败</strong></p><p>上面的例子之所以有效，是因为 b 实际上指向一个 Derived 对象，因此将 b 转换为 Derived 指针是成功的。</p><p>然而，我们做了一个相当危险的假设：b 指向一个 Derived 对象。如果 b 没有指向 Derived 对象呢？这很容易通过将 getObject() 的参数从 true 改为 false 来测试。在这种情况下，getObject() 将返回一个指向 Base 对象的 Base 指针。当我们尝试将其 dynamic_cast 为 Derived 时，转换会失败，因为无法进行转换。</p><p>如果 dynamic_cast 失败，转换的结果将是一个空指针。</p><p>由于我们没有检查空指针结果，我们访问了 d-&gt;getName()，这将尝试解引用空指针，导致未定义行为（可能是崩溃）。</p><p>为了使这个程序安全，我们需要确保 dynamic_cast 的结果确实成功：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int main()
+{
+	Base* b{ getObject(true) };
+
+	Derived* d{ dynamic_cast&lt;Derived*&gt;(b) }; // 使用 dynamic_cast 将 Base 指针转换为 Derived 指针
+
+	if (d) // 确保 d 非空
+		std::cout &lt;&lt; "The name of the Derived is: " &lt;&lt; d-&gt;getName() &lt;&lt; '\n';
+
+	delete b;
+
+	return 0;
+}
+</code></pre><div class="cpp-note cpp-lightpurplebackground"><p class="cpp-note-title cpp-bottomline">规则</p><p>始终通过检查空指针结果来确保你的 dynamic_cast 确实成功。</p></div><p>请注意，由于 dynamic_cast 在运行时进行一些一致性检查（以确保转换可以进行），使用 dynamic_cast 会带来性能损失。</p><p>另外请注意，在某些情况下，使用 dynamic_cast 进行向下转换将不起作用：</p><ol start="1"><li>对于私有或受保护的继承。</li><li>对于没有声明或继承任何虚函数（因此没有虚表）的类。</li><li>在某些涉及虚基类的情况下（参见 <a href="https://msdn.microsoft.com/en-us/library/cby9kycs.aspx">此页面</a> 了解其中一些情况的示例以及如何解决它们）。</li></ol><p><strong>使用 static_cast 进行向下转换</strong></p><p>事实证明，向下转换也可以使用 static_cast 完成。主要区别在于 static_cast 不进行运行时类型检查来确保你所做的事情有意义。这使得使用 static_cast 更快，但更危险。如果你将 Base* 转换为 Derived*，即使 Base 指针没有指向 Derived 对象，它也会“成功”。当你尝试访问结果 Derived 指针（实际上指向 Base 对象）时，这将导致未定义行为。</p><p>如果你绝对确定要向下转换的指针会成功，那么使用 static_cast 是可以接受的。确保你知道所指向对象类型的一种方法是使用虚函数。以下是一种（不太好的）方法：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;string_view&gt;
+
+// 类标识符
+enum class ClassID
+{
+	base,
+	derived
+	// 其他可以稍后添加
+};
+
+class Base
+{
+protected:
+	int m_value{};
+
+public:
+	Base(int value)
+		: m_value{value}
+	{
+	}
+
+	virtual ~Base() = default;
+	virtual ClassID getClassID() const { return ClassID::base; }
+};
+
+class Derived : public Base
+{
+protected:
+	std::string m_name{};
+
+public:
+	Derived(int value, std::string_view name)
+		: Base{value}, m_name{name}
+	{
+	}
+
+	const std::string&amp; getName() const { return m_name; }
+	ClassID getClassID() const override { return ClassID::derived; }
+
+};
+
+Base* getObject(bool bReturnDerived)
+{
+	if (bReturnDerived)
+		return new Derived{1, "Apple"};
+	else
+		return new Base{2};
+}
+
+int main()
+{
+	Base* b{ getObject(true) };
+
+	if (b-&gt;getClassID() == ClassID::derived)
+	{
+		// 我们已经证明 b 指向一个 Derived 对象，所以这应该总是成功
+		Derived* d{ static_cast&lt;Derived*&gt;(b) };
+		std::cout &lt;&lt; "The name of the Derived is: " &lt;&lt; d-&gt;getName() &lt;&lt; '\n';
+	}
+
+	delete b;
+
+	return 0;
+}
+</code></pre><p>但如果你要费这么大劲来实现它（并承担调用虚函数和处理结果的开销），那么还不如直接使用 dynamic_cast。</p><p>另外，考虑一下如果我们的对象实际上是某个从 Derived 派生的类（我们称之为 <code>D2</code>）。上面的检查 <code>b-&gt;getClassID() == ClassID::derived</code> 会失败，因为 <code>getClassId()</code> 会返回 <code>ClassID::D2</code>，它不等于 <code>ClassID::derived</code>。而动态转换 <code>D2</code> 切换到 <code>Derived</code> 会成功，因为 <code>D2</code> 我们还调用了 <code>Derived</code>！</p><p><strong>dynamic_cast 和引用</strong></p><p>尽管上述所有示例都展示了指针的动态转换（这更常见），但 dynamic_cast 也可以用于引用。其工作方式与指针的 dynamic_cast 类似。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;string_view&gt;
+
+class Base
+{
+protected:
+	int m_value;
+
+public:
+	Base(int value)
+		: m_value{value}
+	{
+	}
+
+	virtual ~Base() = default; 
+};
+
+class Derived : public Base
+{
+protected:
+	std::string m_name;
+
+public:
+	Derived(int value, std::string_view name)
+		: Base{value}, m_name{name}
+	{
+	}
+
+	const std::string&amp; getName() const { return m_name; }
+};
+
+int main()
+{
+	Derived apple{1, "Apple"}; // 创建一个苹果
+	Base&amp; b{ apple }; // 将基类引用设置为对象
+	Derived&amp; d{ dynamic_cast&lt;Derived&amp;&gt;(b) }; // 使用引用而不是指针进行 dynamic_cast
+
+	std::cout &lt;&lt; "The name of the Derived is: " &lt;&lt; d.getName() &lt;&lt; '\n'; // 我们可以通过 d 访问 Derived::getName
+
+	return 0;
+}
+</code></pre><p>由于 C++ 没有“空引用”，dynamic_cast 在失败时无法返回空引用。相反，如果引用的 dynamic_cast 失败，则会抛出 std::bad_cast 类型的异常。我们将在本教程后面讨论异常。</p><p><strong>dynamic_cast 与 static_cast</strong></p><p>新手程序员有时会困惑何时使用 static_cast 与 dynamic_cast。答案很简单：除非进行向下转换，否则使用 static_cast；在向下转换的情况下，dynamic_cast 通常是更好的选择。然而，你也应该考虑完全避免转换，而使用虚函数。</p><p><strong>向下转换与虚函数</strong></p><p>有些开发者认为 dynamic_cast 是邪恶的，表明类设计不良。这些程序员说你应该使用虚函数。</p><p>通常，使用虚函数 <em>应该</em> 应优先于向下转换。然而，有时向下转换是更好的选择：</p><ul><li>当你无法修改基类以添加虚函数时（例如，因为基类是标准库的一部分）</li><li>当你需要访问派生类特有的内容时（例如，仅存在于派生类中的访问函数）</li><li>当向基类添加虚函数没有意义时（例如，基类没有合适的返回值）。如果你不需要实例化基类，使用纯虚函数可能是一个选择。</li></ul><p><strong>关于 dynamic_cast 和 RTTI 的警告</strong></p><p>运行时类型信息（RTTI）是 C++ 的一个特性，它在运行时暴露对象数据类型的信息。dynamic_cast 利用了这种能力。由于 RTTI 有相当大的空间性能开销，一些编译器允许你关闭 RTTI 作为优化。不用说，如果你这样做，dynamic_cast 将无法正常工作。</p>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="object-slicing.html" rel="prev"><small>上一课</small><strong>25.9 — 对象切片</strong></a><a class="lesson-nav-index" href="index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="printing-inherited-classes-using-operator.html" rel="next"><small>下一课</small><strong>25.11 — 使用 operator&lt;&lt; 打印继承类</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

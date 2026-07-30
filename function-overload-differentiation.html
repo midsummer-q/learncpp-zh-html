@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/function-overload-differentiation/" name="learncpp:source-url"/>
+<meta content="0facd3180a759a2a923a836ec7ce63abda82454016eba99be6dfef24505f0439" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:48:30.574606+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T17:31:56.543421+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>11.2 — Function overload differentiation</title>
+<link href="assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">11.2 — 函数重载的区分</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 11.2</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/function-overload-differentiation/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>在上一课（<a href="introduction-to-function-overloading.html">11.1 -- 函数重载介绍</a>我们引入了函数重载的概念，它允许我们创建多个同名函数，只要每个同名函数具有不同的参数类型（或者函数可以通过其他方式区分）。</p><p>在本课中，我们将更深入地了解重载函数是如何区分的。未正确区分的重载函数会导致编译器发出编译错误。</p><p class="cpp-section cpp-topline" style="clear:both">重载函数如何区分</p><div class="cpp-table-wrapper"><p></p><p></p><table class="cpp-table"><tbody><tr><th>函数属性</th><th>用于区分</th><th>备注</th></tr><tr><td>参数数量</td><td>是</td><td></td></tr><tr><td>参数类型</td><td>是</td><td>排除 typedef、类型别名和值参数上的 const 限定符。包括省略号。</td></tr><tr><td>返回类型</td><td>否</td><td></td></tr></tbody></table></div><p>注意，函数的返回类型不用于区分重载函数。我们稍后会详细讨论这一点。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">进阶读者</p><p>对于成员函数，还会考虑额外的函数级限定符：</p><div class="cpp-table-wrapper"><p></p><p></p><table class="cpp-table"><tbody><tr><th>函数级限定符</th><th>用于重载</th></tr><tr><td>const 或 volatile</td><td>是</td></tr><tr><td>引用限定符</td><td>是</td></tr></tbody></table></div><p>例如，const 成员函数可以与另一个相同的非 const 成员函数区分开来（即使它们共享相同的参数集）。</p></div><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">相关内容</p><p>我们在课程 <a href="ellipsis-and-why-to-avoid-them.html">20.5 -- 省略号（以及为什么避免使用它们）</a>。</p></div><p class="cpp-section cpp-topline" style="clear:both">基于参数数量的重载</p><p>只要每个重载函数具有不同数量的参数，重载函数就可以区分。例如：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int add(int x, int y)
+{
+    return x + y;
+}
+
+int add(int x, int y, int z)
+{
+    return x + y + z;
+}
+</code></pre><p>编译器可以轻松判断，带有两个整数参数的函数调用应转到 <code>add(int, int)</code> 而带有三个整数参数的函数调用应转到 <code>add(int, int, int)</code>。</p><p class="cpp-section cpp-topline" style="clear:both">基于参数类型的重载</p><p>只要每个重载函数的参数类型列表不同，函数也可以区分。例如，以下所有重载都是可区分的：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int add(int x, int y); // 整数版本
+double add(double x, double y); // 浮点数版本
+double add(int x, double y); // 混合版本
+double add(double x, int y); // 混合版本
+</code></pre><p>由于类型别名（或 typedef）不是不同的类型，使用类型别名的重载函数与使用被别名类型的重载函数无法区分。例如，以下所有重载都是不可区分的（并且会导致编译错误）：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">typedef int Height; // typedef
+using Age = int; // 类型别名
+
+void print(int value);
+void print(Age value); // 与print(int)无法区分
+void print(Height value); // 与print(int)无法区分
+</code></pre><p>对于按值传递的参数，const 限定符也不被考虑。因此，以下函数不被视为可区分：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">void print(int);
+void print(const int); // 与print(int)无法区分
+</code></pre><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">进阶读者</p><p>我们还没有介绍省略号，但省略号参数被视为一种独特的参数类型：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">void foo(int x, int y);
+void foo(int x, ...); // 与foo(int, int)区分
+</code></pre><p>因此，对 <code>foo(4, 5)</code> 的调用将匹配到 <code>foo(int, int)</code>，而不是 <code>foo(int, ...)</code>。</p></div><p class="cpp-section cpp-topline" style="clear:both">函数的返回类型不用于区分</p><p>函数的返回类型在区分重载函数时不被考虑。</p><p>考虑这样一种情况：你想编写一个返回随机数的函数，但需要一个返回 int 的版本和另一个返回 double 的版本。你可能会尝试这样做：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int getRandomValue();
+double getRandomValue();
+</code></pre><p>在 Visual Studio 2019 上，这会导致以下编译器错误：</p><pre>error C2556: 'double getRandomValue(void)': overloaded function differs only by return type from 'int getRandomValue(void)'
+</pre><p>这很合理。如果你是编译器，看到这个语句：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">getRandomValue();
+</code></pre><p>你会调用两个重载函数中的哪一个？这并不清楚。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">顺便说一句……</p><p>这是一个有意为之的选择，因为它确保函数调用的行为可以独立于表达式的其余部分确定，从而使理解复杂表达式变得更加简单。换句话说，我们总是可以根据函数调用中的参数来确定将调用哪个版本的函数。如果使用返回值进行区分，那么我们将没有简单的语法方式来区分正在调用哪个重载函数——我们还需要理解返回值是如何使用的，这需要更多的分析。</p></div><p>解决这个问题的最佳方法是给函数起不同的名字：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int getRandomInt();
+double getRandomDouble();
+</code></pre><p class="cpp-section cpp-topline" style="clear:both">类型签名</p><p>函数的 <strong>类型签名</strong> （通常称为 <strong>签名</strong>）定义为函数头中用于区分函数的部分。在C++中，这包括函数名、参数数量、参数类型和函数级限定符。它特别不 <em>不是</em> 包括返回类型。</p><p class="cpp-section cpp-topline" style="clear:both">名字修饰</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">顺便说一句……</p><p>当编译器编译函数时，它会执行 <strong>名字修饰</strong>，这意味着函数的编译名称会根据各种标准（如参数的数量和类型）被改变（“修饰”），以便链接器有唯一的名称可以使用。</p><p>例如，一个原型为 <code>int fcn()</code> 的函数可能会被编译成修饰后的名称 <code>__fcn_v</code>，而 <code>int fcn(int)</code> 的函数可能会被编译成修饰后的名称 <code>__fcn_i</code>。因此，虽然在源代码中两个重载函数共享名称 <code>fcn()</code>，但在编译后的代码中，修饰后的名称是唯一的（<code>__fcn_v</code> vs <code>__fcn_i</code>)。</p><p>对于名字如何修饰没有标准化，因此不同的编译器会产生不同的修饰名称。</p></div>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="introduction-to-function-overloading.html" rel="prev"><small>上一课</small><strong>11.1 — 函数重载简介</strong></a><a class="lesson-nav-index" href="index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="function-overload-resolution-and-ambiguous-matches.html" rel="next"><small>下一课</small><strong>11.3 — 函数重载解析与歧义匹配</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/public-and-private-members-and-access-specifiers/" name="learncpp:source-url"/>
+<meta content="bf4372b398bade1370bc23cbc694f75e5b71f20e3ecdeabe9782a7052dc26a80" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:50:17.241096+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T17:44:44.353454+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>14.5 — Public and private members and access specifiers</title>
+<link href="assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">14.5 — 公有和私有成员及访问说明符</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 14.5</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/public-and-private-members-and-access-specifiers/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>假设你在一个清爽的秋日里，一边吃着卷饼一边走在街上。你想找个地方坐下，于是环顾四周。左边是一个公园，有修剪过的草坪和遮荫树，几条不太舒服的长椅，附近游乐场上还有尖叫的孩子。右边是一处陌生人的住宅。透过窗户，你看到一把舒适的躺椅和噼啪作响的壁炉。</p><p>你重重地叹了口气，选择了公园。</p><p>你做出选择的关键因素是公园是公共空间，而住宅是私有的。你（和其他任何人）都可以自由进入公共空间。但只有住宅的成员（或获得明确许可进入的人）才被允许进入私有住宅。</p><p class="cpp-section cpp-topline" style="clear:both">成员访问</p><p>类似的概念也适用于类类型的成员。类类型的每个成员都有一个称为 <strong>访问级别</strong> 的属性，它决定了谁可以访问该成员。</p><p>C++ 有三种不同的访问级别： <em>公有</em>， <em>私有</em>、和 <em>受保护</em>。在本课中，我们将介绍两种常用的访问级别：公有和私有。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">相关内容</p><p>我们将在关于继承的章节中讨论受保护的访问级别（课程 <a href="inheritance-and-access-specifiers.html">24.5 -- 继承和访问说明符</a>)。</p></div><p>每当访问一个成员时，编译器会检查该成员的访问级别是否允许访问。如果不允许访问，编译器将生成编译错误。这种访问级别系统有时非正式地称为 <strong>访问控制</strong>。</p><p class="cpp-section cpp-topline" style="clear:both">结构体的成员默认是公有的</p><p>具有 <em>公有</em> 访问级别的成员称为 <em>公有成员</em>。 <strong>公有成员</strong> 是类类型的成员，它们对如何被访问没有任何限制。就像我们开头比喻中的公园一样，公有成员可以被任何人访问（只要它们在作用域内）。</p><p>公有成员可以被同一类的其他成员访问。值得注意的是，公有成员也可以被 <strong>公众</strong>访问，公众指的是存在于 <em>函数</em> 给定类类型的成员之外的代码。 <em>公众</em> 的例子包括非成员函数，以及其他类类型的成员。</p><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">关键提示</p><p>结构体的成员默认是公有的。公有成员可以被类类型的其他成员以及公众访问。</p><p>术语“公众”用于指代存在于给定类类型的成员之外的代码。这包括非成员函数，以及其他类类型的成员。</p></div><p>默认情况下，结构体的所有成员都是公有成员。</p><p>考虑以下结构体：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+struct Date
+{
+    // struct 成员默认为 public，任何人都可以访问
+    int year {};       // 默认为 public
+    int month {};      // 默认为 public
+    int day {};        // 默认为 public
+
+    void print() const // 默认为 public
+    {
+        // public 成员可以在类类型的成员函数中访问
+        std::cout &lt;&lt; year &lt;&lt; '/' &lt;&lt; month &lt;&lt; '/' &lt;&lt; day;
+    }
+};
+
+// 非成员函数 main 属于“公众”
+int main()
+{
+    Date today { 2020, 10, 14 }; // 聚合初始化我们的结构体
+
+    // public 成员可以被公众访问
+    today.day = 16; // 可以：day 成员是 public
+    today.print();  // 可以：print() 成员函数是 public
+
+    return 0;
+}
+</code></pre><p>在这个例子中，成员在三个地方被访问：</p><ul><li>在成员函数 <code>print()</code>内部，我们访问隐式对象的 <code>year</code>， <code>month</code>、和 <code>day</code> 成员。</li><li>在 <code>main()</code>中，我们直接访问 <code>today.day</code> 来设置其值。</li><li>在 <code>main()</code>中，我们调用成员函数 <code>today.print()</code>。</li></ul><p>所有这三种访问都是允许的，因为公有成员可以从任何地方访问。</p><p>因为 <code>main()</code> 不是 <code>Date</code>的成员，它被认为是 <em>公众</em>的一部分。然而，因为 <em>公众</em> 可以访问公有成员， <code>main()</code> 可以直接访问 <code>Date</code> 的成员（包括对 <code>today.print()</code>)。</p><p class="cpp-section cpp-topline" style="clear:both">的调用）</p><p>具有 <em>私有</em> 访问级别的成员称为 <em>类的成员默认是私有的</em>。 <strong>私有成员</strong> 私有成员是类类型的成员，只能被同一个类的其他成员访问。</p><p>考虑以下示例，它与上面的示例几乎相同：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+class Date // 现在使用 class 而不是 struct
+{
+    // class 成员默认为 private，只能被其他成员访问
+    int m_year {};     // 默认为 private
+    int m_month {};    // 默认为 private
+    int m_day {};      // 默认为 private
+
+    void print() const // 默认为 private
+    {
+        // private 成员可以在成员函数中访问
+        std::cout &lt;&lt; m_year &lt;&lt; '/' &lt;&lt; m_month &lt;&lt; '/' &lt;&lt; m_day;
+    }
+};
+
+int main()
+{
+    Date today { 2020, 10, 14 }; // 编译错误：不能再使用聚合初始化
+
+    // private 成员不能被公众访问
+    today.m_day = 16; // 编译错误：m_day 成员是 private
+    today.print();    // 编译错误：print() 成员函数是 private
+
+    return 0;
+}
+</code></pre><p>在这个示例中，成员在三个相同的位置被访问：</p><ul><li>在成员函数 <code>print()</code>内部，我们访问隐式对象的 <code>m_year</code>， <code>m_month</code>、和 <code>m_day</code> 成员。</li><li>在 <code>main()</code>中，我们直接访问 <code>today.m_day</code> 来设置其值。</li><li>在 <code>main()</code>中，我们调用成员函数 <code>today.print()</code>。</li></ul><p>然而，如果你编译这个程序，你会注意到生成了三个编译错误。</p><p>在 <code>main()</code>内部，语句 <code>today.m_day = 16</code> 和 <code>today.print()</code> 现在都会生成编译错误。这是因为 <code>main()</code> 是公开的一部分，而公开部分不允许直接访问私有成员。</p><p>在 <code>print()</code>，对成员 <code>m_year</code>， <code>m_month</code>、和 <code>m_day</code> 的访问是允许的。这是因为 <code>print()</code> 是类的一个成员，而类的成员允许访问私有成员。</p><p>那么第三个编译错误来自哪里？也许令人惊讶的是， <code>today</code> 的初始化现在导致了编译错误。在课程 <a href="struct-aggregate-initialization.html">13.8 -- 结构体聚合初始化</a>中，我们注意到聚合体不能有“私有或受保护的非静态数据成员”。我们的 <code>Date</code> 类有私有数据成员（因为类的成员默认是私有的），所以我们的 <code>Date</code> 类不符合聚合体的条件。因此，我们不能再使用聚合初始化来初始化它。</p><p>我们将在接下来的课程 <a href="introduction-to-constructors.html">14.9 -- 构造函数简介</a>。</p><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">关键提示</p><p>中讨论如何正确初始化类（通常是非聚合体）。</p><p>类的成员默认是私有的。私有成员可以被类的其他成员访问，但不能被公开部分访问。</p></div><p class="cpp-section cpp-topline" style="clear:both">具有私有成员的类不再是聚合体，因此不能再使用聚合初始化。</p><p>命名你的私有成员变量</p><p>在C++中，常见的约定是以“m_”前缀命名私有数据成员。这样做有几个重要的原因。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">// 某个成员函数，将私有成员 m_name 设置为参数 name 的值
+void setName(std::string_view name)
+{
+    m_name = name;
+}
+</code></pre><p>考虑某个类的以下成员函数：</p><p>首先，“m_”前缀使我们能够轻松区分数据成员与成员函数中的函数参数或局部变量。我们可以很容易地看到“m_name”是成员，而“name”不是。这有助于清楚地表明这个函数正在改变类的状态。这一点很重要，因为当我们改变数据成员的值时，它会持续存在于成员函数的作用域之外（而函数参数或局部变量的改变通常不会）。</p><p>这也是我们建议对局部静态变量使用“s_”前缀，对全局变量使用“g_”前缀的相同原因。</p><p>其次，“m_”前缀有助于防止私有成员变量与局部变量、函数参数和成员函数的名称发生命名冲突。 <code>name</code> 而不是 <code>m_name</code>如果我们把私有成员命名为</p><ul><li>的对象时未提供显式初始化值，则将使用这些默认成员初始化值。我们的 <code>name</code> ，那么： <code>name</code> 函数参数会隐藏</li><li>私有数据成员。 <code>name</code>如果我们有一个名为 <code>name</code>。</li></ul><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>的成员函数，我们会因为标识符</p><p>的重定义而得到一个编译错误。</p></div><p class="cpp-section cpp-topline" style="clear:both">考虑以“m_”前缀命名你的私有数据成员，以帮助将它们与局部变量、函数参数和成员函数的名称区分开来。</p><p>如果需要，类的公开成员也可以遵循这个约定。然而，结构体的公开成员通常不使用这个前缀，因为结构体通常没有很多成员函数（如果有的话）。</p><p>然而，我们可以通过使用 <strong>访问说明符</strong>来显式设置成员的访问级别。访问说明符设置了 <em>所有后续成员</em> 的访问级别。C++ 提供了三个访问说明符： <code>public:</code>， <code>private:</code>、和 <code>protected:</code>。</p><p>在下面的例子中，我们同时使用了 <code>public:</code> 访问说明符来确保 <code>print()</code> 成员函数可以被公开使用，以及 <code>private:</code> 访问说明符来使我们的数据成员私有。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">class Date
+{
+// 此处定义的任何成员默认为 private
+
+public: // 这里是我们的 public 访问说明符
+
+    void print() const // 由于上面的 public: 说明符，此处为 public
+    {
+        // 成员可以访问其他 private 成员
+        std::cout &lt;&lt; m_year &lt;&lt; '/' &lt;&lt; m_month &lt;&lt; '/' &lt;&lt; m_day;
+    }
+
+private: // 这里是我们的 private 访问说明符 
+
+    int m_year { 2020 };  // 由于上面的 private: 说明符，此处为 private
+    int m_month { 14 }; // 由于上面的 private: 说明符，此处为 private
+    int m_day { 10 };   // 由于上面的 private: 说明符，此处为 private
+};
+
+int main()
+{
+    Date d{};
+    d.print();  // 可以，main() 允许访问 public 成员
+
+    return 0;
+}
+</code></pre><p>这个例子可以编译。因为 <code>print()</code> 由于 <code>public:</code> 访问说明符而成为公有成员， <code>main()</code> （属于公有部分）被允许访问它。</p><p>由于我们有私有成员，我们不能聚合初始化 <code>d</code>。对于这个例子，我们改用默认成员初始化（作为临时解决方法）。</p><p>由于类默认是私有访问，你可以省略开头的 <code>private:</code> 访问说明符：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">class Foo
+{
+// 此处不需要 private 访问说明符，因为类默认成员为 private
+    int m_something {};  // 默认为 private
+};
+</code></pre><p>然而，由于类和结构体有不同的默认访问级别，许多开发者更喜欢显式指定：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">class Foo
+{
+private: // 冗余，但明确表明后续内容为 private
+    int m_something {};  // 默认为 private
+};
+</code></pre><p>虽然这在技术上是冗余的，但使用显式的 <code>private:</code> 说明符可以清楚地表明后续成员是私有的，而无需根据 <code>Foo</code> 是定义为类还是结构体来推断默认访问级别。</p><p class="cpp-section cpp-topline" style="clear:both">访问级别总结</p><p>以下是不同访问级别的快速总结表：</p><div class="cpp-table-wrapper"><table class="cpp-table"><tbody><tr><th>访问级别</th><th>访问说明符</th><th>成员访问</th><th>派生类访问</th><th>公有访问</th></tr><tr><td>公有</td><td>public:</td><td>是</td><td>是</td><td>是</td></tr><tr><td>受保护</td><td>protected:</td><td>是</td><td>是</td><td>否</td></tr><tr><td>私有</td><td>private:</td><td>是</td><td>否</td><td>否</td></tr></tbody></table></div><p>类类型允许以任意顺序使用任意数量的访问说明符，并且可以重复使用（例如，你可以有一些公有成员，然后一些私有成员，然后再一些公有成员）。</p><p>大多数类会同时使用私有和公有访问说明符来管理不同的成员。我们将在下一节看到一个例子。</p><p class="cpp-section cpp-topline" style="clear:both">结构体和类的访问级别最佳实践</p><p>现在我们已经介绍了访问级别，让我们讨论如何使用它们。</p><p>结构体应避免使用访问说明符，这意味着所有结构体成员默认都是公有的。我们希望结构体是聚合体，而聚合体只能有公有成员。使用 <code>public:</code> 访问说明符与默认值重复，使用 <code>private:</code> 或 <code>protected:</code> 会使结构体成为非聚合类型。</p><p>类通常应只有私有（或受保护）数据成员（通过使用默认的私有访问级别，或 <code>private:</code> （或 <code>protected:</code>）访问说明符）。我们将在下一课中讨论这样做的理由。 <a href="access-functions.html">14.6 -- 访问函数</a>。</p><p>类通常具有公有成员函数（这样这些成员函数可以在对象创建后被公众使用）。然而，偶尔成员函数会被设为私有（或受保护），如果它们不打算被公众使用的话。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>类通常应将成员变量设为私有（或受保护），而成员函数设为公有。</p><p>结构体通常应避免使用访问说明符（所有成员默认公有）。</p></div><p class="cpp-section cpp-topline" style="clear:both">访问级别基于类而非对象</p><p>C++ 访问级别的一个常被忽略或误解的细微之处是：对成员的访问是基于类定义的，而不是基于对象。</p><p>你已经知道成员函数可以直接访问（隐式对象的）私有成员。然而，由于访问级别是基于类而非对象，成员函数也可以直接访问作用域内任何其他同类对象的私有成员。</p><p>让我们用一个例子来说明这一点：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;string_view&gt;
+
+class Person
+{
+private:
+    std::string m_name{};
+
+public:
+    void kisses(const Person&amp; p) const
+    {
+        std::cout &lt;&lt; m_name &lt;&lt; " kisses " &lt;&lt; p.m_name &lt;&lt; '\n';
+    }
+
+    void setName(std::string_view name)
+    {
+        m_name = name;
+    }
+};
+
+int main()
+{
+    Person joe;
+    joe.setName("Joe");
+    
+    Person kate;
+    kate.setName("Kate");
+
+    joe.kisses(kate);
+
+    return 0;
+}
+</code></pre><p>这会打印：</p><pre>Joe kisses Kate
+</pre><p>这里有几件事需要注意。</p><p>首先， <code>m_name</code> 已被设为私有，因此只能由 <code>Person</code> 类的成员访问（公众不能访问）。</p><p>其次，由于我们的类有私有成员，它不是聚合类型，我们不能使用聚合初始化来初始化 Person 对象。作为变通方法（直到我们介绍这个问题的正确解决方案），我们创建了一个名为 <code>setName()</code> 的公有成员函数，允许我们为 Person 对象赋值一个名字。</p><p>第三，因为 <code>kisses()</code> 是一个成员函数，它可以直接访问私有成员 <code>m_name</code>。然而，你可能会惊讶地发现它也可以直接访问 <code>p.m_name</code>！这是因为 <code>p</code> 我们还调用了 <code>Person</code> int&amp; <code>kisses()</code> 可以访问作用域内任何 <code>Person</code> 对象的私有成员！</p><p>我们将在运算符重载章节中看到更多利用这一点的例子。</p><p class="cpp-section cpp-topline" style="clear:both">结构体和类的技术及实际区别</p><p>既然我们已经介绍了访问级别，终于可以讨论结构体和类的技术区别了。准备好了吗？</p><p>类默认其成员为私有，而结构体默认其成员为公有。</p><p>…</p><p>是的，就这些。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">作者注</p><p>严格来说，还有一个细微的区别——结构体从其他类类型公有继承，而类私有继承。我们将在继承章节中介绍这意味着什么，但这一点实际上无关紧要，因为你不应该依赖继承的默认方式。</p></div><p>在实践中，我们以不同的方式使用结构体和类。</p><p>作为经验法则，当以下所有条件都成立时使用结构体：</p><ul><li>你有一个简单的数据集合，不需要限制访问。</li><li>聚合初始化就足够了。</li><li>你没有类不变量、设置需求或清理需求。</li></ul><p>一些可能使用结构体的例子：constexpr 全局程序数据、点结构体（一个简单的 int 成员集合，设为私有没有好处）、用于从函数返回一组数据的结构体。</p><p>否则使用类。</p><p>我们希望结构体是聚合类型。因此，如果你使用任何使结构体成为非聚合类型的特性，你可能应该改用类（并遵循类的所有最佳实践）。</p><p class="cpp-section cpp-topline" style="clear:both">小测验时间</p><p class="cpp-quiz-question" style="clear:both">问题 #1</p><p>a) 什么是公有成员？</p><p><a aria-controls="cpp_solution_id_0" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_0" href="#cpp_solution_id_0">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_0">公有成员是类的成员，可以被任何人访问，包括同一类的其他成员和公众。</div><p>b) 什么是私有成员？</p><p><a aria-controls="cpp_solution_id_1" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_1" href="#cpp_solution_id_1">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_1">私有成员是类的成员，只能被类的其他成员访问。</div><p>c) 什么是访问说明符？</p><p><a aria-controls="cpp_solution_id_2" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_2" href="#cpp_solution_id_2">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_2">访问说明符决定了谁可以访问该说明符之后的成员。</div><p>d) 有多少个访问说明符，它们分别是什么？</p><p><a aria-controls="cpp_solution_id_3" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_3" href="#cpp_solution_id_3">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_3">三个。public、private 和 protected。</div><p class="cpp-quiz-question cpp-topline" style="clear:both">问题 #2</p><p>a) 编写一个名为 <code>Point3d</code>的类。该类应包含：</p><ul><li>三个类型为 <code>int</code> 的变量，名为 <code>m_x</code>， <code>m_y</code>、和 <code>m_z</code>；</li><li>的私有成员变量。一个名为 <code>setValues()</code> 的公有成员函数，用于设置 <code>m_x</code>， <code>m_y</code>、和 <code>m_z</code>。</li><li>的私有成员变量。一个名为 <code>print()</code> 的值。一个名为</li></ul><p>的公有成员函数，用于按以下格式打印 Point：&lt;m_x, m_y, m_z&gt;。确保以下程序正确执行：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int main()
+{
+    Point3d point;
+    point.setValues(1, 2, 3);
+
+    point.print();
+    std::cout &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>这应打印：</p><pre>&lt;1, 2, 3&gt;
+</pre><p><a aria-controls="cpp_solution_id_4" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_4" href="#cpp_solution_id_4">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_4"><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+class Point3d
+{
+private:
+    int m_x {};
+    int m_y {};
+    int m_z {};
+
+public:
+	void setValues(int x, int y, int z)
+	{
+		m_x = x;
+		m_y = y;
+		m_z = z;
+	}
+
+	void print() const
+	{
+		std::cout &lt;&lt; '&lt;' &lt;&lt; m_x &lt;&lt; ", " &lt;&lt; m_y &lt;&lt; ", " &lt;&lt; m_z &lt;&lt; '&gt;';
+	}
+};
+
+int main()
+{
+    Point3d point;
+    point.setValues(1, 2, 3);
+
+    point.print();
+    std::cout &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre></div><p>b) 向 Point3d 类添加一个名为 <code>isEqual()</code> 的函数。以下代码应正确运行：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int main()
+{
+	Point3d point1{};
+	point1.setValues(1, 2, 3);
+
+	Point3d point2{};
+	point2.setValues(1, 2, 3);
+
+	std::cout &lt;&lt; "point 1 and point 2 are" &lt;&lt; (point1.isEqual(point2) ? "" : " not") &lt;&lt; " equal\n";
+
+	Point3d point3{};
+	point3.setValues(3, 4, 5);
+
+	std::cout &lt;&lt; "point 1 and point 3 are" &lt;&lt; (point1.isEqual(point3) ? "" : " not") &lt;&lt; " equal\n";
+
+	return 0;
+}
+</code></pre><p>这应打印：</p><pre>point 1 and point 2 are equal
+point 1 and point 3 are not equal
+</pre><p><a aria-controls="cpp_solution_id_5" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_5" href="#cpp_solution_id_5">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_5"><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+class Point3d
+{
+private:
+	int m_x {};
+	int m_y {};
+	int m_z {};
+
+public:
+	void setValues(int x, int y, int z)
+	{
+		m_x = x;
+		m_y = y;
+		m_z = z;
+	}
+
+	void print() const
+	{
+		std::cout &lt;&lt; '&lt;' &lt;&lt; m_x &lt;&lt; ", " &lt;&lt; m_y &lt;&lt; ", " &lt;&lt; m_z &lt;&lt; '&gt;';
+	}
+
+	// 我们可以利用访问控制基于每个类工作的特性
+	// 来直接访问 Point3d 参数 p 的私有成员
+	bool isEqual(const Point3d&amp; p) const
+	{
+		return (m_x == p.m_x) &amp;&amp; (m_y == p.m_y) &amp;&amp; (m_z == p.m_z);
+	}
+};
+
+int main()
+{
+	Point3d point1{};
+	point1.setValues(1, 2, 3);
+
+	Point3d point2{};
+	point2.setValues(1, 2, 3);
+
+	std::cout &lt;&lt; "point 1 and point 2 are" &lt;&lt; (point1.isEqual(point2) ? "" : " not") &lt;&lt; " equal\n";
+
+	Point3d point3{};
+	point3.setValues(3, 4, 5);
+
+	std::cout &lt;&lt; "point 1 and point 3 are" &lt;&lt; (point1.isEqual(point3) ? "" : " not") &lt;&lt; " equal\n";
+
+	return 0;
+}
+</code></pre></div>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="const-class-objects-and-const-member-functions.html" rel="prev"><small>上一课</small><strong>14.4 — 常量类对象和常量成员函数</strong></a><a class="lesson-nav-index" href="index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="access-functions.html" rel="next"><small>下一课</small><strong>14.6 — 访问函数</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

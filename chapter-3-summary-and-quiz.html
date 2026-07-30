@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/chapter-3-summary-and-quiz/" name="learncpp:source-url"/>
+<meta content="63687355c2b7d56c18a7a8f8ac60a0dd2421a76722a7644151aaad52fdb72a1e" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:45:37.561264+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T17:18:33.331044+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>3.x — Chapter 3 summary and quiz</title>
+<link href="assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">3.x — 第3章总结与小测验</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 3.x</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/chapter-3-summary-and-quiz/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p class="cpp-section">章节回顾</p><p>一个 <strong>语法错误</strong> 是指当您编写的语句不符合C++语言语法时发生的错误。编译器会捕获这些错误。</p><p>一个 <strong>语义错误</strong> 发生在语句语法有效但未执行程序员预期操作的情况下。</p><p>从程序中查找并移除错误的过程称为 <strong>调试</strong>。</p><p>我们可以使用一个五步流程来进行调试：</p><ol><li>找到根本原因。</li><li>理解问题。</li><li>确定修复方案。</li><li>修复问题。</li><li>重新测试。</li></ol><p>找到错误通常是调试中最困难的部分。</p><p><strong>静态分析工具</strong> 是分析代码并查找可能指示代码问题的语义问题的工具。</p><p>能够可靠地重现问题是调试中第一步也是最重要的一步。</p><p>我们可以使用多种策略来帮助查找问题：</p><ul><li>注释掉代码。</li><li>使用输出语句验证代码流程。</li><li>打印值。</li></ul><p>当使用打印语句进行调试时，使用 <em>std::cerr</em> 而不是 <em>std::cout</em>但更好的做法是，避免使用打印语句进行调试。</p><p>一个 <strong>日志文件</strong> 是一个记录程序中发生的事件的文件。将信息写入日志文件的过程称为 <strong>日志记录</strong>。</p><p>在不改变代码行为的前提下重构代码的过程称为 <strong>重构</strong>这通常是为了使程序更有序、更模块化或性能更高。</p><p><strong>单元测试</strong> 是一种软件测试方法，通过测试源代码的小单元来判断其是否正确。</p><p><strong>防御性编程</strong> 是一种技术，程序员通过它试图预见软件可能被误用的所有方式。这些误用通常可以被检测并缓解。</p><p>程序中跟踪的所有信息（变量值、已调用的函数、当前执行点）都是 <strong>程序状态</strong>。</p><p>一个 <strong>调试器</strong> 是一种允许程序员控制程序执行方式并在程序运行时检查程序状态的工具。一个 <strong>集成调试器</strong> 是一个集成到代码编辑器中的调试器。</p><p><strong>单步执行</strong> 是一组相关调试功能的名称，允许你逐语句地单步执行代码。</p><p><strong>步入</strong> 执行程序正常执行路径中的下一个语句，然后暂停执行。如果该语句包含函数调用， <em>步入</em> 使程序跳转到被调用函数的顶部。</p><p><strong>Step over</strong> 执行程序正常执行路径中的下一个语句，然后暂停执行。如果该语句包含函数调用， <em>step over</em> 执行该函数，并在函数执行后将控制权返回给你。</p><p><strong>单步跳出</strong> 执行当前正在执行的函数中的所有剩余代码，然后在函数返回时将控制权返回给你。</p><p><strong>运行到光标处</strong> 执行程序，直到执行到达鼠标光标选中的语句。</p><p><strong>继续</strong> 运行程序，直到程序终止或遇到断点。 <strong>启动</strong> 与继续相同，只是从程序开始处执行。</p><p>一个 <strong>断点</strong> 是一个特殊标记，告诉调试器在到达断点时停止程序执行。</p><p>浮点类型的 <strong>设置下一条语句</strong> 命令允许我们改变执行点到其他语句（有时非正式地称为跳转）。这可以用于向前跳转执行点以跳过本会执行的某些代码，或向后跳转让已经执行过的内容再次运行。</p><p><strong>监视变量</strong> 允许您在调试模式下执行程序时检查变量的值。这个 <strong>监视窗口</strong> 允许您检查变量或表达式的值。</p><p>浮点类型的 <strong>调用堆栈</strong> 是已执行到当前执行点的所有活动函数的列表。这个 <strong>调用堆栈窗口</strong> 是一个显示调用堆栈的调试器窗口。</p><p class="cpp-section cpp-topline" style="clear:both">小测验时间</p><p class="cpp-quiz-question" style="clear:both">问题 #1</p><p>以下程序应相加两个数，但运行不正确。</p><p>使用集成调试器单步执行此程序并观察 x 的值。根据您获取的信息，修复以下程序：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int readNumber(int x)
+{
+	std::cout &lt;&lt; "Please enter a number: ";
+	std::cin &gt;&gt; x;
+	return x;
+}
+
+void writeAnswer(int x)
+{
+	std::cout &lt;&lt; "The sum is: " &lt;&lt; x &lt;&lt; '\n';
+}
+
+int main()
+{
+	int x {};
+	readNumber(x);
+	x = x + readNumber(x);
+	writeAnswer(x);
+
+	return 0;
+}
+</code></pre><p><a aria-controls="cpp_solution_id_0" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_0" href="#cpp_solution_id_0">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_0"><p>主要问题出现在函数的第二行 <em>main</em> ——readNumber 的返回值未赋值给任何东西，因此被丢弃。一个小问题是 <em>readNumber</em> 接受了一个参数，但应该有一个局部变量。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int readNumber()
+{
+	std::cout &lt;&lt; "Please enter a number: ";
+	int x {};
+	std::cin &gt;&gt; x;
+	return x;
+}
+
+void writeAnswer(int x)
+{
+	std::cout &lt;&lt; "The sum is: " &lt;&lt; x &lt;&lt; '\n';
+}
+
+int main()
+{
+	int x { readNumber() };
+	x = x + readNumber();
+	writeAnswer(x);
+
+	return 0;
+}
+</code></pre></div><p class="cpp-quiz-question cpp-topline" style="clear:both">问题 #2</p><p>以下程序应相除两个数，但运行不正确。</p><p>使用集成调试器单步执行此程序。输入 8 和 4。根据您获取的信息，修复以下程序：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int readNumber()
+{
+	std::cout &lt;&lt; "Please enter a number: ";
+	int x {};
+	std::cin &gt;&gt; x;
+	return x;
+}
+
+void writeAnswer(int x)
+{
+	std::cout &lt;&lt; "The quotient is: " &lt;&lt; x &lt;&lt; '\n';
+}
+
+int main()
+{
+	int x{ };
+	int y{ };
+	x = readNumber();
+	x = readNumber();
+	writeAnswer(x/y);
+
+	return 0;
+}
+</code></pre><p><a aria-controls="cpp_solution_id_1" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_1" href="#cpp_solution_id_1">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_1"><p>问题在于第二个调用 <em>readNumber</em> 意外地将它的值赋给了 x 而不是 y，导致除以0，这导致了未定义行为。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int readNumber()
+{
+	std::cout &lt;&lt; "Please enter a number: ";
+	int x {};
+	std::cin &gt;&gt; x;
+	return x;
+}
+
+void writeAnswer(int x)
+{
+	std::cout &lt;&lt; "The quotient is: " &lt;&lt; x &lt;&lt; '\n';
+}
+
+int main()
+{
+	int x{ readNumber() };
+	int y{ readNumber() };
+	writeAnswer(x/y);
+
+	return 0;
+}
+</code></pre><p>您可能会注意到，当第二个输入不能整除第一个时，该程序似乎产生错误答案。进行整数除法时，C++ 将丢弃商的所有小数部分。我们将在第节课中更详细地讨论这个问题 <a href="arithmetic-operators.html">6.2 -- 算术运算符</a>。</p></div><p class="cpp-quiz-question cpp-topline" style="clear:both">问题 #3</p><p>当执行点在第四行时，以下程序中的调用堆栈是什么样？此练习只需要函数名，不需要指示返回点的行号。</p><p>我们在第节课中讨论了调用堆栈 <a href="using-an-integrated-debugger-the-call-stack.html">3.9 -- 使用集成调试器：调用堆栈</a>。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+void d()
+{ // 此处
+}
+
+void c()
+{
+}
+
+void b()
+{
+	c();
+	d();
+}
+
+void a()
+{
+	b();
+}
+
+int main()
+{
+	a();
+
+	return 0;
+}
+</code></pre><p><a aria-controls="cpp_solution_id_2" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_2" href="#cpp_solution_id_2">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_2"><p>d<br/>b<br/>a<br/>main</p></div><p class="cpp-quiz-question cpp-topline" style="clear:both">问题 #4</p><p>附加题：以下程序本应相加两个数字，但运行结果不正确。</p><p>使用集成调试器单步执行此程序。输入 8 和 4。根据您获取的信息，修复以下程序：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int readNumber()
+{
+    std::cout &lt;&lt; "Please enter a number: ";
+    char x{};
+    std::cin &gt;&gt; x;
+    
+    return x;
+}
+
+void writeAnswer(int x)
+{
+    std::cout &lt;&lt; "The sum is: " &lt;&lt; x &lt;&lt; '\n';
+}
+
+int main()
+{
+    int x { readNumber() };
+    int y { readNumber() };
+    writeAnswer(x + y);
+
+    return 0;
+}
+</code></pre><p><a aria-controls="cpp_solution_id_3" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_3" href="#cpp_solution_id_3">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_3"><p>问题在于 <code>char</code> 第6行的数据类型。当我们输入数值8时，它并不会存储为值 <code>8</code>，而是存储为 <code>56</code> 当我们输入数值4时，它并不会存储为值 <code>4</code>，而是存储为 <code>52</code> 该 <code>readNumber()</code> 函数因此返回 <code>56</code> 和 <code>52</code> 而不是 <code>8</code> 和 <code>4</code> 如预期的那样。</p><p>解决方案是将第6行的数据类型从 <code>char</code> 切换到 <code>int</code>。</p></div><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">作者注</p><p>鉴于目前所涵盖的材料有限，很难找到既有不明显问题可调试又简单的程序示例。各位读者有什么建议吗？</p></div>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="finding-issues-before-they-become-problems.html" rel="prev"><small>上一课</small><strong>3.10 — 在问题变成麻烦之前发现它们</strong></a><a class="lesson-nav-index" href="index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="introduction-to-fundamental-data-types.html" rel="next"><small>下一课</small><strong>4.1 — 基础数据类型简介</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/overloading-typecasts/" name="learncpp:source-url"/>
+<meta content="29e53df3d3cee1775489d542d930fa86b2d422e36d27ea583010d286ef79ca02" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:52:56.295380+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T18:06:58.319370+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>21.11 — Overloading typecasts</title>
+<link href="assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">21.11 — 重载类型转换</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 21.11</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/overloading-typecasts/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>在课程 <a href="explicit-type-conversion-casting-and-static-cast.html">10.6 -- 显式类型转换（强制转换）和 static_cast</a>中，你学习了C++允许你将一种数据类型转换为另一种。下面的例子展示了一个int被转换为double：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int n{ 5 };
+auto d{ static_cast&lt;double&gt;(n) }; // int 转换为 double
+</code></pre><p>C++已经知道如何在内置数据类型之间进行转换。然而，默认情况下，C++不知道如何转换我们自定义的类。</p><p>在课程 <a href="converting-constructors-and-the-explicit-keyword.html">14.16 -- 转换构造函数与 explicit 关键字</a>中，我们展示了如何使用转换构造函数从另一种类型的对象创建类类型对象。但这仅在目标类型是可以修改以添加此类构造函数的类类型时才有效。如果不是这种情况呢？</p><p>看看下面的类：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">class Cents
+{
+private:
+    int m_cents{};
+public:
+    Cents(int cents=0)
+        : m_cents{ cents }
+    {
+    }
+
+    int getCents() const { return m_cents; }
+    void setCents(int cents) { m_cents = cents; }
+};
+</code></pre><p>这个类很简单：它保存一些美分作为整数，并提供获取和设置美分数的访问函数。它还提供了一个构造函数，用于将 <code>int</code> 转换为 <code>Cents</code>。</p><p>如果我们可以将 <code>int</code> 转换为 <code>Cents</code> （通过构造函数）转换为 <code>Cents</code> ，那么我们也可能希望提供一种将 <code>int</code>转换回</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">作者注</p><p>的方法。在某些情况下，这可能不可取，但在这里是有意义的。</p><p>一首诗：<br/>将我们的int转换为一些Cents<br/>会使用一个同意的构造函数<br/>当然Cents转int也有意义</p><p>但编译器报错并阻止。<br/>为了允许这样的转换事件<br/>我们给予编译器我们的同意<br/>然后定义如何，为了所有意图</p><p>我们可以转换这些类型的内容。<br/>那么绕过编译器静态类型防御的语法是什么？<br/>我们很快就会详细说明，因此<br/>你将不再被蒙在鼓里。</p></div><p>一种不太好的方法是使用转换函数。在这个例子中，我们使用成员函数 <code>getCents()</code> 将我们的 <code>Cents</code> 变量“转换”回 <code>int</code> ，以便我们可以使用 <code>printInt()</code>：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+void printInt(int value)
+{
+    std::cout &lt;&lt; value;
+}
+
+int main()
+{
+    Cents cents{ 7 };
+    printInt(cents.getCents()); // 打印 7
+
+    std::cout &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>打印它。虽然这个函数产生了我们想要的结果，但它并不是真正的转换，因为编译器不会理解它应该用于强制转换或隐式转换。这也意味着如果我们进行大量 <code>Cents</code> 切换到 <code>int</code> 转换，我们的代码将充斥着对getCents()的调用，这很混乱。</p><p>我们还能做什么？</p><p class="cpp-section cpp-topline" style="clear:both">重载类型转换</p><p>这就是重载类型转换运算符发挥作用的地方。这样的类型转换可以显式使用（通过强制转换）或由编译器隐式使用，以根据需要执行转换。</p><p>让我们展示如何重载类型转换来定义从 <code>Cents</code> 切换到 <code>int</code>：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">class Cents
+{
+private:
+    int m_cents{};
+public:
+    Cents(int cents=0)
+        : m_cents{ cents }
+    {
+    }
+
+    // 重载的 int 类型转换
+    operator int() const { return m_cents; }
+
+    int getCents() const { return m_cents; }
+    void setCents(int cents) { m_cents = cents; }
+};
+</code></pre><p>的转换。为此，我们编写了一个新的重载运算符，名为 <code>operator int()</code>。注意，在operator和要转换的类型之间有一个空格。</p><p>这里有几件事值得注意：</p><ul><li>重载的类型转换必须是非静态成员，并且应该是 <code>const</code> ，以便它们可以与const对象一起使用。</li><li>重载的类型转换没有显式参数，因为无法向它们传递显式参数。它们仍然有一个隐藏的 <code>*this</code> 参数，指向隐式对象（即要转换的对象）。</li><li>重载的类型转换不声明返回类型。转换的名称（例如 int）被用作返回类型，因为这是唯一允许的返回类型。这避免了声明中的冗余。</li></ul><p>现在在我们的例子中，我们可以调用 <code>printInt()</code> 加上前缀，像这样：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+    Cents cents{ 7 };
+    printInt(cents); // 打印 7
+
+    std::cout &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>编译器首先会注意到函数 <code>printInt()</code> 有一个 <code>int</code> 参数。然后它会注意到变量 <code>cents</code> 不是一个 <code>int</code>。最后，它会查看我们是否提供了将 <code>Cents</code> 转换为 <code>int</code>转换为 <code>operator int()</code> 的方法。由于我们提供了，它将调用我们的 <code>int</code>函数，该函数返回一个 <code>int</code> ，并且返回的 <code>printInt()</code>。</p><p>将被传递给 <code>static_cast</code>：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">std::cout &lt;&lt; static_cast&lt;int&gt;(cents);
+</code></pre><p>这样的类型转换也可以通过</p><p>显式调用。你可以为任何你想要的数据类型提供重载的类型转换，包括你自己定义的程序数据类型！ <code>Dollars</code> 这里有一个名为 <code>Cents</code> 的新类，它提供了一个重载的</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">class Dollars
+{
+private:
+    int m_dollars{};
+public:
+    Dollars(int dollars=0)
+        : m_dollars{ dollars }
+    {
+    }
+
+     // 允许我们将 Dollars 转换为 Cents
+     operator Cents() const { return Cents{ m_dollars * 100 }; }
+};
+</code></pre><p>转换： <code>Dollars</code> 这允许我们将一个 <code>Cents</code> 对象直接转换为一个</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+class Cents
+{
+private:
+    int m_cents{};
+public:
+    Cents(int cents=0)
+        : m_cents{ cents }
+    {
+    }
+
+    // 重载的 int 类型转换
+    operator int() const { return m_cents; }
+
+    int getCents() const { return m_cents; }
+    void setCents(int cents) { m_cents = cents; }
+};
+
+class Dollars
+{
+private:
+    int m_dollars{};
+public:
+    Dollars(int dollars=0)
+        : m_dollars{ dollars }
+    {
+    }
+
+    // 允许我们将 Dollars 转换为 Cents
+    operator Cents() const { return Cents { m_dollars * 100 }; }
+};
+
+void printCents(Cents cents)
+{
+    std::cout &lt;&lt; cents; // cents 将在此处隐式转换为 int
+}
+
+int main()
+{
+    Dollars dollars{ 9 };
+    printCents(dollars); // dollars 将在此处隐式转换为 Cents
+
+    std::cout &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>对象！这允许你执行如下操作：</p><pre>900
+</pre><p>因此，这个程序将打印值：</p><p>这是有道理的，因为9美元等于900美分！ <code>Dollars</code> 尽管这证明了这种事情是可能的，但在这种情况下，向 <code>Cents</code>添加一个转换构造函数（参数类型为</p><p class="cpp-section cpp-topline" style="clear:both">）实际上是更可取的。我们将在下面讨论原因。</p><p>显式类型转换 <code>explicit</code> 就像我们可以让构造函数 <code>explicit</code> 以便它们不能用于隐式转换一样，我们也可以让我们的重载类型转换 <code>static_cast</code>出于同样的原因。显式类型转换只能通过强制转换（例如</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+class Cents
+{
+private:
+    int m_cents{};
+public:
+    Cents(int cents=0)
+        : m_cents{ cents }
+    {
+    }
+
+    explicit operator int() const { return m_cents; } // 现在标记为 explicit
+
+    int getCents() const { return m_cents; }
+    void setCents(int cents) { m_cents = cents; }
+};
+
+class Dollars
+{
+private:
+    int m_dollars{};
+public:
+    Dollars(int dollars=0)
+        : m_dollars{ dollars }
+    {
+    }
+
+    operator Cents() const { return Cents { m_dollars * 100 }; }
+};
+
+void printCents(Cents cents)
+{
+//  std::cout &lt;&lt; cents;                   // 不再有效，因为 cents 不会隐式转换为 int
+    std::cout &lt;&lt; static_cast&lt;int&gt;(cents); // 我们可以改用显式转换
+}
+
+int main()
+{
+    Dollars dollars{ 9 };
+    printCents(dollars); // 从 Dollars 到 Cents 的隐式转换可以，因为它没有标记为 explicit
+
+    std::cout &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>）或某种形式的直接初始化（括号或花括号）来调用。它们在复制初始化时不会被考虑。 <code>Dollars::operator Cents()</code> 类型转换通常应标记为显式。在转换廉价地转换为类似的用户定义类型的情况下可以例外。我们的 <code>Dollars</code> 类型转换保持非显式，因为没有理由不让一个 <code>Cents</code> 对象在期望</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>的任何地方使用。</p></div><p class="cpp-section cpp-topline" style="clear:both">就像单参数转换构造函数应标记为显式一样，类型转换也应标记为显式，除非要转换的类型与目标类型本质上是同义的。</p><p>何时使用转换构造函数与重载类型转换</p><ul><li>重载类型转换和转换构造函数执行类似的功能：</li><li>转换构造函数是类类型 B 的成员函数，它定义了如何从 A 创建 B。</li></ul><p>重载类型转换是类类型 A 的成员函数，它定义了如何将 A 转换为 B。</p><p>在这两种情况下，我们从 A 开始，最终得到 B。两者之间的主要区别在于 A 还是 B 拥有转换方式的所有权。</p><p>由于两种方式都需要定义成员函数，它们只能用于可修改的类类型。如果 A 不是可修改的类类型，则不能使用重载类型转换。如果 B 不是可修改的类类型，则不能使用转换构造函数。如果两者都不是可修改的类类型，则需要使用非成员转换函数。</p><p>一般来说，转换构造函数应优先于重载类型转换。在其他条件相同的情况下，让类类型自己负责构造，而不是依赖另一个类来创建和初始化它，这样更清晰。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>尽可能优先使用转换构造函数，避免重载类型转换。</p></div><p>有少数情况应该使用重载类型转换：</p><ul><li>当提供到基本类型的转换时（因为你不能为这些类型定义构造函数）。最传统的是，用于提供到 <code>bool</code> 的转换，适用于在条件语句中使用对象有意义的情况。</li><li>当转换返回引用或 const 引用时。</li><li>当提供到你不能添加成员的类型的转换时（例如，到 <code>std::vector</code>的转换，因为你也不能为这些类型定义构造函数）。</li><li>当你不希望被构造的类型知道被转换的类型时。这有助于避免循环依赖。</li></ul><p>关于最后一点的例子， <code>std::string</code> 有一个构造函数来创建 <code>std::string</code> 是一个 <code>std::string_view</code>。这意味着 <code>&lt;string&gt;</code> 必须包含 <code>&lt;string_view&gt;</code>。如果 <code>std::string_view</code> 有一个构造函数来创建 <code>std::string_view</code> 是一个 <code>std::string</code>，那么 <code>&lt;string_view&gt;</code> 将需要包含 <code>&lt;string&gt;</code>，这会导致头文件之间的循环依赖。</p><p>相反， <code>std::string</code> 有一个重载类型转换来处理从 <code>std::string</code> 切换到 <code>std::string_view</code> 的转换（这没问题，因为它已经包含了 <code>&lt;string_view&gt;</code>)。 <code>std::string_view</code> 完全不知道 <code>std::string</code> ，因此不需要包含 <code>&lt;string&gt;</code>。这样，循环依赖就被避免了。</p><p>当转换构造函数和重载类型转换都为同一转换定义时，两者都会在重载解析中被考虑。根据重载类型转换是否为 const、被转换的对象是否为 const，以及使用的转换或初始化类型（拷贝与直接），可能会选择其中一个函数（可能导致类型转换被选为优先于转换构造函数），或者结果可能不明确（导致编译错误）。因此，你应该避免同时定义重载类型转换和转换构造函数来服务于同一转换。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>当你需要定义如何将类型 A 转换为类型 B 时：</p><ul><li>如果 B 是你可以修改的类类型，优先使用转换构造函数从 A 创建 B。</li><li>否则，如果 A 是你可以修改的类类型，使用重载类型转换将 A 转换为 B。</li><li>否则，使用非成员函数将 A 转换为 B。</li></ul></div>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="overloading-the-parenthesis-operator.html" rel="prev"><small>上一课</small><strong>21.10 — 重载括号运算符</strong></a><a class="lesson-nav-index" href="index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="overloading-the-assignment-operator.html" rel="next"><small>下一课</small><strong>21.12 — 重载赋值运算符</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

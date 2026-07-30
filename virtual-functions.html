@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/virtual-functions/" name="learncpp:source-url"/>
+<meta content="56b468fb262fa02f902568f08664db3d92ccc2d9fd18e3143deecc110c25693a" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:54:03.070929+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T18:14:53.485478+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>25.2 — Virtual functions and polymorphism</title>
+<link href="assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">25.2 — 虚函数与多态</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 25.2</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/virtual-functions/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>在上一节关于 <a href="https://www.learncpp.com/cpp-tutorial/121-pointers-and-references-to-the-base-class-of-derived-objects/">指向派生类对象的基类指针和引用</a>中，我们看到了许多使用基类指针或引用可以简化代码的例子。然而，在每种情况下，我们都遇到了一个问题：基类指针或引用只能调用基类版本的函数，而不能调用派生类版本的函数。</p><p>下面是一个简单的例子：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;string_view&gt;
+
+class Base
+{
+public:
+    std::string_view getName() const { return "Base"; }
+};
+
+class Derived: public Base
+{
+public:
+    std::string_view getName() const { return "Derived"; }
+};
+
+int main()
+{
+    Derived derived {};
+    Base&amp; rBase{ derived };
+    std::cout &lt;&lt; "rBase is a " &lt;&lt; rBase.getName() &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>这个例子输出结果：</p><pre>rBase is a Base
+</pre><p>因为 rBase 是一个 Base 引用，它调用了 Base::getName()，尽管它实际上引用的是 Derived 对象的 Base 部分。</p><p>在本课中，我们将展示如何使用虚函数解决这个问题。</p><p class="cpp-section cpp-topline" style="clear:both">虚函数</p><p>一个 <strong>虚函数</strong> 是一种特殊类型的成员函数，当被调用时，它会解析为被引用或指向的对象实际类型的最派生版本的函数。</p><p>如果派生函数与基类版本的函数具有相同的签名（名称、参数类型和是否为 const）和返回类型，则被视为匹配。这样的函数称为 <strong>覆盖</strong>。</p><p>要使函数成为虚函数，只需在函数声明前放置“virtual”关键字。</p><p>下面是上述示例使用虚函数的版本：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;string_view&gt;
+
+class Base
+{
+public:
+    virtual std::string_view getName() const { return "Base"; } // 注意添加了 virtual 关键字
+};
+
+class Derived: public Base
+{
+public:
+    virtual std::string_view getName() const { return "Derived"; }
+};
+
+int main()
+{
+    Derived derived {};
+    Base&amp; rBase{ derived };
+    std::cout &lt;&lt; "rBase is a " &lt;&lt; rBase.getName() &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>这个例子输出结果：</p><pre>rBase is a Derived
+</pre><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">提示</p><p>一些现代编译器可能会报错，提示存在虚函数但可访问的非虚析构函数。如果是这种情况，请向基类添加一个虚析构函数。在上面的程序中，将其添加到 <code>Base</code>：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">    virtual ~Base() = default;
+</code></pre><p>的定义中。我们在课程 <a href="virtual-destructors-virtual-assignment-and-overriding-virtualization.html">25.4 -- 虚析构函数、虚赋值和覆盖虚函数</a>。</p></div><p>中讨论了虚析构函数。因为 rBase 是对 Derived 对象的 Base 部分的引用，当 <em>rBase.getName()</em> 被求值时，它通常会解析为 Base::getName()。然而，Base::getName() 是虚函数，这告诉程序去查看是否有更派生的函数版本可用于 Derived 对象。在这种情况下，它将解析为 Derived::getName()！</p><p>让我们看一个稍微复杂一点的例子：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;string_view&gt;
+
+class A
+{
+public:
+    virtual std::string_view getName() const { return "A"; }
+};
+
+class B: public A
+{
+public:
+    virtual std::string_view getName() const { return "B"; }
+};
+
+class C: public B
+{
+public:
+    virtual std::string_view getName() const { return "C"; }
+};
+
+class D: public C
+{
+public:
+    virtual std::string_view getName() const { return "D"; }
+};
+
+int main()
+{
+    C c {};
+    A&amp; rBase{ c };
+    std::cout &lt;&lt; "rBase is a " &lt;&lt; rBase.getName() &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>你认为这个程序会输出什么？</p><p>让我们看看它是如何工作的。首先，我们实例化一个 C 类对象。rBase 是一个 A 引用，我们将其设置为引用 C 对象的 A 部分。最后，我们调用 rBase.getName()。rBase.getName() 求值为 A::getName()。然而，A::getName() 是虚函数，所以编译器将调用 A 和 C 之间最匹配的派生函数。在这种情况下，是 C::getName()。注意，它不会调用 D::getName()，因为我们的原始对象是 C，而不是 D，所以只考虑 A 和 C 之间的函数。</p><p>因此，我们的程序输出：</p><pre>rBase is a C
+</pre><p>注意，虚函数解析仅当通过指针或引用调用类类型对象的虚成员函数时才有效。这是因为编译器可以区分指针或引用的类型与所指向或引用的对象的类型。我们在上面的例子中看到了这一点。</p><p>直接对对象（而不是通过指针或引用）调用虚成员函数将始终调用属于该对象相同类型的成员函数。例如：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">C c{};
+std::cout &lt;&lt; c.getName(); // 将始终调用 C::getName
+
+A a { c }; // 将 c 的 A 部分复制到 a 中（不要这样做）
+std::cout &lt;&lt; a.getName(); // 将始终调用 A::getName
+</code></pre><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">关键提示</p><p>虚函数解析仅当通过指针或引用调用类类型对象的成员函数时才有效。</p></div><p class="cpp-section cpp-topline" style="clear:both">多态</p><p>在编程中， <strong>多态</strong> 指的是实体具有多种形式的能力（术语“多态”字面意思是“多种形式”）。例如，考虑以下两个函数声明：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int add(int, int);
+double add(double, double);
+</code></pre><p>标识符 <code>add</code> 有两种形式： <code>add(int, int)</code> 和 <code>add(double, double)</code>。</p><p><strong>编译时多态</strong> 指的是由编译器解析的多态形式。这些包括函数重载解析以及模板解析。</p><p><strong>运行时多态</strong> 指的是在运行时解析的多态形式。这包括虚函数解析。</p><p class="cpp-section cpp-topline" style="clear:both">一个更复杂的例子</p><p>让我们再看一下上一课中使用的 Animal 例子。这是原始类以及一些测试代码：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;string_view&gt;
+
+class Animal
+{
+protected:
+    std::string m_name {};
+
+    // // 我们将此构造函数设为 protected，因为
+    // // 我们不希望人们直接创建 Animal 对象，
+    // // 但我们仍然希望派生类能够使用它。
+    Animal(std::string_view name)
+        : m_name{ name }
+    {
+    }
+
+public:
+    const std::string&amp; getName() const { return m_name; }
+    std::string_view speak() const { return "???"; }
+};
+
+class Cat: public Animal
+{
+public:
+    Cat(std::string_view name)
+        : Animal{ name }
+    {
+    }
+
+    std::string_view speak() const { return "Meow"; }
+};
+
+class Dog: public Animal
+{
+public:
+    Dog(std::string_view name)
+        : Animal{ name }
+    {
+    }
+
+    std::string_view speak() const { return "Woof"; }
+};
+
+void report(const Animal&amp; animal)
+{
+    std::cout &lt;&lt; animal.getName() &lt;&lt; " says " &lt;&lt; animal.speak() &lt;&lt; '\n';
+}
+
+int main()
+{
+    Cat cat{ "Fred" };
+    Dog dog{ "Garbo" };
+
+    report(cat);
+    report(dog);
+
+    return 0;
+}
+</code></pre><p>这会打印：</p><pre>Fred says ???
+Garbo says ???
+</pre><p>这是将 speak() 函数设为虚函数的等效类：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;string_view&gt;
+
+class Animal
+{
+protected:
+    std::string m_name {};
+
+    // // 我们将此构造函数设为 protected，因为
+    // // 我们不希望人们直接创建 Animal 对象，
+    // // 但我们仍然希望派生类能够使用它。
+    Animal(std::string_view name)
+        : m_name{ name }
+    {
+    }
+
+public:
+    const std::string&amp; getName() const { return m_name; }
+    virtual std::string_view speak() const { return "???"; }
+};
+
+class Cat: public Animal
+{
+public:
+    Cat(std::string_view name)
+        : Animal{ name }
+    {
+    }
+
+    virtual std::string_view speak() const { return "Meow"; }
+};
+
+class Dog: public Animal
+{
+public:
+    Dog(std::string_view name)
+        : Animal{ name }
+    {
+    }
+
+    virtual std::string_view speak() const { return "Woof"; }
+};
+
+void report(const Animal&amp; animal)
+{
+    std::cout &lt;&lt; animal.getName() &lt;&lt; " says " &lt;&lt; animal.speak() &lt;&lt; '\n';
+}
+
+int main()
+{
+    Cat cat{ "Fred" };
+    Dog dog{ "Garbo" };
+
+    report(cat);
+    report(dog);
+
+    return 0;
+}
+</code></pre><p>该程序产生结果：</p><pre>Fred says Meow
+Garbo says Woof
+</pre><p>它起作用了！</p><p>当 animal.speak() 被求值时，程序注意到 Animal::speak() 是一个虚函数。如果 animal 引用的是 Cat 对象的 Animal 部分，程序会查找 Animal 和 Cat 之间的所有类，看是否能找到更派生类的函数。在这种情况下，它找到了 Cat::speak()。如果 animal 引用的是 Dog 对象的 Animal 部分，程序会将函数调用解析为 Dog::speak()。</p><p>注意我们没有将 Animal::getName() 设为虚函数。这是因为 getName() 在任何派生类中都没有被重写，因此没有必要。</p><p>类似地，下面的数组示例现在可以按预期工作：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">Cat fred{ "Fred" };
+Cat misty{ "Misty" };
+Cat zeke{ "Zeke" };
+ 
+Dog garbo{ "Garbo" };
+Dog pooky{ "Pooky" };
+Dog truffle{ "Truffle" };
+
+// // 设置一个指向动物的指针数组，并将这些指针指向我们的 Cat 和 Dog 对象
+Animal* animals[]{ &amp;fred, &amp;garbo, &amp;misty, &amp;pooky, &amp;truffle, &amp;zeke };
+
+for (const auto* animal : animals)
+    std::cout &lt;&lt; animal-&gt;getName() &lt;&lt; " says " &lt;&lt; animal-&gt;speak() &lt;&lt; '\n';
+</code></pre><p>产生的结果是：</p><pre>Fred says Meow
+Garbo says Woof
+Misty says Meow
+Pooky says Woof
+Truffle says Woof
+Zeke says Meow
+</pre><p>尽管这两个示例只使用了 Cat 和 Dog，但任何其他从 Animal 派生的类也可以与我们的 report() 函数和 animal 数组一起工作，无需进一步修改！这也许是虚函数最大的好处——能够以这样的方式组织代码，使得新派生类无需修改就能自动与旧代码一起工作！</p><p>警告：派生类函数的签名必须 <em>精确地</em> 与基类虚函数的签名匹配，派生类函数才能被使用。如果派生类函数具有不同的参数类型，程序可能仍然可以正常编译，但虚函数将无法按预期解析。在下一课中，我们将讨论如何防范这种情况。</p><p>注意，如果一个函数被标记为 virtual，那么派生类中所有匹配的重写函数也会被隐式视为 virtual，即使它们没有显式标记。</p><div class="cpp-note cpp-lightpurplebackground"><p class="cpp-note-title cpp-bottomline">规则</p><p>如果一个函数是虚函数，那么派生类中所有匹配的重写函数都是隐式虚函数。</p></div><p>反之则不成立——派生类中的虚重写不会隐式使基类函数成为虚函数。</p><p class="cpp-section cpp-topline" style="clear:both">虚函数的返回类型</p><p>在正常情况下，虚函数及其重写函数的返回类型必须匹配。考虑以下示例：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">class Base
+{
+public:
+    virtual int getValue() const { return 5; }
+};
+
+class Derived: public Base
+{
+public:
+    virtual double getValue() const { return 6.78; }
+};
+</code></pre><p>在这种情况下，Derived::getValue() 不被视为 Base::getValue() 的匹配重写，编译将失败。</p><p class="cpp-section cpp-topline" style="clear:both">不要在构造函数或析构函数中调用虚函数</p><p>这是另一个经常让没有经验的新手程序员措手不及的问题。你不应该在构造函数或析构函数中调用虚函数。为什么？</p><p>记住，当创建 Derived 类时，首先构造 Base 部分。如果你在 Base 构造函数中调用虚函数，而 Derived 部分甚至还没有被创建，那么它将无法调用 Derived 版本的函数，因为没有 Derived 对象供 Derived 函数操作。在 C++ 中，它会调用 Base 版本。</p><p>析构函数也存在类似的问题。如果你在 Base 类析构函数中调用虚函数，它总是解析为 Base 类版本的函数，因为类的 Derived 部分已经被销毁。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>永远不要在构造函数或析构函数中调用虚函数。</p></div><p class="cpp-section cpp-topline" style="clear:both">虚函数的缺点</p><p>既然大多数时候你希望函数是虚函数，为什么不把所有函数都设为虚函数呢？答案是效率低下——解析虚函数调用比解析普通函数调用花费的时间更长。</p><p>此外，为了使虚函数工作，编译器必须为每个具有虚函数的类的对象分配一个额外的指针。这给原本很小的对象增加了大量开销。我们将在本章后面的课程中进一步讨论这个问题。</p><p class="cpp-section cpp-topline" style="clear:both">小测验时间</p><ol start="1"><li>以下程序输出什么？此练习旨在通过检查完成，而不是用编译器编译示例。</li></ol><p>1a)</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;string_view&gt;
+
+class A
+{
+public:
+    virtual std::string_view getName() const { return "A"; }
+};
+
+class B: public A
+{
+public:
+    virtual std::string_view getName() const { return "B"; }
+};
+
+class C: public B
+{
+public:
+// 注意：这里没有 getName() 函数
+};
+
+class D: public C
+{
+public:
+    virtual std::string_view getName() const { return "D"; }
+};
+
+int main()
+{
+    C c {};
+    A&amp; rBase{ c };
+    std::cout &lt;&lt; rBase.getName() &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p><a aria-controls="cpp_solution_id_0" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_0" href="#cpp_solution_id_0">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_0">B. rBase 是一个指向 C 对象的 A 引用。通常 rBase.getName() 会调用 A::getName()，但 A::getName() 是虚函数，因此它会调用 A 和 C 之间最派生的匹配函数。那就是 B::getName()，它输出 B。</div><p>1b)</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;string_view&gt;
+
+class A
+{
+public:
+    virtual std::string_view getName() const { return "A"; }
+};
+
+class B: public A
+{
+public:
+    virtual std::string_view getName() const { return "B"; }
+};
+
+class C: public B
+{
+public:
+    virtual std::string_view getName() const { return "C"; }
+};
+
+class D: public C
+{
+public:
+    virtual std::string_view getName() const { return "D"; }
+};
+
+int main()
+{
+    C c;
+    B&amp; rBase{ c }; // 注意：这次 rBase 是 B
+    std::cout &lt;&lt; rBase.getName() &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p><a aria-controls="cpp_solution_id_1" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_1" href="#cpp_solution_id_1">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_1">C. 这相当直接，因为 C::getName() 是 B 和 C 类之间最派生的匹配调用。</div><p>1c)</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;string_view&gt;
+
+class A
+{
+public:
+    // 注意：没有 virtual 关键字
+    std::string_view getName() const { return "A"; }
+};
+
+class B: public A
+{
+public:
+    virtual std::string_view getName() const { return "B"; }
+};
+
+class C: public B
+{
+public:
+    virtual std::string_view getName() const { return "C"; }
+};
+
+class D: public C
+{
+public:
+    virtual std::string_view getName() const { return "D"; }
+};
+
+int main()
+{
+    C c {};
+    A&amp; rBase{ c };
+    std::cout &lt;&lt; rBase.getName() &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p><a aria-controls="cpp_solution_id_2" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_2" href="#cpp_solution_id_2">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_2">A. 由于 A 不是虚函数，当调用 rBase.getName() 时，会调用 A::getName()。</div><p>1d)</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;string_view&gt;
+
+class A
+{
+public:
+    virtual std::string_view getName() const { return "A"; }
+};
+
+class B: public A
+{
+public:
+    // 注意：B、C 和 D 中没有 virtual 关键字
+    std::string_view getName() const { return "B"; }
+};
+
+class C: public B
+{
+public:
+    std::string_view getName() const { return "C"; }
+};
+
+class D: public C
+{
+public:
+    std::string_view getName() const { return "D"; } 
+};
+
+int main()
+{
+    C c {};
+    B&amp; rBase{ c }; // 注意：这次 rBase 是 B
+    std::cout &lt;&lt; rBase.getName() &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p><a aria-controls="cpp_solution_id_3" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_3" href="#cpp_solution_id_3">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_3">C. 即使 B 和 C 没有被标记为虚函数，A::getName() 是虚函数，而 B::getName() 和 C::getName() 是重写。因此，B::getName() 和 C::getName() 被视为隐式虚函数，所以对 rBase.getName() 的调用解析为 C::getName()，而不是 B::getName()。</div><p>1e)</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;string_view&gt;
+
+class A
+{
+public:
+    virtual std::string_view getName() const { return "A"; }
+};
+
+class B: public A
+{
+public:
+    // 注意：B、C 和 D 中的函数是非 const 的。
+    virtual std::string_view getName() { return "B"; }
+};
+
+class C: public B
+{
+public:
+    virtual std::string_view getName() { return "C"; }
+};
+
+class D: public C
+{
+public:
+    virtual std::string_view getName() { return "D"; }
+};
+
+int main()
+{
+    C c {};
+    A&amp; rBase{ c };
+    std::cout &lt;&lt; rBase.getName() &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p><a aria-controls="cpp_solution_id_4" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_4" href="#cpp_solution_id_4">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_4">A. 这个有点棘手。rBase 是一个指向 C 对象的 A 引用，所以 rBase.getName() 通常会调用 A::getName()。但 A::getName() 是虚函数，所以它会调用 A 和 C 之间最派生版本的函数。而那就是 A::getName()。因为 B::getName() 和 C::getName() 不是 const，它们不被视为重写！因此，这个程序输出 A。</div><p>1f)</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;string_view&gt;
+
+class A
+{
+public:
+	A() { std::cout &lt;&lt; getName(); } // 注意添加了构造函数（现在从构造函数中调用 getName()）
+
+	virtual std::string_view getName() const { return "A"; }
+};
+
+class B : public A
+{
+public:
+	virtual std::string_view getName() const { return "B"; }
+};
+
+class C : public B
+{
+public:
+	virtual std::string_view getName() const { return "C"; }
+};
+
+class D : public C
+{
+public:
+	virtual std::string_view getName() const { return "D"; }
+};
+
+int main()
+{
+	C c {};
+
+	return 0;
+}
+</code></pre><p><a aria-controls="cpp_solution_id_5" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_5" href="#cpp_solution_id_5">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_5">A. 另一个棘手的例子。当我们创建 C 对象时，首先构造 A 部分。当调用 A 构造函数来执行此操作时，它会调用虚函数 getName()。由于类的 B 和 C 部分尚未设置，这解析为 A::getName()。</div>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="pointers-and-references-to-the-base-class-of-derived-objects.html" rel="prev"><small>上一课</small><strong>25.1 — 指向派生类对象的基类指针和引用</strong></a><a class="lesson-nav-index" href="index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="the-override-and-final-specifiers-and-covariant-return-types.html" rel="next"><small>下一课</small><strong>25.3 — override 和 final 说明符，以及协变返回类型</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

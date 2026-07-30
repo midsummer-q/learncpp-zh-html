@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/constant-expressions/" name="learncpp:source-url"/>
+<meta content="180c0c8c6b64016a3857e056d2deb7023aab5381ed2176d90896efd106e01290" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:46:12.815468+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T17:19:02.716604+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>5.5 — Constant expressions</title>
+<link href="assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">5.5 — 常量表达式</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 5.5</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/constant-expressions/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>在课程 <a href="introduction-to-expressions.html">1.10 -- 表达式简介</a>中，我们介绍了表达式。默认情况下，表达式在运行时求值。在某些情况下，它们必须如此：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">std::cin &gt;&gt; x;
+std::cout &lt;&lt; 5 &lt;&lt; '\n';
+</code></pre><p>因为输入和输出不能在编译时执行，所以上面的表达式需要在运行时求值。</p><p>在之前的课程 <a href="the-as-if-rule-and-compile-time-optimization.html">5.4 -- 如同规则与编译时优化</a>中，我们讨论了如同规则，以及编译器如何通过将工作从运行时转移到编译时来优化程序。在如同规则下，编译器可以选择在运行时还是编译时求值某些表达式：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">const double x { 1.2 };
+const double y { 3.4 };
+const double z { x + y }; // x + y 可能在运行时或编译时求值
+</code></pre><p>表达式 <code>x + y</code> 通常会在运行时求值，但由于 <code>x</code> 和 <code>y</code> 的值在编译时已知，编译器可以选择进行编译时求值，并用编译时计算出的值初始化 <code>z</code> <code>4.6</code>。</p><p>在其他一些情况下，C++语言要求表达式能够在编译时求值。例如，constexpr变量需要一个可以在编译时求值的初始化器：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int main()
+{
+    constexpr int x { expr }; // 因为变量 x 是 constexpr，expr 必须在编译时可求值
+}
+</code></pre><p>在需要常量表达式但未提供的情况下，编译器将报错并停止编译。</p><p>我们将在下一课（<a href="constexpr-variables.html">5.6 -- Constexpr 变量</a>）中讨论constexpr变量，届时将涵盖constexpr变量。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">进阶读者</p><p>一些需要编译时可求值表达式的常见情况：</p><ul><li>constexpr变量的初始化器（<a href="constexpr-variables.html">5.6 -- Constexpr 变量</a>)。</li><li>非类型模板参数（<a href="non-type-template-parameters.html">11.9 -- 非类型模板参数</a>)。</li><li>定义的长度 <code>std::array</code> (<a href="introduction-to-stdarray.html">17.1 -- std::array简介</a>）或C风格数组（<a href="introduction-to-c-style-arrays.html">17.7 -- C风格数组简介</a>)。</li></ul></div><p>在本课中，我们将进一步探讨C++在编译时求值方面的能力，并了解C++如何将最后一种情况与前两种情况区分开来。</p><p class="cpp-section cpp-topline" style="clear:both"><a name="compiletimebenefits"></a>编译时编程的好处 <a href="#compiletimebenefits"><i class="fa fa-link" style="font-size:.8em"></i></a></p><p>虽然如同规则对提高性能很有帮助，但它让我们依赖于编译器的复杂程度来决定哪些内容可以在编译时求值。这意味着如果我们有一段代码确实希望在编译时执行，它可能执行也可能不执行。同样的代码在不同的平台上、使用不同的编译器、不同的编译选项或稍作修改，可能会产生不同的结果。由于如同规则对我们不可见，我们无法从编译器那里得到关于它决定在编译时求值哪些代码部分以及原因的任何反馈。我们期望在编译时求值的代码可能甚至不符合条件（由于拼写错误或误解），而我们可能永远不知道。</p><p>为了改善这种情况，C++语言提供了让我们明确指定哪些代码部分希望在编译时执行的方法。使用导致编译时求值的语言特性称为 <strong>编译时编程</strong>。</p><p>这些特性可以在多个方面帮助改进软件：</p><ul><li>性能：编译时求值使我们的程序更小、更快。我们能够确保在编译时求值的代码越多，获得的性能提升就越大。</li><li>多功能性：我们可以在需要编译时常量的地方使用此类代码。依赖如同规则在编译时求值的代码不能用于此类地方（即使编译器选择在编译时求值该代码）——做出这个决定是为了确保今天能编译的代码明天不会因为编译器决定采用不同的优化方式而无法编译。</li><li>可预测性：如果编译器确定代码无法在编译时执行，我们可以让编译器停止编译（而不是默默地选择让该代码在运行时求值）。这使我们能够确保我们真正希望在编译时执行的代码段确实会在编译时执行。</li><li>质量：我们可以让编译器在编译时可靠地检测某些类型的编程错误，并在遇到它们时停止构建。这比试图在运行时检测并优雅地处理同样的错误要有效得多。</li><li>质量：也许最重要的是，未定义行为在编译时是不允许的。如果我们在编译时做了导致未定义行为的事情，编译器应该停止构建并要求我们修复它。请注意，这对编译器来说是一个难题，它们可能无法捕捉所有情况。</li></ul><p>总之，编译时求值使我们能够编写既性能更高又质量更好（更安全、更少错误）的程序！因此，虽然编译时求值确实给语言增加了一些额外的复杂性，但其好处是巨大的。</p><p>以下C++特性是编译时编程最基础的：</p><ul><li>Constexpr变量（在即将到来的课程 <a href="constexpr-variables.html">5.6 -- Constexpr 变量</a>)。</li><li>Constexpr函数（在即将到来的课程 <a href="constexpr-functions.html">F.1 -- Constexpr函数</a>)。</li><li>模板（在课程 <a href="function-templates.html">11.6 -- 函数模板</a>)。</li><li>static_assert（在课程 <a href="assert-and-static_assert.html">9.6 -- Assert 和 static_assert</a>)。</li></ul><p>所有这些特性都有一个共同点：它们都使用了常量表达式。</p><p class="cpp-section cpp-topline" style="clear:both"><a name="constantexpressions"></a>常量表达式 <a href="#constantexpressions"><i class="fa fa-link" style="font-size:.8em"></i></a></p><p>也许令人惊讶的是，C++标准几乎不提及“编译时”。相反，标准定义了“常量表达式”，这是一种必须在编译时可求值的表达式，以及决定编译器应如何处理这些表达式的规则。常量表达式构成了C++中编译时求值的基石。</p><p>在课程 <a href="introduction-to-expressions.html">1.10 -- 表达式简介</a>，我们将表达式定义为“字面量、变量、运算符和函数调用的非空序列”。 <strong>常量表达式</strong> 是字面量、常量变量、运算符和函数调用的非空序列，所有这些都必须在编译时可求值。关键区别在于，在常量表达式中，表达式的每个部分都必须在编译时可求值。</p><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">关键提示</p><p>在常量表达式中，表达式的每个部分都必须在编译时可求值。</p></div><p>不是常量表达式的表达式通常称为非常量表达式，并且可以非正式地称为 <strong>运行时表达式</strong> （因为此类表达式通常在运行时求值）。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">可选阅读</p><p>C++20语言标准（在[expr.const]节中）指出“常量表达式可以在翻译期间求值”。正如我们在课程 <a href="introduction-to-the-preprocessor.html">2.10 -- 预处理器简介</a>中所介绍的，翻译是构建程序的整个过程（包括预处理、编译和链接）。因此，在编译程序中，常量表达式可以作为编译过程的一部分进行求值。在解释程序中，翻译发生在运行时。</p><p>由于C++程序通常是编译的，我们将假设常量表达式可以在编译时求值。</p></div><p class="cpp-section cpp-topline" style="clear:both">常量表达式中可以包含什么？</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">作者注</p><p>从技术上讲，常量表达式相当复杂。在本节中，我们将更深入地探讨它们可以包含什么和不能包含什么。你不需要记住大部分内容。如果在某个地方需要常量表达式而你未提供，编译器会愉快地指出你的错误，届时你可以修复它。</p></div><p>最常见的是，常量表达式包含以下内容：</p><ul><li>字面量（例如 '5'、'1.2'）</li><li>大多数带有常量表达式操作数的运算符（例如 <code>3 + 4</code>， <code>2 * sizeof(int)</code>)。</li><li>带有常量表达式初始化器的const整型变量（例如 <code>const int x { 5 };</code>）。这是一个历史例外——在现代C++中，更推荐使用constexpr变量。</li><li>Constexpr变量（在即将到来的课程 <a href="constexpr-variables.html">5.6 -- Constexpr 变量</a>)。</li><li>带有常量表达式参数的constexpr函数调用（参见 <a href="constexpr-functions.html">F.1 -- Constexpr函数</a>)。</li></ul><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">进阶读者</p><p>常量表达式还可以包含：</p><ul><li>非类型模板参数（参见 <a href="non-type-template-parameters.html">11.9 -- 非类型模板参数</a>)。</li><li>枚举器（参见 <a href="unscoped-enumerations.html">13.2 -- 无作用域枚举</a>)。</li><li>类型特征（参见 <a href="https://en.cppreference.com/w/cpp/header/type_traits">类型特征的cppreference页面</a>)。</li><li>constexpr lambda表达式（参见 <a href="introduction-to-lambdas-anonymous-functions.html">20.6 -- lambda（匿名函数）简介</a>)。</li></ul></div><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">提示</p><p>值得注意的是，以下内容不能用于常量表达式：</p><ul><li>非常量变量。</li><li>const非整型变量，即使它们有常量表达式初始化器（例如 <code>const double d { 1.2 };</code>）。要在常量表达式中使用此类变量，请将它们定义为constexpr变量（参见课程 <a href="constexpr-variables.html">5.6 -- Constexpr 变量</a>)。</li><li>非constexpr函数的返回值（即使返回表达式是常量表达式）。</li><li>函数参数（即使函数是constexpr）。</li><li>操作数不是常量表达式的运算符（例如 <code>x + y</code> 当 <code>x</code> 或 <code>y</code> 不是常量表达式，或 <code>std::cout &lt;&lt; "hello\n"</code> 为 <code>std::cout</code> 不是常量表达式时）。</li><li>运算符 <code>new</code>， <code>delete</code>， <code>throw</code>， <code>typeid</code>、和 <code>operator,</code> （逗号）。</li></ul><p>包含上述任何内容的表达式都是运行时表达式。</p></div><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">相关内容</p><p>关于常量表达式的精确定义，请参见 <a href="https://en.cppreference.com/w/cpp/language/constant_expression">cppreference 上关于常量表达式的页面</a>。注意，常量表达式是通过它不是什么来定义的。这意味着我们需要推断它是什么。祝你好运！</p></div><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">术语</p><p>在讨论常量表达式时，通常使用两种表述方式：</p><ul><li>“X 可在常量表达式中使用”常用于强调 X 是什么。例如，“<code>5</code> 可在常量表达式中使用”强调字面量 <code>5</code> 可以在常量表达式中使用。</li><li>“X 是一个常量表达式”有时用于强调整个表达式（由 X 组成）是一个常量表达式。例如，“<code>5</code> 是一个常量表达式”强调表达式 <code>5</code> 是一个常量表达式。</li></ul><p>后一种表述在说“字面量是常量表达式”时可能听起来有些别扭（因为它们实际上是值）。但这只是意味着由字面量组成的表达式是一个常量表达式。</p></div><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">顺便说一句……</p><p>当常量表达式被定义时， <code>const</code> 整型被保留了下来，因为它们在语言中已经被视为常量表达式。</p><p>委员会讨论了是否 <code>const</code> 具有常量表达式初始化器的非整型也应该被视为常量表达式（为了与 <code>const</code> 整型的情况保持一致）。最终，他们决定不这样做，以促进更一致地使用 <code>constexpr</code>。</p></div><p class="cpp-section cpp-topline" style="clear:both">常量表达式和非常量表达式的示例</p><p>在下面的程序中，我们查看一些表达式语句，并指出每个表达式是常量表达式还是运行时表达式：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int getNumber()
+{
+    std::cout &lt;&lt; "Enter a number: ";
+    int y{};
+    std::cin &gt;&gt; y; // 只能在运行时执行
+
+    return y;      // 这个返回表达式是一个运行时表达式
+}
+
+// 非 constexpr 函数的返回值是一个运行时表达式
+// 即使返回表达式是一个常量表达式
+int five()
+{
+    return 5;      // 这个返回表达式是一个常量表达式
+}
+
+int main()
+{
+    // 字面量可以在常量表达式中使用
+    5;                           // 常量表达式            
+    1.2;                         // 常量表达式
+    "Hello world!";              // 常量表达式
+
+    // 大多数具有常量表达式操作数的运算符可以在常量表达式中使用
+    5 + 6;                       // 常量表达式
+    1.2 * 3.4;                   // 常量表达式
+    8 - 5.6;                     // 常量表达式（即使操作数类型不同）
+    sizeof(int) + 1;             // 常量表达式（sizeof 可以在编译时确定）
+
+    // 非 constexpr 函数的返回值只能在运行时表达式中使用
+    getNumber();                 // 运行时表达式
+    five();                      // 运行时表达式（即使返回表达式是常量表达式）
+
+    // 没有常量表达式操作数的运算符只能在运行时表达式中使用
+    std::cout &lt;&lt; 5;              // 运行时表达式（std::cout 不是常量表达式操作数）
+
+    return 0;
+}
+</code></pre><p>在下面的代码片段中，我们定义了一堆变量，并指出它们是否可以在常量表达式中使用：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">    // 具有常量表达式初始化器的 const 整型变量可以在常量表达式中使用：
+    const int a { 5 };           // a 可在常量表达式中使用
+    const int b { a };           // b 可在常量表达式中使用（根据前一条语句，a 是常量表达式）
+    const long c { a + 2 };      // c 可在常量表达式中使用（operator+ 具有常量表达式操作数）
+
+    // 其他变量不能在常量表达式中使用（即使它们有常量表达式初始化器）：
+    int d { 5 };                 // d 不能在常量表达式中使用（d 不是 const）
+    const int e { d };           // e 不能在常量表达式中使用（初始化器不是常量表达式）
+    const double f { 1.2 };      // f 不能在常量表达式中使用（不是 const 整型变量）
+</code></pre><p class="cpp-section cpp-topline" style="clear:both">常量表达式何时在编译时求值</p><p>由于常量表达式总是能够在编译时求值，你可能认为常量表达式总是会在编译时求值。但反直觉的是，情况并非如此。</p><p>编译器只在 <em>需要</em> 常量表达式的上下文中才 <em>必须</em> 在编译时求值常量表达式。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">术语</p><p>必须在编译时求值的表达式的技术名称是 <strong>明显常量求值的表达式</strong>。你可能只在技术文档中遇到这个术语。</p></div><p>在不需要常量表达式的上下文中，编译器可以选择在编译时或运行时求值常量表达式。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">const int x { 3 + 4 }; // 常量表达式 3 + 4 必须在编译时求值
+int y { 3 + 4 };       // 常量表达式 3 + 4 可以在编译时或运行时求值
+</code></pre><p>变量 <code>x</code> 的类型为 <code>const int</code> 并且具有常量表达式初始化器， <code>x</code> 可在常量表达式中使用。它的初始化器必须在编译时求值（否则 <code>x</code> 的值在编译时未知，并且 <code>x</code> 不能在常量表达式中使用）。另一方面，变量 <code>y</code> 是非常量，所以 <code>y</code> 不能在常量表达式中使用。尽管它的初始化器是一个常量表达式，但编译器可以决定在编译时或运行时求值该初始化器。</p><p>即使不是必须的，现代编译器也会在启用优化时 <em>通常</em> 在编译时求值常量表达式。</p><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">关键提示</p><p>编译器只在 <em>需要</em> 常量表达式的上下文中才 <em>必须</em> 一个常量表达式。在其他情况下，它可能会也可能不会这样做。</p></div><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">提示</p><p>表达式在编译时完全求值的可能性可以分类如下：</p><ul><li>从不：编译器无法在编译时确定所有值的非常量表达式。</li><li>可能：编译器能够在编译时确定所有值的非常量表达式（根据 as-if 规则进行优化）。</li><li>很可能：在不要求常量表达式的上下文中使用的常量表达式。</li><li>总是：在要求常量表达式的上下文中使用的常量表达式。</li></ul></div><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">进阶读者</p><p>那么为什么 C++ 不要求所有常量表达式都在编译时求值呢？至少有两个充分的理由：</p><ol start="1"><li>编译时求值会使调试更加困难。如果我们的代码中存在一个在编译时求值的错误计算，我们诊断问题的工具将非常有限。允许非必需的常量表达式在运行时求值（通常在关闭优化时）可以对我们的代码进行运行时调试。能够在程序运行时逐步检查其状态，可以使发现错误变得更加容易。</li><li>为编译器提供灵活性，使其能够根据自身判断（或受编译器选项影响）进行优化。例如，编译器可能希望提供一个选项，将所有非必需的常量表达式求值推迟到运行时，以改善开发者的编译时间。</li></ol></div><p class="cpp-section cpp-topline" style="clear:both">为什么编译时表达式必须是常量 <span class="cpp-section-pill cpp-section-optional">可选</span></p><p>你可能想知道为什么编译时表达式只能包含常量对象（以及可以在编译时求值为常量的运算符和函数）。</p><p>考虑以下程序：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+    int x { 5 };
+    // 此时编译器已知 x
+
+    std::cin &gt;&gt; x; // 从用户读取 x 的值
+    // 编译器不再已知 x
+
+    return 0;
+}
+</code></pre><p>首先， <code>x</code> 用值 <code>5</code>。的值 <code>x</code> 初始化，此时编译器已知该值。但随后 <code>x</code> 被赋予来自用户的值。编译器无法在编译时知道用户将提供什么值，因此在此之后， <code>x</code> 的值对编译器来说是未知的。因此，表达式 <code>x</code> 并不总是可以在编译时求值，这违反了此类表达式必须始终能够在编译时求值的要求。</p><p>因为常量不能改变其值，所以初始值在编译时可求值的常量变量将始终具有编译时已知的值。这保持了简单性。</p><p>虽然语言设计者本可以将编译时表达式定义为所有值当前在编译时已知的表达式（而不是必须始终能够在编译时求值的表达式），但这会给编译器增加显著的复杂性（因为编译器现在需要负责确定每个变量何时可能被更改为编译时未知的值）。添加一行代码（例如 <code>std::cin &gt;&gt; x</code>）可能会破坏程序的其他部分（如果 <code>x</code> 被用于任何需要编译时已知值的上下文中）。</p><p class="cpp-section cpp-topline" style="clear:both">小测验时间</p><p class="cpp-quiz-question" style="clear:both">问题 #1</p><p>对于每个语句，请识别：</p><ul><li>初始值设定项是常量表达式还是非常量表达式。</li><li>变量是常量表达式还是非常量表达式。</li></ul><p>a)</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">    char a { 'q' };
+</code></pre><p><a aria-controls="cpp_solution_id_0" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_0" href="#cpp_solution_id_0">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_0"><p><code>'q'</code> 是常量表达式，因为它是字面量。<br/><code>a</code> 是非常量表达式，因为它被定义为非常量。</p></div><p>b)</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">    const int b { 0 };
+</code></pre><p><a aria-controls="cpp_solution_id_1" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_1" href="#cpp_solution_id_1">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_1"><p><code>0</code> 是常量表达式，因为它是字面量。<br/><code>b</code> 是常量表达式，因为它是 <code>const</code> 整型，且具有常量表达式初始值设定项。</p></div><p>c)</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">    const double c { 5.0 };
+</code></pre><p><a aria-controls="cpp_solution_id_2" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_2" href="#cpp_solution_id_2">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_2"><p><code>'5.0'</code> 是常量表达式，因为它是字面量。<br/><code>c</code> 是非常量表达式，因为它被定义为 <code>const</code> ，但不是整型。</p><p>根据编译时常量的定义，只有 const <em>整型</em> 变量且具有常量表达式初始值设定项才是编译时常量。 <code>c</code> 是 double 类型，不是整型，因此不符合此定义。</p></div><p>d)</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">    const int d { a * 2 }; // a 定义为 char a { 'q' };
+</code></pre><p><a aria-controls="cpp_solution_id_3" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_3" href="#cpp_solution_id_3">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_3"><p><code>a</code> 不是常量表达式，因此 <code>a * 2</code> 是非常量表达式。<br/><code>d</code> 是非常量表达式，因为初始值设定项不是常量表达式。</p></div><p>e)</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">    int e { c + 1.0 }; // c 定义为 const double c { 5.0 };
+</code></pre><p><a aria-controls="cpp_solution_id_4" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_4" href="#cpp_solution_id_4">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_4"><p><code>c</code> 是非常量表达式，因此 <code>c + 1.0</code> 是非常量表达式。<br/><code>e</code> 是非常量表达式，因为它没有被定义为 <code>const</code> ，并且没有常量表达式初始值设定项。</p></div><p>f)</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">    const int f { d * 2 }; // d 定义为 const int d { 0 };
+</code></pre><p><a aria-controls="cpp_solution_id_5" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_5" href="#cpp_solution_id_5">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_5"><p>两者都 <code>d</code> 和 <code>2</code> 是常量表达式，因此 <code>d * 2</code> 是一个常量表达式。<br/><code>f</code> 是常量表达式，因为它是 <code>const</code> 整型，且具有常量表达式初始值设定项。</p></div><p>g)</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">    const int g { getNumber() }; // getNumber 按值返回一个 int
+</code></pre><p><a aria-controls="cpp_solution_id_6" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_6" href="#cpp_solution_id_6">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_6"><p><code>getNumber()</code> 返回一个非常量值，因此它是一个非常量表达式。<br/><code>g</code> 是一个非常量表达式，因为初始化器是一个非常量表达式。</p></div><p>h)<br/>额外加分：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">    const int h{};
+</code></pre><p><a aria-controls="cpp_solution_id_7" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_7" href="#cpp_solution_id_7">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_7"><p><code>{}</code> 调用值初始化。这里没有显式初始化器。<br/><code>h</code> 是常量表达式，因为它是 <code>const</code> 具有常量表达式初始化器的整数类型（值初始化将初始化 <code>h</code> 切换到 <code>0</code>，这是一个常量表达式）。</p></div>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="the-as-if-rule-and-compile-time-optimization.html" rel="prev"><small>上一课</small><strong>5.4 — as-if 规则与编译时优化</strong></a><a class="lesson-nav-index" href="index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="constexpr-variables.html" rel="next"><small>下一课</small><strong>5.6 — Constexpr 变量</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

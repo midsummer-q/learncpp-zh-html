@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/whitespace-and-basic-formatting/" name="learncpp:source-url"/>
+<meta content="386b12a2800805d0fc3441503a392f4c8647a0157120730089a6ead54c784994" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:44:38.559979+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T17:18:17.355240+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>1.8 — Whitespace and basic formatting</title>
+<link href="assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">1.8 — 空白字符与基本格式</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 1.8</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/whitespace-and-basic-formatting/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p><strong>空白字符</strong> 是一个术语，指用于格式化目的的字符。在 C++ 中，这主要指空格、制表符和换行符。C++ 中的空白字符通常用于三件事：分隔某些语言元素、在文本内部以及格式化代码。</p><p class="cpp-section cpp-topline" style="clear:both">某些语言元素必须用空白字符分隔</p><p>语言的语法要求某些元素必须用空白字符分隔。这主要发生在两个关键字或标识符必须连续放置时，以便编译器能够区分它们。</p><p>例如，变量声明必须用空白字符分隔：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int x; // int 和 x 之间必须用空白字符分隔
+</code></pre><p>如果我们输入 <code>intx</code> 则编译器会将其解释为一个标识符，然后抱怨它不知道是什么标识符 <code>intx</code> 是什么。</p><p>另一个例子，函数的返回类型和名称必须用空白字符分隔：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int main(); // int 和 main 之间必须用空白字符分隔
+</code></pre><p>当空白字符作为分隔符是必需时，编译器不关心使用了多少空白字符，只要存在一些即可。</p><p>以下变量定义都是有效的：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int x;
+int                y;
+            int 
+z;
+</code></pre><p>在某些情况下，换行符用作分隔符。单行注释以换行符结束。</p><p>例如，这样做会带来麻烦：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">std::cout &lt;&lt; "Hello world!"; // 这是注释的一部分，并且
+this is not part of the comment
+</code></pre><p>预处理器指令（例如 <code>#include &lt;iostream&gt;</code>）必须放在单独的行上：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;string&gt;
+</code></pre><p class="cpp-section cpp-topline" style="clear:both">引号文本中的空白字符会被原样保留</p><p>在引号文本内部，空白字符的数量会被原样保留。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">std::cout &lt;&lt; "Hello world!";
+</code></pre><p>与以下内容不同：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">std::cout &lt;&lt; "Hello          world!";
+</code></pre><p>换行符不允许出现在引号文本中：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">std::cout &lt;&lt; "Hello
+     world!"; // Not allowed!
+</code></pre><p>仅由空白字符（空格、制表符或换行符）分隔的引号文本将被连接：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">std::cout &lt;&lt; "Hello "
+     "world!"; // 打印 "Hello world!"
+</code></pre><p class="cpp-section cpp-topline" style="clear:both">利用空白字符格式化代码</p><p>空白字符在其他情况下通常被忽略。这意味着我们可以在任何地方使用空白字符来格式化代码，以使其更易于阅读。</p><p>例如，以下代码就很难阅读：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+int main(){std::cout&lt;&lt;"Hello world";return 0;}
+</code></pre><p>以下代码稍好（但仍然相当紧凑）：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+int main() {
+std::cout &lt;&lt; "Hello world";
+return 0;
+}
+</code></pre><p>而以下代码则更好：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+    std::cout &lt;&lt; "Hello world";
+
+    return 0;
+}
+</code></pre><p>如果需要，语句可以跨越多行：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+    std::cout
+        &lt;&lt; "Hello world"; // 工作正常
+    return 0;
+}
+</code></pre><p>这对于特别长的语句很有用。</p><p class="cpp-section cpp-topline" style="clear:both">基本格式化</p><p>与其他某些语言不同，C++ 不对程序员施加任何格式化限制。因此，我们说 C++ 是一种空白字符无关的语言。</p><p>这有利有弊。一方面，拥有随心所欲的自由是好事。另一方面，多年来已经发展出许多不同的 C++ 程序格式化方法，你会发现关于哪种方法最好存在（有时是显著且令人分心的）分歧。我们的基本经验法则是，最好的风格是那些产生最具可读性代码并提供最大一致性的风格。</p><p>以下是我们对基本格式化的建议：</p><ol start="1"><li>使用制表符或空格进行缩进都是可以的（大多数 IDE 都有设置，可以将按制表符转换为适当数量的空格）。偏好空格的开发者倾向于这样做，因为无论使用哪种编辑器或设置，都能确保代码按预期精确对齐。而使用制表符的支持者则质疑，为什么不用专门设计用于缩进的字符来进行缩进，尤其是你可以将宽度设置为你喜欢的任何值。这里没有正确答案——争论这个问题就像争论蛋糕和馅饼哪个更好一样。最终归结为个人偏好。</li></ol><p>无论哪种方式，我们建议你将制表符设置为相当于 4 个空格的缩进。有些 IDE 默认缩进 3 个空格，那也可以。</p><ol start="2"><li>函数花括号有两种常规风格。</li></ol><p>许多开发者喜欢将左花括号放在语句的同一行：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int main() {
+    // 此处为语句
+}
+</code></pre><p>这样做的理由是它减少了垂直空白区域（因为你不需要将一整行用于左花括号），从而可以在屏幕上容纳更多代码。这增强了代码的理解，因为你不必滚动太多就能理解代码的功能。</p><p>然而，在本教程系列中，我们将使用常见的替代方案，即左花括号单独占一行：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int main()
+{
+    // 此处为语句
+}
+</code></pre><p>这增强了可读性，并且更不容易出错，因为你的花括号对应该总是缩进在同一级别。如果因花括号不匹配而出现编译器错误，很容易看出问题所在。</p><ol start="3"><li>花括号内的每个语句应从其所属函数的左花括号开始缩进一个制表符。例如：</li></ol><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int main()
+{
+    std::cout &lt;&lt; "Hello world!\n"; // 缩进一个制表符（4个空格）
+    std::cout &lt;&lt; "Nice to meet you.\n"; // 缩进一个制表符（4个空格）
+}
+</code></pre><ol start="4"><li>行不应过长。通常，80 个字符是每行最大长度的事实标准。如果一行太长，应将其（在合理位置）拆分为多行。可以通过为每个后续行额外缩进一个制表符来实现，或者如果行相似，则与上一行对齐（取更易读的一种方式）。</li></ol><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int main()
+{
+    std::cout &lt;&lt; "This is a really, really, really, really, really, really, really, " 
+        "really long line\n"; // 续行额外缩进一级
+
+    std::cout &lt;&lt; "This is another really, really, really, really, really, really, really, "
+                 "really long line\n"; // 续行文本与上一行对齐
+
+    std::cout &lt;&lt; "This one is short\n";
+}
+</code></pre><p>这能使你的行更易于阅读。在现代宽屏显示器上，它还能让你将两个包含类似代码的窗口并排放置，更方便地进行比较。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>考虑将每一行代码控制在80个字符或更少的长度。</p></div><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">提示</p><p>许多编辑器都有内置功能（或插件/扩展），可以在指定列（例如80字符处）显示一条线（称为“列参考线”），方便你判断行是否过长。你可以搜索“编辑器名称 + 列参考线”来查看你的编辑器是否支持。</p></div><ol start="5"><li>如果长行使用操作符（如&lt;&lt;或+）换行，操作符应放在下一行的开头，而不是当前行的末尾。</li></ol><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">    std::cout &lt;&lt; 3 + 4
+        + 5 + 6
+        * 7 * 8;
+</code></pre><p>这有助于更清楚地表明后续行是前一行的延续，并且可以将操作符在左侧对齐，使阅读更轻松。</p><ol start="6"><li>使用空白字符对齐值或注释，或在代码块之间添加间距，使代码更易于阅读。</li></ol><p>较难阅读：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">cost = 57;
+pricePerItem = 24;
+value = 5;
+numberOfItems = 17;
+</code></pre><p>较易阅读：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">cost          = 57;
+pricePerItem  = 24;
+value         = 5;
+numberOfItems = 17;
+</code></pre><p>较难阅读：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">std::cout &lt;&lt; "Hello world!\n"; // cout位于iostream库中
+std::cout &lt;&lt; "It is very nice to meet you!\n"; // 这些注释使代码难以阅读
+std::cout &lt;&lt; "Yeah!\n"; // 尤其当各行的长度不同时
+</code></pre><p>较易阅读：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">std::cout &lt;&lt; "Hello world!\n";                  // cout位于iostream库中
+std::cout &lt;&lt; "It is very nice to meet you!\n";  // 这些注释更易阅读
+std::cout &lt;&lt; "Yeah!\n";                         // 尤其当全部对齐时
+</code></pre><p>较难阅读：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">// cout位于iostream库中
+std::cout &lt;&lt; "Hello world!\n";
+// 这些注释使代码难以阅读
+std::cout &lt;&lt; "It is very nice to meet you!\n";
+// 尤其当全部挤在一起时
+std::cout &lt;&lt; "Yeah!\n";
+</code></pre><p>较易阅读：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">// cout位于iostream库中
+std::cout &lt;&lt; "Hello world!\n";
+
+// 这些注释更易阅读
+std::cout &lt;&lt; "It is very nice to meet you!\n";
+
+// 当用空白分隔时
+std::cout &lt;&lt; "Yeah!\n";
+</code></pre><p>在整个教程中，我们将遵循这些约定，它们会逐渐成为你的习惯。当我们向你介绍新主题时，我们会同时给出与这些特性相关的新风格建议。</p><p>最终，C++给予你选择自己最舒适或认为最佳风格的自由。但我们强烈建议你使用与示例相同的风格。它已经经过成千上万程序员在数十亿行代码中的实战检验，并且是针对成功进行优化的。</p><p>一个例外：如果你在别人的代码库中工作，请采用他们的风格。一致性比个人偏好更重要。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>在现有项目中工作时，请与已经采用的风格保持一致。</p></div><p class="cpp-section cpp-topline" style="clear:both">自动格式化</p><p>大多数现代IDE会在你输入代码时自动帮助你格式化代码（例如，当你创建函数时，IDE会自动缩进函数体内部的语句）。</p><p>然而，当你添加或删除代码、改变IDE的默认格式、或者粘贴一段格式不同的代码时，格式可能会变得混乱。修复部分或整个文件的格式可能很麻烦。幸运的是，现代IDE通常包含自动格式化功能，可以重新格式化选中的部分（用鼠标高亮）或整个文件。</p><div class="cpp-note cpp-lightyellowbackground"><p class="cpp-note-title cpp-bottomline">适用于 Visual Studio 用户</p><p>在Visual Studio中，自动格式化选项可以在以下位置找到： <em>编辑 &gt; 高级 &gt; 格式化文档</em> 和 <em>编辑 &gt; 高级 &gt; 格式化选定内容</em>。</p></div><div class="cpp-note cpp-lightyellowbackground"><p class="cpp-note-title cpp-bottomline">对于 Code::Blocks 用户</p><p>在Code::Blocks中，自动格式化选项可以在以下位置找到： <em>鼠标右键 &gt; 使用AStyle格式化</em>。</p></div><p>为方便使用，建议添加一个键盘快捷键来自动格式化当前文件。</p><p>还有一些外部工具可用于自动格式化代码。 <a href="https://clang.llvm.org/docs/ClangFormat.html">clang-format</a> 是一个流行的工具。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>强烈建议使用自动格式化功能，以保持代码格式风格的一致性。</p></div><p class="cpp-section cpp-topline" style="clear:both">风格指南</p><p>一个 <strong>风格指南</strong> 是一份简洁、有主张的文档，包含（有时是任意的）编程约定、格式指南和最佳实践。风格指南的目标是确保项目中的所有开发人员以一致的方式进行编程。</p><p>一些常被引用的 C++ 风格指南包括：</p><ul><li><a href="http://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines">C++ Core Guidelines</a>，由 Bjarne Stroustrup 和 Herb Sutter 维护。</li><li><a href="https://google.github.io/styleguide/cppguide.html">Google</a>。</li><li><a href="https://llvm.org/docs/CodingStandards.html">LLVM</a></li><li><a href="https://gcc.gnu.org/codingconventions.html">GCC/GNU</a></li></ul><p>我们通常倾向于 C++ Core Guidelines，因为它们是最新且广泛适用的。</p>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="keywords-and-naming-identifiers.html" rel="prev"><small>上一课</small><strong>1.7 — 关键字和命名标识符</strong></a><a class="lesson-nav-index" href="index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="introduction-to-literals-and-operators.html" rel="next"><small>下一课</small><strong>1.9 — 字面量和运算符简介</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

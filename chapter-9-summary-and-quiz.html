@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/chapter-9-summary-and-quiz/" name="learncpp:source-url"/>
+<meta content="d614de36f94eecc4ca86fb8aa6054fa657b79450c44ccfc74225acf377ddd8da" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:48:06.509242+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T17:29:37.724981+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>9.x — Chapter 9 summary and quiz</title>
+<link href="assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">9.x — 第9章总结与测验</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 9.x</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/chapter-9-summary-and-quiz/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p class="cpp-section">章节回顾</p><p><strong>范围蔓延</strong> 发生在项目的能力超出项目或项目阶段最初预期时。</p><p><strong>软件验证</strong> 是测试软件是否在所有情况下按预期工作的过程。 <strong>单元测试</strong> 是一种测试，旨在隔离测试一小部分代码（通常是函数或调用），以确保特定行为按预期发生。 <strong>单元测试框架</strong> 可以帮助你组织单元测试。 <strong>集成测试</strong> 测试多个单元集成在一起是否正常工作。</p><p><strong>代码覆盖率</strong> 指测试时执行了多少源代码。 <strong>语句覆盖率</strong> 指程序中已被测试例程执行过的语句百分比。 <strong>分支覆盖率</strong> 指已被测试例程执行过的分支百分比。 <strong>因此，我们可以说这个函数通过3次调用得到了可靠的测试（这比18百亿亿次略好）。</strong> （也称为 <strong>0、1、2测试</strong>意味着如果你有一个循环，你应该确保它在迭代0次、1次和2次时都能正常工作。</p><p>浮点类型的 <strong>快乐路径</strong> 是没有遇到错误时发生的执行路径。 <strong>悲伤路径</strong> 是发生错误或失败状态的路径。 <strong>不可恢复错误</strong> （也称为 <strong>致命错误</strong>是一种严重到程序无法继续运行的错误。能够良好处理错误情况的程序称为 <strong>健壮的</strong>。</p><p>一个 <strong>缓冲区</strong> 是一块内存，用于在数据从一个地方移动到另一个地方时临时存储数据。</p><p>检查用户输入是否符合程序预期的过程称为 <strong>输入验证</strong>。</p><p><strong>std::cerr</strong> 是一种输出流（如 <code>std::cout</code>），设计用于错误消息。</p><p>一个 <strong>前置条件</strong> 是在执行某段代码之前必须始终为真的任何条件。 <strong>不变量</strong> 是在某个组件执行时必须为真的条件。 <strong>后置条件</strong> 是在执行某些代码之后必须始终为真的任何条件。</p><p>一种 <strong>断言</strong> 是一个表达式，除非程序中有错误，否则为真。在C++中，运行时断言通常使用 <strong>assert</strong> 预处理器宏实现。断言通常在非调试代码中关闭。 <strong>静态断言</strong> 是在编译时评估的断言。</p><p>断言应用于记录逻辑上不可能的情况。错误处理应用于处理可能发生的情况。</p><p class="cpp-section cpp-topline" style="clear:both">小测验时间</p><p class="cpp-quiz-question" style="clear:both">问题 #1</p><p>在课程 <a href="chapter-8-summary-and-quiz.html">8.x -- 第8章总结与测验</a>的测验中，我们实现了一个Hi-Lo游戏。</p><p>更新你之前的解决方案，以处理无效猜测（例如'x'）、超出范围的猜测（例如 <code>0</code> 或 <code>101</code>），或包含多余字符的有效猜测（例如 <code>43x</code>）。同时处理用户在游戏询问是否想再玩一次时输入多余字符的情况。</p><p>提示：编写一个单独的函数来处理用户输入猜测（以及相关的错误处理）。</p><p><a aria-controls="cpp_solution_id_0" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_0" href="#cpp_solution_id_0">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_0"><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;limits&gt;   // for std::numeric_limits
+#include "Random.h" // https://www.learncpp.com/cpp-tutorial/global-random-numbers-random-h/
+
+int getGuess(int count, int min, int max)
+{
+	while (true) // 循环直到用户输入有效输入
+	{
+		std::cout &lt;&lt; "Guess #" &lt;&lt; count &lt;&lt; ": ";
+
+		int guess {};
+		std::cin &gt;&gt; guess;
+
+		bool success { std::cin };
+		std::cin.clear(); // 将我们放回“正常”操作模式（如果需要）
+		std::cin.ignore(std::numeric_limits&lt;std::streamsize&gt;::max(), '\n'); // 移除任何额外输入
+
+		// 如果我们没有提取任何内容或提取的猜测超出范围，则重试
+		if (!success || guess &lt; min || guess &gt; max)
+			continue;
+
+		return guess;
+	}
+}
+
+// 如果用户赢了返回true，输了返回false
+bool playHiLo(int guesses, int min, int max)
+{
+	std::cout &lt;&lt; "Let's play a game. I'm thinking of a number between " &lt;&lt; min &lt;&lt; " and " &lt;&lt; max &lt;&lt; ". You have " &lt;&lt; guesses &lt;&lt; " tries to guess what it is.\n";
+	int number{ Random::get(min, max) }; // 这是用户需要猜测的数字
+
+	// 遍历所有猜测
+	for (int count{ 1 }; count &lt;= guesses; ++count)
+	{
+		int guess{ getGuess(count, min, max) };
+
+		if (guess &gt; number)
+			std::cout &lt;&lt; "Your guess is too high.\n";
+		else if (guess &lt; number)
+			std::cout &lt;&lt; "Your guess is too low.\n";
+		else // 猜测 == 数字，所以用户赢了
+		{
+			std::cout &lt;&lt; "Correct! You win!\n";
+			return true;
+		}
+	}
+
+	// 用户输了
+	std::cout &lt;&lt; "Sorry, you lose. The correct number was " &lt;&lt; number &lt;&lt; '\n';
+	return false; // 如果用户输了
+}
+
+bool playAgain()
+{
+	// 不断询问用户是否想再玩一次，直到他们选择 y 或 n。
+	while (true)
+	{
+		char ch{};
+		std::cout &lt;&lt; "Would you like to play again (y/n)? ";
+		std::cin &gt;&gt; ch;
+
+		// 清除任何多余的输入
+		std::cin.ignore(std::numeric_limits&lt;std::streamsize&gt;::max(), '\n');
+        
+		switch (ch)
+		{
+		case 'y': return true;
+		case 'n': return false;
+		}
+	}
+}
+
+int main()
+{
+	constexpr int guesses { 7 }; // 用户有这么多猜测次数
+	constexpr int min     { 1 };
+	constexpr int max     { 100 };
+
+	do
+	{
+		playHiLo(guesses, min, max);
+	} while (playAgain());
+
+	std::cout &lt;&lt; "Thank you for playing.\n";
+
+	return 0;
+}
+</code></pre></div>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="assert-and-static_assert.html" rel="prev"><small>上一课</small><strong>9.6 — 断言和 static_assert</strong></a><a class="lesson-nav-index" href="index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="implicit-type-conversion.html" rel="next"><small>下一课</small><strong>10.1 — 隐式类型转换</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

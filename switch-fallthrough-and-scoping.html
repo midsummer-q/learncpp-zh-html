@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/switch-fallthrough-and-scoping/" name="learncpp:source-url"/>
+<meta content="8cb4e932ebee176dae7a02d1a90f1699bd2595ae158782efed0a3bd9640da660" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:47:30.697397+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T17:25:41.500161+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>8.6 — Switch fallthrough and scoping</title>
+<link href="assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">8.6 — Switch 的穿透与作用域</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 8.6</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/switch-fallthrough-and-scoping/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>本课继续我们在上一课中开始的 switch 语句的探索。 <a href="switch-statement-basics.html">8.5 -- Switch语句基础</a>在上一课中，我们提到每个标签下的语句集应该以 <code>break statement</code> 变为 <code>return statement</code>。</p><p>在本课中，我们将探讨原因，并讨论一些有时会困扰新程序员的 switch 作用域问题。</p><p class="cpp-section cpp-topline" style="clear:both">穿透</p><p>当 switch 表达式匹配某个 case 标签或可选的 default 标签时，执行从匹配标签后的第一条语句开始。然后执行将顺序继续，直到满足以下终止条件之一：</p><ul><li>到达 switch 块的末尾。</li><li>另一个控制流语句（通常是 <code>break</code> 或 <code>return</code>）导致 switch 块或函数退出。</li><li>其他中断程序正常流程的情况（例如操作系统关闭程序、宇宙坍缩等……）</li></ul><p>注意，另一个 case 标签的存在 <em>不是</em> 不是这些终止条件之一——因此，如果没有 <code>break</code> 或 <code>return</code>，执行将溢出到后续的 case。</p><p>下面是一个展示此行为的程序：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+    switch (2)
+    {
+    case 1: // 不匹配
+        std::cout &lt;&lt; 1 &lt;&lt; '\n'; // 跳过
+    case 2: // 匹配！
+        std::cout &lt;&lt; 2 &lt;&lt; '\n'; // 执行从这里开始
+    case 3:
+        std::cout &lt;&lt; 3 &lt;&lt; '\n'; // 这也被执行
+    case 4:
+        std::cout &lt;&lt; 4 &lt;&lt; '\n'; // 这也被执行
+    default:
+        std::cout &lt;&lt; 5 &lt;&lt; '\n'; // 这也被执行
+    }
+
+    return 0;
+}
+</code></pre><p>该程序输出以下内容：</p><pre>2
+3
+4
+5
+</pre><p>这可能不是我们想要的！当执行从一个标签下的语句流到后续标签下的语句时，这被称为 <strong>穿透</strong>。</p><div class="cpp-note cpp-lightredbackground"><p class="cpp-note-title cpp-bottomline">警告</p><p>一旦 case 或 default 标签下的语句开始执行，它们将溢出（穿透）到后续的 case。通常使用 break 或 return 语句来防止这种情况。</p></div><p>由于穿透很少是期望的或故意的，许多编译器和代码分析工具会将穿透标记为警告。</p><p class="cpp-section cpp-topline" style="clear:both">[[fallthrough]] 属性</p><p>注释有意的穿透是一种常见的约定，告诉其他开发者穿透是故意的。虽然这对其他开发者有效，但编译器和代码分析工具不知道如何解释注释，因此它不会消除警告。</p><p>为了解决这个问题，C++17 添加了一个名为 <code>[[fallthrough]]</code>。</p><p><strong>的新属性。</strong> 属性是现代 C++ 的一个特性，允许程序员向编译器提供一些关于代码的额外数据。要指定一个属性，属性名放在双括号之间。属性不是语句——相反，它们几乎可以在任何上下文相关的地方使用。</p><p>浮点类型的 <code>[[fallthrough]]</code> 属性修改一个 <code>null statement</code> 以指示穿透是故意的（并且不应触发警告）：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int main()
+{
+    switch (2)
+    {
+    case 1:
+        std::cout &lt;&lt; 1 &lt;&lt; '\n';
+        break;
+    case 2:
+        std::cout &lt;&lt; 2 &lt;&lt; '\n'; // 执行从这里开始
+        [[fallthrough]]; // 故意穿透 -- 注意分号表示空语句
+    case 3:
+        std::cout &lt;&lt; 3 &lt;&lt; '\n'; // 这也被执行
+        break;
+    }
+
+    return 0;
+}
+</code></pre><p>该程序打印出：</p><pre>2
+3
+</pre><p>并且它不应生成任何关于穿透的警告。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>使用 <code>[[fallthrough]]</code> 属性（以及一个空语句）来指示有意的穿透。</p></div><p class="cpp-section cpp-topline" style="clear:both">顺序 case 标签</p><p>你可以使用逻辑或运算符将多个测试组合成一个语句：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">bool isVowel(char c)
+{
+    return (c=='a' || c=='e' || c=='i' || c=='o' || c=='u' ||
+        c=='A' || c=='E' || c=='I' || c=='O' || c=='U');
+}
+</code></pre><p>这存在我们在 switch 语句介绍中提出的相同挑战： <code>c</code> 被多次求值，读者必须确保每次求值的是 <code>c</code> </p><p>你可以通过将多个 case 标签按顺序放置来使用 switch 语句实现类似功能：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">bool isVowel(char c)
+{
+    switch (c)
+    {
+    case 'a': // 如果 c 是 'a'
+    case 'e': // 或如果 c 是 'e'
+    case 'i': // 或如果 c 是 'i'
+    case 'o': // 或如果 c 是 'o'
+    case 'u': // 或如果 c 是 'u'
+    case 'A': // 或如果 c 是 'A'
+    case 'E': // 或如果 c 是 'E'
+    case 'I': // 或如果 c 是 'I'
+    case 'O': // 或如果 c 是 'O'
+    case 'U': // 或如果 c 是 'U'
+        return true;
+    default:
+        return false;
+    }
+}
+</code></pre><p>记住，执行从匹配的 case 标签后的第一条语句开始。Case 标签不是语句（它们是标签），所以它们不计入。</p><p>上述程序中所有 case 语句后的第一条语句是 <em>所有</em> ，所以如果任何 case 标签匹配，函数将返回 <code>return true</code>。 <code>true</code>。</p><p>因此，我们可以“堆叠”case 标签，使所有这些 case 标签共享后面相同的语句集。这不被视为穿透行为，因此不需要使用注释或 <code>[[fallthrough]]</code> </p><p class="cpp-section cpp-topline" style="clear:both">标签不定义新作用域</p><p>使用 <code>if statements</code>时，if 条件后只能有一条语句，且该语句被视为隐式位于一个块内：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">if (x &gt; 10)
+    std::cout &lt;&lt; x &lt;&lt; " is greater than 10\n"; // 这一行隐式被视为位于一个块内
+</code></pre><p>然而，对于 switch 语句，标签后的所有语句都作用域于 switch 块。不会创建隐式块。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">switch (1)
+{
+case 1: // 不创建隐式块
+    foo(); // 这是 switch 作用域的一部分，而不是 case 1 的隐式块
+    break; // 这是 switch 作用域的一部分，而不是 case 1 的隐式块
+default:
+    std::cout &lt;&lt; "default case\n";
+    break;
+}
+</code></pre><p>在上例中， <code>case 1</code> 和 default 标签之间的两条语句作用域为 switch 块的一部分，而不是 <code>case 1</code>。</p><p class="cpp-section cpp-topline" style="clear:both">的隐式块。</p><p>你可以在 switch 内部声明或定义（但不能初始化）变量，既可以在 case 标签之前，也可以在之后：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">switch (1)
+{
+    int a; // 允许：在 case 标签之前允许定义
+    int b{ 5 }; // 非法：在 case 标签之前不允许初始化
+
+case 1:
+    int y; // 可以但不好：在 case 内允许定义
+    y = 4; // 可以：允许赋值
+    break;
+
+case 2:
+    int z{ 4 }; // 非法：如果存在后续 case，则不允许初始化
+    y = 5; // 可以：y 已在上面声明，所以这里也可以使用它
+    break;
+
+case 3:
+    break;
+}
+</code></pre><p>尽管变量 <code>y</code> 定义在 <code>case 1</code>中，但它也在 <code>case 2</code> 中被使用。switch 内的所有语句都被视为同一作用域的一部分。因此，在一个 case 中声明或定义的变量可以在后续的 case 中使用，即使定义该变量的 case 从未执行（因为 switch 跳过了它）！</p><p>然而，变量的初始化 <em>确实</em> 需要定义被执行。变量的初始化在非最后一个 case 中是不允许的（因为如果后续有 case 定义，switch 可能跳过初始化器，此时变量将是未定义的，访问它会导致未定义行为）。在第一个 case 之前也不允许初始化，因为这些语句永远不会被执行，因为 switch 无法到达它们。</p><p>如果某个 case 需要定义和/或初始化一个新变量，最佳实践是在 case 语句下的显式块内进行：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">switch (1)
+{
+case 1:
+{ // 注意这里添加了显式块
+    int x{ 4 }; // 可以，变量可以在 case 内的块中初始化
+    std::cout &lt;&lt; x;
+    break;
+}
+
+default:
+    std::cout &lt;&lt; "default case\n";
+    break;
+}
+</code></pre><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>如果在 case 语句中定义变量，请在 case 内的块中进行。</p></div><p class="cpp-section cpp-topline" style="clear:both">小测验时间</p><p class="cpp-quiz-question" style="clear:both">问题 #1</p><p>编写一个名为 calculate() 的函数，它接受两个整数和一个表示以下数学运算之一的字符：+、-、*、/ 或 %（取余）。使用 switch 语句对整数执行相应的数学运算，并返回结果。如果向函数传递了无效运算符，函数应打印一条错误消息。对于除法运算符，执行整数除法，不必担心除以零的情况。</p><p>提示：“operator”是一个关键字，变量不能命名为“operator”。</p><p><a aria-controls="cpp_solution_id_0" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_0" href="#cpp_solution_id_0">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_0"><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+int calculate(int x, int y, char op)
+{
+    switch (op)
+    {
+    case '+':
+        return x + y;
+    case '-':
+        return x - y;
+    case '*':
+        return x * y;
+    case '/':
+        return x / y;
+    case '%':
+        return x % y;
+    default:
+        std::cout &lt;&lt; "calculate(): Unhandled case\n";
+        return 0;
+    }
+}
+
+int main()
+{
+    std::cout &lt;&lt; "Enter an integer: ";
+    int x{};
+    std::cin &gt;&gt; x;
+
+    std::cout &lt;&lt; "Enter another integer: ";
+    int y{};
+    std::cin &gt;&gt; y;
+
+    std::cout &lt;&lt; "Enter a mathematical operator (+, -, *, /, or %): ";
+    char op{};
+    std::cin &gt;&gt; op;
+
+    // 我们将先调用 calculate，以便无效运算符在其自己的行上打印错误消息
+    int result{ calculate(x, y, op) };
+    std::cout &lt;&lt; x &lt;&lt; ' ' &lt;&lt; op &lt;&lt; ' ' &lt;&lt; y &lt;&lt; " is " &lt;&lt; result &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre></div>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="switch-statement-basics.html" rel="prev"><small>上一课</small><strong>8.5 — Switch 语句基础</strong></a><a class="lesson-nav-index" href="index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="goto-statements.html" rel="next"><small>下一课</small><strong>8.7 — Goto 语句</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

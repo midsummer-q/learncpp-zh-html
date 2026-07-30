@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/configuring-your-compiler-build-configurations/" name="learncpp:source-url"/>
+<meta content="7228cf525414f31aa304d773c2e238c7fc7b8581bf36c3f097c5de43344ad651" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:44:14.591316+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T17:18:10.964089+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>0.9 — Configuring your compiler: Build configurations</title>
+<link href="assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">0.9 — 配置编译器：构建配置</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 0.9</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/configuring-your-compiler-build-configurations/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>一个 <strong>构建配置</strong> （也称为 <strong>构建目标</strong>（构建配置）是一组项目设置，决定了你的IDE将如何构建你的项目。构建配置通常包含诸如可执行文件的名称、IDE用于查找其他代码和库文件的目录、是否保留或移除调试信息、编译器优化程序的程度等内容……一般来说，除非你有特定的理由要修改某些设置，否则应保留这些设置的默认值。</p><p>当你在IDE中创建新项目时，大多数IDE会为你设置两种不同的构建配置：发布配置和调试配置。</p><p>浮点类型的 <strong>调试配置</strong> 旨在帮助你调试程序，通常是你编写程序时使用的配置。此配置关闭所有优化，并包含调试信息，这使得程序更大更慢，但更容易调试。调试配置通常默认被选为活动配置。我们将在后面的课程中详细讨论调试技巧。</p><p>浮点类型的 <strong>发布配置</strong> 旨在用于将程序发布给公众。此版本通常针对大小和性能进行了优化，并且不包含额外的调试信息。由于发布配置包含所有优化，此模式也适用于测试代码的性能（我们将在教程系列的后面展示如何操作）。</p><p>当 <em>Hello World</em> 程序（来自课程 <a href="compiling-your-first-program.html">0.7 -- 编译你的第一个程序</a>）使用 Visual Studio 构建时，调试配置生成的可执行文件为65KB，而发布版本生成的可执行文件为12KB。差异主要在于调试构建中保留的额外调试信息。</p><p>虽然你可以创建自己的自定义构建配置，但除非你想比较使用不同编译器设置构建的两个版本，否则很少会有理由这样做。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>使用 <em>调试</em> 构建配置进行开发。当你准备好将可执行文件发布给他人，或想要测试性能时，使用 <em>发布</em> 构建配置。</p></div><p>有些IDE（例如Visual Studio）还会为不同平台创建单独的构建配置。例如，Visual Studio会为x86（32位）和x64（64位）平台创建构建配置。</p><p class="cpp-section cpp-topline" style="clear:both">切换构建配置</p><div class="cpp-note cpp-lightyellowbackground"><p class="cpp-note-title cpp-bottomline">适用于 Visual Studio 用户</p><p>在 Visual Studio 中切换 <em>调试</em> 和 <em>发布</em> 有多种方法。最简单的方法是直接从 <em>解决方案配置</em> 下拉菜单中进行选择，该菜单位于 <em>标准工具栏选项</em>：</p><div class="cpp-image-wrapper"><img alt="VS Solution Configurations Dropdown" src="assets/images/846785e4bb84aa505e5688333aa4a198dd5902b48e3ca919d3133f2ba57b10e9.png"/></div><p>将其设置为 <em>Debug</em> 暂时。</p><p>你也可以通过选择 <em>生成菜单 &gt; 配置管理器</em>来打开配置管理器对话框，然后更改 <em>活动解决方案配置</em>。</p><p>在 <em>解决方案配置</em> 下拉菜单的右侧，Visual Studio 还有一个 <em>解决方案平台</em> 允许您在 x86（32位）和 x64（64位）平台之间切换的下拉菜单。</p></div><div class="cpp-note cpp-lightyellowbackground"><p class="cpp-note-title cpp-bottomline">对于 Code::Blocks 用户</p><p>在 Code::Blocks 中，您应该会看到一个名为 <em>构建目标</em> 在 <em>编译器工具栏</em>：</p><div class="cpp-image-wrapper"><img alt="Code::Blocks Build Target Dropdown" src="assets/images/25c520d6e0c3bc65c7428ce291068aca0c38247b24c349b95e771f7b7cc88b66.png"/></div><p>将其设置为 <em>Debug</em> 暂时。</p></div><div class="cpp-note cpp-lightyellowbackground"><p class="cpp-note-title cpp-bottomline">对于 gcc 和 Clang 用户</p><p>添加 <code>-ggdb</code> 到命令行用于调试版本，并且 <code>-O2 -DNDEBUG</code> 用于发布版本。暂时使用调试版本选项。</p><p>对于 GCC 和 Clang， <code>-O#</code> 选项用于控制优化设置。最常见的选项如下：</p><ul><li><code>-O0</code> 是调试版本推荐的优化级别，因为它禁用了优化。这是默认设置。</li><li><code>-O2</code> 是发布版本推荐的优化级别，因为它应用了对所有程序都有益的优化。</li><li><code>-O3</code> 添加了额外的优化，这些优化可能比本文档中的其他优化更好，也可能不如 <code>-O2</code> 具体取决于程序。 <code>-O3</code> 而不是 <code>-O2</code> 并测量以查看哪个更快。</li></ul><p>参见 <a href="https://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html">https://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html</a> 以获取优化选项的信息。</p></div><div class="cpp-note cpp-lightyellowbackground"><p class="cpp-note-title cpp-bottomline">对于 VS Code 用户</p><p>当你首次运行程序时，一个名为 <em>tasks.json</em> 被创建在 <em>.vscode</em> 文件夹中，位于资源管理器窗格。打开 <em>tasks.json</em> 文件，找到 <em>“args”</em>，然后找到行 <em>“${file}”</em> 在该部分中。</p><p>在 <em>“${file}”</em> 行上方，添加一行包含以下命令（每行一个）以用于调试：<br/><code>"-ggdb",</code></p><p>在 <em>“${file}”</em> 行，为发布版本添加包含以下命令的新行（每行一条）：<br/><code>"-O2",</code><br/><code>"-DNDEBUG",</code></p></div><p class="cpp-section cpp-topline" style="clear:both">修改生成配置</p><p>在接下来的几节课中，我们将向你展示如何调整生成配置中的一些设置。每当更改项目设置时，我们建议在所有生成配置中进行更改。</p><p>这将有助于防止更改到错误的生成配置，并确保如果你稍后切换生成配置，更改仍然生效。</p><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">提示</p><p>每当你更新项目设置时，请对所有生成配置进行更改（除非出于某种原因不合适）。</p></div>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="a-few-common-cpp-problems.html" rel="prev"><small>上一课</small><strong>0.8 — 几个常见的C++问题</strong></a><a class="lesson-nav-index" href="index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="configuring-your-compiler-compiler-extensions.html" rel="next"><small>下一课</small><strong>0.10 — 配置编译器：编译器扩展</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

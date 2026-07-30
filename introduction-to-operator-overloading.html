@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/introduction-to-operator-overloading/" name="learncpp:source-url"/>
+<meta content="5b14ee3970655eeee2e957530e5e428ffcbbd275f1a35a33c43eac95c40b9291" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:52:35.938804+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T18:04:34.069468+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>21.1 — Introduction to operator overloading</title>
+<link href="assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">21.1 — 运算符重载简介</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 21.1</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/introduction-to-operator-overloading/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>在课程 <a href="introduction-to-function-overloading.html">11.1 -- 函数重载介绍</a>你学习了函数重载，它提供了一种机制来创建和解析对多个同名函数的调用，只要每个函数具有唯一的函数原型。这允许你创建函数的变体以处理不同的数据类型，而无需为每个变体想出一个独特的名称。</p><p>在C++中，运算符是作为函数实现的。通过对运算符函数使用函数重载，你可以定义自己的运算符版本，使其适用于不同的数据类型（包括你编写的类）。使用函数重载来重载运算符称为 <strong>运算符重载</strong>。</p><p>在本章中，我们将研究与运算符重载相关的主题。</p><p><strong>运算符作为函数</strong></p><p>考虑以下示例：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int x { 2 };
+int y { 3 };
+std::cout &lt;&lt; x + y &lt;&lt; '\n';
+</code></pre><p>编译器内置了一个用于整数操作数的加号运算符（+）版本——这个函数将整数x和y相加并返回一个整数结果。当你看到表达式 <code>x + y</code>时，你可以在脑海中将其翻译为函数调用 <code>operator+(x, y)</code> （其中operator+是函数名）。</p><p>现在考虑这个类似的片段：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">double z { 2.0 };
+double w { 3.0 };
+std::cout &lt;&lt; w + z &lt;&lt; '\n';
+</code></pre><p>编译器也内置了一个用于double操作数的加号运算符（+）版本。表达式w + z变成函数调用 <code>operator+(w, z)</code>，并且使用函数重载来确定编译器应该调用这个函数的double版本而不是整数版本。</p><p>现在考虑如果我们尝试将两个程序定义类的对象相加会发生什么：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">Mystring string1 { "Hello, " };
+Mystring string2 { "World!" };
+std::cout &lt;&lt; string1 + string2 &lt;&lt; '\n';
+</code></pre><p>在这种情况下你期望发生什么？直观的预期结果是字符串“Hello, World!”会被打印到屏幕上。然而，因为Mystring是程序定义的类型，编译器没有内置的加号运算符版本可以用于Mystring操作数。所以在这种情况下，它会给我们一个错误。为了让它像我们期望的那样工作，我们需要编写一个重载函数来告诉编译器+运算符应该如何与两个Mystring类型的操作数一起工作。我们将在下一课中学习如何做到这一点。</p><p><strong>解析重载运算符</strong></p><p>当计算包含运算符的表达式时，编译器使用以下规则：</p><ul><li>如果 <em>所有</em> 的操作数是基本数据类型，编译器将调用内置例程（如果存在）。如果不存在，编译器将产生一个编译器错误。</li><li>如果 <em>任何</em> 的操作数是程序定义的类型（例如你的某个类或枚举类型），编译器将使用函数重载解析算法（在课程 <a href="function-overload-resolution-and-ambiguous-matches.html">11.3 -- 函数重载解析与歧义匹配</a>中描述）来查看是否可以找到明确最佳匹配的重载运算符。这可能涉及隐式转换一个或多个操作数以匹配重载运算符的参数类型。也可能涉及将程序定义的类型隐式转换为基本类型（通过重载的类型转换，我们将在本章后面介绍），以便匹配内置运算符。如果找不到匹配（或找到模糊匹配），编译器将报错。</li></ul><p><strong>运算符重载有哪些限制？</strong></p><p>首先，C++中几乎任何现有的运算符都可以被重载。例外是：条件运算符（?:）、sizeof、作用域运算符（::）、成员选择运算符（.）、指针成员选择运算符（.*）、typeid以及类型转换运算符。</p><p>其次，你只能重载已经存在的运算符。你不能创建新的运算符或重命名现有的运算符。例如，你不能创建一个 <code>operator**</code> 来进行指数运算。</p><p>第三，重载运算符中至少有一个操作数必须是用户定义的类型。这意味着你可以重载 <code>operator+(int, Mystring)</code>，但不能是 <code>operator+(int, double)</code>。</p><p>因为标准库类被认为是用户定义的，这意味着你可以定义 <code>operator+(double, std::string)</code>。然而，这不是一个好主意，因为未来的语言标准可能会定义这个重载，这可能会破坏任何使用你重载的程序。因此，最佳实践是你的重载运算符应该至少操作一个程序定义的类型。这保证了未来的语言标准不会破坏你的程序。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>重载运算符应该至少操作一个程序定义的类型（作为函数的参数或隐式对象）。</p></div><p>第四，不能改变运算符支持的操作数数量。</p><p>最后，所有运算符保持其默认优先级和结合性（无论它们用于什么），并且这不能改变。</p><p>一些新程序员尝试重载按位异或运算符（^）来进行指数运算。然而，在C++中，operator^的优先级低于基本算术运算符，这会导致表达式计算错误。</p><p>在基础数学中，指数运算在基本算术之前解析，所以4 + 3 ^ 2解析为4 + (3 ^ 2) =&gt; 4 + 9 =&gt; 13。<br/>然而，在C++中，算术运算符的优先级高于operator^，所以4 + 3 ^ 2解析为(4 + 3) ^ 2 =&gt; 7 ^ 2 =&gt; 49。</p><p>你需要显式地将指数部分括起来（例如4 + (3 ^ 2)）每次使用时才能正常工作，这并不直观，并且容易出错。</p><p>由于这个优先级问题，通常最好以与其原始意图类似的方式使用运算符。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>重载运算符时，最好让运算符的功能尽可能接近运算符的原始意图。</p></div><p>此外，因为运算符没有描述性名称，所以并不总是清楚它们打算做什么。例如，operator+对于字符串类来说可能是连接字符串的合理选择。但是operator-呢？你期望它做什么？这不清楚。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>如果重载运算符的含义不清晰且不直观，请改用命名函数。</p></div><p>最后，重载运算符应该以与原始运算符一致的方式返回值。不修改其操作数的运算符（例如算术运算符）通常应按值返回结果。修改其最左侧操作数的运算符（例如前置递增、任何赋值运算符）通常应按引用返回最左侧操作数。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>不修改其操作数的运算符（例如算术运算符）通常应按值返回结果。</p><p>修改其最左侧操作数的运算符（例如前置递增、任何赋值运算符）通常应按引用返回最左侧操作数。</p></div><p>在这些限制内，你仍然会找到许多有用的功能来为你的自定义类重载！你可以重载+运算符来连接你程序定义的字符串类，或者将两个Fraction类对象相加。你可以重载&lt;&lt;运算符以便轻松地将你的类打印到屏幕（或文件）。你可以重载相等运算符（==）来比较两个类对象。这使得运算符重载成为C++中最有用的特性之一——仅仅因为它允许你以更直观的方式使用你的类。</p><p>在接下来的课程中，我们将更深入地探讨重载不同类型的运算符。</p>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="chapter-20-summary-and-quiz.html" rel="prev"><small>上一课</small><strong>20.x — 第20章 总结与测验</strong></a><a class="lesson-nav-index" href="index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="overloading-the-arithmetic-operators-using-friend-functions.html" rel="next"><small>下一课</small><strong>21.2 — 使用友元函数重载算术运算符</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/chapter-8-summary-and-quiz/" name="learncpp:source-url"/>
+<meta content="97209ce80fe2b4ec22c3753b348a953a7151a48357ecd3971aa553df999d1138" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:47:52.926986+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T17:27:48.843657+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>8.x — Chapter 8 summary and quiz</title>
+<link href="assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">8.x — 第8章 总结与测验</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 8.x</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/chapter-8-summary-and-quiz/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p class="cpp-section">章节回顾</p><p>CPU在程序中执行的具体语句序列称为程序的 <strong>执行路径</strong>。一个 <strong>直线程序</strong> 每次运行时都走相同的路径。</p><p><strong>控制流语句</strong> （也称为 <strong>流程控制语句</strong>）允许程序员改变正常的执行路径。当控制流语句导致程序开始执行某个非顺序的指令序列时，这被称为 <strong>分支</strong>。</p><p>一个 <strong>条件语句</strong> 是一个指定某些关联语句是否应该被执行的语句。</p><p><strong>If 语句</strong> 允许我们根据某个条件是否为 <code>true</code>。 <strong>Else语句</strong> 在关联条件为 <code>false</code>时执行。你可以将多个if和else语句串联起来。</p><p>一个 <strong>悬垂 else</strong> 发生在当不清楚哪个 <code>if statement</code> 一个 <code>else statement</code> 与哪个语句关联时。 <code>Dangling else</code> 语句与最后一个未匹配的 <code>if statement</code> 在同一个块中匹配。因此，我们通过确保 <code>dangling else</code> 语句的主体放在一个块中，轻松避免 <code>if statement</code> 语句的问题。</p><p>一个 <strong>空语句</strong> 是一个仅由分号组成的语句。它什么也不做，用于语言要求存在语句但程序员不需要该语句执行任何操作的情况。</p><p><strong>Switch语句</strong> 提供了一种更清晰、更快速的方法来在多个匹配项之间进行选择。Switch语句仅适用于整型类型。 <strong>Case 标签</strong> 用于标识被评估条件要匹配的值。如果找不到匹配的case标签，则执行 <strong>default标签</strong> 下面的语句。</p><p>当执行从一个标签下的语句流入后续标签下的语句时，这被称为 <strong>穿透</strong>。一个 <code>break statement</code> （或 <code>return statement</code>）可用于防止穿透。[[fallthrough]]属性可用于记录有意的穿透。</p><p><strong>Goto 语句</strong> 允许程序跳转到代码中的其他位置，无论是向前还是向后。通常应避免使用它们，因为它们可能产生 <strong>意大利面条式代码</strong>，即程序的执行路径看起来像一碗意大利面条。</p><p><strong>While循环</strong> 允许程序在给定条件评估为 <code>true</code>时循环。条件在循环执行之前评估。</p><p>一种 <strong>无限循环</strong> 是一个条件始终评估为 <code>true</code>的循环。除非使用其他控制流语句停止，否则这些循环将永远循环。</p><p>一个 <strong>循环变量</strong> （也称为 <strong>counter</strong>）是一个整型变量，用于计算循环执行的次数。每次循环执行称为一次 <strong>迭代</strong>。</p><p><strong>Do while循环</strong> 类似于while循环，但条件在循环执行之后而不是之前评估。</p><p><strong>For循环</strong> 是最常用的循环，当你需要循环特定次数时非常理想。 <strong>差一错误</strong> 发生在循环迭代次数多一次或少一次时。</p><p><strong>break 语句</strong> 允许我们跳出 switch、while、do while 或 for 循环（也适用于 <code>range-based for loops</code>，我们尚未介绍）。 <strong>continue 语句</strong> 允许我们立即进入下一次循环迭代。</p><p><strong>终止</strong> 允许我们终止程序。 <strong>正常终止</strong> 表示程序以预期方式退出（并且 <code>status code</code> 将指示是否成功）。 <strong>std::exit()</strong> 在 <code>main</code>结束时自动调用，也可以显式调用来终止程序。它会进行一些清理，但不会清理任何局部变量，也不会展开调用栈。</p><p><strong>C++ 包含另外两个与停止相关的函数。</strong> 发生在程序遇到某种意外错误而必须关闭时。 <strong>std::abort</strong> 可以被调用来进行异常终止。</p><p>一种 <strong>算法</strong> 是一个有限的指令序列，可以遵循它来解决某个问题或产生某个有用的结果。如果一个算法被认为是 <strong>有状态的</strong> 相反， <strong>无状态的</strong> 算法不存储任何信息（并且必须在调用时提供它所需的所有信息）。当应用于算法时，术语 <strong>状态</strong> 指的是有状态变量中保存的当前值。</p><p>如果一个算法被认为是 <strong>确定性的</strong> ，那么对于给定的输入（为 <code>start</code>提供的值），它总是产生相同的输出序列。</p><p>一个 <strong>伪随机数生成器（PRNG）</strong> 是一种生成数字序列的算法，其属性模拟随机数序列。当实例化 PRNG 时，一个称为 <strong>随机种子</strong> （或 <strong>种子</strong> （简称）的初始值（或一组值）可以用来初始化 PRNG 的状态。当 PRNG 用种子初始化后，我们说它已经被 <strong>播种</strong>。种子值的大小可以小于 PRNG 状态的大小。当这种情况发生时，我们说 PRNG 被 <strong>欠播种</strong>。PRNG 开始重复自身之前的序列长度称为 <strong>周期</strong>。</p><p>一个 <strong>随机数分布</strong> 将 PRNG 的输出转换为其他数字分布。一个 <strong>均匀分布</strong> 是一种随机数分布，它在两个数字X和Y之间（包括边界）以相等的概率产生输出。</p><p class="cpp-section cpp-topline" style="clear:both">小测验时间</p><p>警告：从这一点开始，测验会变得更难，但你能做到。让我们来攻克这些测验吧！</p><p class="cpp-quiz-question" style="clear:both">问题 #1</p><p>在课程 <a href="chapter-4-summary-and-quiz.html">4.x -- 第4章总结与测验</a>，我们编写了一个程序来模拟球从塔上落下。由于当时还没有循环，球只能下落5秒。</p><p>采用下面的程序并修改它，使球下落所需的秒数直到它到达地面。更新程序以使用所有涵盖的最佳实践（命名空间、constexpr 等）。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+// 从用户获取塔高并返回
+double getTowerHeight()
+{
+	std::cout &lt;&lt; "Enter the height of the tower in meters: ";
+	double towerHeight{};
+	std::cin &gt;&gt; towerHeight;
+	return towerHeight;
+}
+
+// 返回 "seconds" 秒后的当前球高
+double calculateBallHeight(double towerHeight, int seconds)
+{
+	const double gravity { 9.8 };
+    
+	// 使用公式：s = (u * t) + (a * t^2) / 2
+	// 这里 u（初速度）= 0，所以 (u * t) = 0
+	const double fallDistance { gravity * (seconds * seconds) / 2.0 };
+	const double ballHeight { towerHeight - fallDistance };
+
+	// 如果球会低于地面，将其放在地面上
+	if (ballHeight &lt; 0.0)
+		return 0.0;
+    
+	return ballHeight;
+}
+
+// 打印球离地高度
+void printBallHeight(double ballHeight, int seconds)
+{
+	if (ballHeight &gt; 0.0)
+		std::cout &lt;&lt; "At " &lt;&lt; seconds &lt;&lt; " seconds, the ball is at height: " &lt;&lt; ballHeight &lt;&lt; " meters\n";
+	else
+		std::cout &lt;&lt; "At " &lt;&lt; seconds &lt;&lt; " seconds, the ball is on the ground.\n";
+}
+
+// 计算当前球高并打印
+// 这是一个辅助函数，使操作更简单
+void calculateAndPrintBallHeight(double towerHeight, int seconds)
+{
+	const double ballHeight{ calculateBallHeight(towerHeight, seconds) };
+	printBallHeight(ballHeight, seconds);
+}
+
+int main()
+{
+	const double towerHeight{ getTowerHeight() };
+
+	calculateAndPrintBallHeight(towerHeight, 0);
+	calculateAndPrintBallHeight(towerHeight, 1);
+	calculateAndPrintBallHeight(towerHeight, 2);
+	calculateAndPrintBallHeight(towerHeight, 3);
+	calculateAndPrintBallHeight(towerHeight, 4);
+	calculateAndPrintBallHeight(towerHeight, 5);
+       
+	return 0;
+}
+</code></pre><p><a aria-controls="cpp_solution_id_0" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_0" href="#cpp_solution_id_0">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_0"><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+namespace Constants
+{
+	constexpr double gravity { 9.8 };
+}
+
+// 从用户获取塔高并返回
+double getTowerHeight()
+{
+	std::cout &lt;&lt; "Enter the height of the tower in meters: ";
+	double towerHeight{};
+	std::cin &gt;&gt; towerHeight;
+	return towerHeight;
+}
+
+// 返回 "seconds" 秒后的当前球高
+// // 注意：这个函数可以是 constexpr，但我们还没有介绍 constexpr 函数
+double calculateBallHeight(double towerHeight, int seconds)
+{
+	// 使用公式：s = (u * t) + (a * t^2) / 2
+	// 这里 u（初速度）= 0，所以 (u * t) = 0
+	const double fallDistance { Constants::gravity * (seconds * seconds) / 2.0 };
+	const double ballHeight { towerHeight - fallDistance };
+
+	if (ballHeight &lt; 0.0)
+		return 0.0;
+    
+	return ballHeight;
+}
+
+// 打印球离地高度
+void printBallHeight(double ballHeight, int seconds)
+{
+	if (ballHeight &gt; 0.0)
+		std::cout &lt;&lt; "At " &lt;&lt; seconds &lt;&lt; " seconds, the ball is at height: " &lt;&lt; ballHeight &lt;&lt; " meters\n";
+	else
+		std::cout &lt;&lt; "At " &lt;&lt; seconds &lt;&lt; " seconds, the ball is on the ground.\n";
+}
+
+// 计算当前球高并打印
+// 这是一个辅助函数，使操作更简单
+double calculateAndPrintBallHeight(double towerHeight, int seconds)
+{
+	const double ballHeight{ calculateBallHeight(towerHeight, seconds) };
+	printBallHeight(ballHeight, seconds);
+
+	return ballHeight;
+}
+
+int main()
+{
+	const double towerHeight{ getTowerHeight() };
+
+	int seconds { 0 };
+	while (calculateAndPrintBallHeight(towerHeight, seconds) &gt; 0.0)
+	{
+		++seconds;
+	}
+       
+	return 0;
+}
+</code></pre></div><p class="cpp-quiz-question cpp-topline" style="clear:both">问题 #2</p><p>质数是大于1的自然数，只能被1和自身整除（余数为0）。</p><p>通过编写 <code>isPrime()</code> 函数（使用 for 循环）来完成以下程序。成功时，程序将打印“Success!”。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">// // 确保即使我们在发布模式下编译，assert 也会触发
+#undef NDEBUG
+
+#include &lt;cassert&gt; // for assert
+#include &lt;iostream&gt;
+
+bool isPrime(int x)
+{
+    return false;
+    // // 使用 for 循环编写这个函数
+}
+
+int main()
+{
+    assert(!isPrime(0)); // // 如果 isPrime(0) 为真则终止程序
+    assert(!isPrime(1));
+    assert(isPrime(2));  // // 如果 isPrime(2) 为假则终止程序
+    assert(isPrime(3));
+    assert(!isPrime(4));
+    assert(isPrime(5));
+    assert(isPrime(7));
+    assert(!isPrime(9));
+    assert(isPrime(11));
+    assert(isPrime(13));
+    assert(!isPrime(15));
+    assert(!isPrime(16));
+    assert(isPrime(17));
+    assert(isPrime(19));
+    assert(isPrime(97));
+    assert(!isPrime(99));
+    assert(isPrime(13417));
+
+    std::cout &lt;&lt; "Success!\n";
+
+    return 0;
+}
+</code></pre><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">相关内容</p><p><code>assert</code> 是一个预处理器宏，如果关联的参数求值为 false，则终止程序。所以当我们写 <code>assert(!isPrime(0))</code>时，意思是“如果 isPrime(0) 为真，则终止程序”。我们在第 <a href="assert-and-static_assert.html">9.6 -- Assert 和 static_assert</a>。</p></div><p><a aria-controls="cpp_solution_id_1" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_1" href="#cpp_solution_id_1">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_1"><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">// // 确保即使我们在发布模式下编译，assert 也会触发
+#undef NDEBUG
+
+#include &lt;cassert&gt; // for assert
+#include &lt;iostream&gt;
+
+// // 非优化版本
+bool isPrime(int x)
+{
+    if (x &lt;= 1) // // 如果 x 是负数、0 或 1，则该数不是质数
+        return false;
+
+    for (int test{ 2 }; test &lt; x; ++test)
+    {
+        if (x % test == 0) // // 如果 x 能被整除
+            return false;  // // 那么这个数不是质数
+    }
+
+    return true; // // 如果没有找到任何除数，那么 x 一定是质数
+}
+
+int main()
+{
+    assert(!isPrime(0));
+    assert(!isPrime(1));
+    assert(isPrime(2));
+    assert(isPrime(3));
+    assert(!isPrime(4));
+    assert(isPrime(5));
+    assert(isPrime(7));
+    assert(!isPrime(9));
+    assert(isPrime(11));
+    assert(isPrime(13));
+    assert(!isPrime(15));
+    assert(!isPrime(16));
+    assert(isPrime(17));
+    assert(isPrime(19));
+    assert(isPrime(97));
+    assert(!isPrime(99));
+    assert(isPrime(13417));
+
+    std::cout &lt;&lt; "Success!\n";
+
+    return 0;
+}
+</code></pre></div><p>额外加分：</p><p>上述解决方案中的 for 循环有两个缺点：</p><ul><li>它检查偶数除数。我们不需要测试这些（除了 2）。</li><li>它检查每个数直到 <code>x</code> 以判断它是否为除数。一个非质数（合数）必须至少有一个小于或等于其平方根的除数，因此检查超过 <code>x</code> 平方根的除数是不必要的。 <code>std::sqrt(x)</code> （在 &lt;cmath&gt; 头文件中）返回 <code>x</code>。</li></ul><p>的平方根。对于后者，我们有两个选择：在循环之前计算 <code>std::sqrt(x)</code> ，然后测试循环变量与该值。或者，我们可以通过比较两边平方来完全优化 <code>std::sqrt(x)</code> （感谢读者 JJag 的建议）（如果需要更多帮助，请查看提示）。我们将在测验解决方案中使用后一种选项。</p><p><a aria-controls="cpp_hint_id_0" aria-expanded="false" class="hint_link_show" data-hide-label="隐藏提示" data-hint-target="cpp_hint_id_0" data-show-label="显示提示" href="#cpp_hint_id_0">显示提示</a></p><div class="wphint" hidden="" id="cpp_hint_id_0">提示：给定两个变量 <code>a &gt;= 0</code> 和 <code>b &gt;= 0</code>，我们可以对比较 <code>a &lt;= sqrt(b)</code> 的两边进行平方，比较仍然成立。这给出了 <code>a * a &lt;= sqrt(b) * sqrt(b)</code>，这相当于 <code>a * a &lt;= b</code>。</div><p>更新上述解决方案以实现这两个优化。</p><p><a aria-controls="cpp_solution_id_2" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_2" href="#cpp_solution_id_2">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_2"><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;cassert&gt;
+#include &lt;cmath&gt; // for std::sqrt
+#include &lt;iostream&gt;
+
+// // 优化版本
+bool isPrime(int x)
+{
+    if (x &lt;= 1)     // // 如果 x 是负数、0 或 1，则该数不是质数
+        return false;
+    if (x == 2)     // // 数字 2 是唯一的偶质数
+        return true;
+    if (x % 2 == 0) // // 任何其他偶数都不是质数
+        return false;
+
+    // // 对于任何大于等于 3 的数，测试奇数（这就是我们加 2 的原因）
+    // // 在 3 和 sqrt(x) 之间，看它们是否是除数
+    // // 另请参阅 https://stackoverflow.com/questions/5811151/why-do-we-check-up-to-the-square-root-of-a-number-to-determine-if-the-number-is
+    // // 由于 test &gt;= 0 且 x &gt;= 0，我们可以将 test &lt; std::sqrt(x) 优化为 test * test &lt; x
+    for (int test{ 3 }; test * test &lt;= x; test += 2)
+    {
+        if (x % test == 0) // // 如果 x 能被整除
+            return false;  // // 那么这个数不是质数
+    }
+
+    return true; // // 如果没有找到任何除数，那么 x 一定是质数
+}
+
+int main()
+{
+    assert(!isPrime(0));
+    assert(!isPrime(1));
+    assert(isPrime(2));
+    assert(isPrime(3));
+    assert(!isPrime(4));
+    assert(isPrime(5));
+    assert(isPrime(7));
+    assert(!isPrime(9));
+    assert(isPrime(11));
+    assert(isPrime(13));
+    assert(!isPrime(15));
+    assert(!isPrime(16));
+    assert(isPrime(17));
+    assert(isPrime(19));
+    assert(isPrime(97));
+    assert(!isPrime(99));
+    assert(isPrime(13417));
+
+    std::cout &lt;&lt; "Success!\n";
+
+    return 0;
+}
+</code></pre></div><p class="cpp-quiz-question cpp-topline" style="clear:both">问题 #3</p><p>实现一个 Hi-Lo 游戏。首先，你的程序应该随机选择一个介于 1 和 100 之间的整数。用户有 7 次机会猜这个数字。</p><p>如果用户没有猜对数字，程序应告诉他们猜高了还是猜低了。如果用户猜对了数字，程序应告诉他们赢了。如果猜的次数用完了，程序应告诉他们输了，并显示正确的数字。游戏结束时，应询问用户是否想再玩一次。如果用户没有输入 'y' 或 'n'，则再次询问。</p><p>对于这个测验，假设用户输入一个有效的数字。</p><p>使用来自 <a href="https://www.learncpp.com/cpp-tutorial/global-random-numbers-random-h/#RandomH">8.15 -- 全局随机数 (Random.h)</a>。</p><p>的 Random.h 头文件。以下是你的输出应该看起来的样子：</p><pre>Let's play a game. I'm thinking of a number between 1 and 100. You have 7 tries to guess what it is.
+Guess #1: 64
+Your guess is too high.
+Guess #2: 32
+Your guess is too low.
+Guess #3: 54
+Your guess is too high.
+Guess #4: 51
+Correct! You win!
+Would you like to play again (y/n)? y
+Let's play a game. I'm thinking of a number between 1 and 100. You have 7 tries to guess what it is.
+Guess #1: 64
+Your guess is too high.
+Guess #2: 32
+Your guess is too low.
+Guess #3: 54
+Your guess is too high.
+Guess #4: 51
+Your guess is too high.
+Guess #5: 36
+Your guess is too low.
+Guess #6: 45
+Your guess is too low.
+Guess #7: 48
+Your guess is too low.
+Sorry, you lose. The correct number was 49.
+Would you like to play again (y/n)? q
+Would you like to play again (y/n)? n
+Thank you for playing.
+</pre><p>额外加分：将最小值和最大值以及猜测次数设为可配置参数。</p><p><a aria-controls="cpp_solution_id_3" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_3" href="#cpp_solution_id_3">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_3"><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include "Random.h" // https://www.learncpp.com/cpp-tutorial/global-random-numbers-random-h/
+
+// // 如果用户赢了返回 true，输了返回 false
+// 我们在这个程序中不使用返回值，但拥有它并不会增加复杂性，并且在未来的更新中可能会有用
+// （例如，如果我们想将赢/输消息移出函数，或者根据赢/输条件化其他行为）
+bool playHiLo(int guesses, int min, int max)
+{
+	std::cout &lt;&lt; "Let's play a game. I'm thinking of a number between " &lt;&lt; min &lt;&lt; " and " &lt;&lt; max &lt;&lt; ". You have " &lt;&lt; guesses &lt;&lt; " tries to guess what it is.\n";
+	const int number { Random::get(min, max) }; // 这是用户需要猜测的数字
+
+	// 遍历所有猜测
+	for (int count{ 1 }; count &lt;= guesses; ++count)
+	{
+		std::cout &lt;&lt; "Guess #" &lt;&lt; count &lt;&lt; ": ";
+
+		int guess{};
+		std::cin &gt;&gt; guess;
+
+		if (guess &gt; number)
+			std::cout &lt;&lt; "Your guess is too high.\n";
+		else if (guess &lt; number)
+			std::cout &lt;&lt; "Your guess is too low.\n";
+		else // 猜测 == 数字，所以用户赢了
+		{
+			std::cout &lt;&lt; "Correct! You win!\n";
+			return true;
+		}
+	}
+
+	// 用户输了
+	std::cout &lt;&lt; "Sorry, you lose. The correct number was " &lt;&lt; number &lt;&lt; '\n';
+	return false;
+}
+
+bool playAgain()
+{
+	// 不断询问用户是否想再玩一次，直到他们选择 y 或 n。
+	while (true)
+	{
+		char ch{};
+		std::cout &lt;&lt; "Would you like to play again (y/n)? ";
+		std::cin &gt;&gt; ch;
+
+		switch (ch)
+		{
+		case 'y': return true;
+		case 'n': return false;
+		}
+	}
+}
+
+int main()
+{
+	constexpr int guesses { 7 }; // 用户有这么多猜测次数
+	constexpr int min     { 1 };
+	constexpr int max     { 100 };
+
+	do
+	{
+		playHiLo(guesses, min, max);
+	} while (playAgain());
+
+	std::cout &lt;&lt; "Thank you for playing.\n";
+
+	return 0;
+}
+</code></pre></div><p>我们将在课程 <a href="chapter-9-summary-and-quiz.html">9.x -- 第 9 章总结和测验</a>。</p>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="global-random-numbers-random-h.html" rel="prev"><small>上一课</small><strong>8.15 — 全局随机数（Random.h）</strong></a><a class="lesson-nav-index" href="index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="introduction-to-testing-your-code.html" rel="next"><small>下一课</small><strong>9.1 — 测试代码简介</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

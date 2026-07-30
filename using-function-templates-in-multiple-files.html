@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/using-function-templates-in-multiple-files/" name="learncpp:source-url"/>
+<meta content="8d44641e597a84a86f3dea91416b50b4c3069c239854d5203618dadb61698073" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:48:46.504566+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T17:34:03.348107+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>11.10 — Using function templates in multiple files</title>
+<link href="assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">11.10 — 在多个文件中使用函数模板</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 11.10</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/using-function-templates-in-multiple-files/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>考虑以下程序，它无法正常工作：</p><p>main.cpp:</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+
+template &lt;typename T&gt;
+T addOne(T x); // 函数模板前向声明
+
+int main()
+{
+    std::cout &lt;&lt; addOne(1) &lt;&lt; '\n';
+    std::cout &lt;&lt; addOne(2.3) &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>add.cpp:</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">template &lt;typename T&gt;
+T addOne(T x) // 函数模板定义
+{
+    return x + 1;
+}
+</code></pre><p>如果 <code>addOne</code> 如果是一个非模板函数，这个程序可以正常工作：在 <em>main.cpp</em>中，编译器会对 <code>addOne</code>的前向声明感到满意，链接器会将调用 <code>addOne()</code> 在 <em>main.cpp</em> 连接到 <em>add.cpp</em>。</p><p>中的函数定义。但由于 <code>addOne</code> 是一个模板，这个程序无法工作，我们会得到一个链接器错误：</p><pre>1&gt;Project6.obj : error LNK2019: unresolved external symbol "int __cdecl addOne&lt;int&gt;(int)" (??$addOne@H@@YAHH@Z) referenced in function _main
+1&gt;Project6.obj : error LNK2019: unresolved external symbol "double __cdecl addOne&lt;double&gt;(double)" (??$addOne@N@@YANN@Z) referenced in function _main
+</pre><p>在 <em>main.cpp</em>中，我们调用 <code>addOne&lt;int&gt;</code> 和 <code>addOne&lt;double&gt;</code>。然而，由于编译器看不到函数模板 <code>addOne</code>的定义，它无法在 <em>main.cpp</em>中实例化这些函数。但它确实看到了 <code>addOne</code> 的前向声明，并会假设这些函数存在于其他地方，稍后会被链接进来。</p><p>当编译器编译 <em>add.cpp</em>时，它会看到函数模板 <code>addOne</code>的定义。然而，在 <em>add.cpp</em>中没有使用这个模板，所以编译器不会实例化任何东西。最终结果是链接器无法将对 <code>addOne&lt;int&gt;</code> 和 <code>addOne&lt;double&gt;</code> 在 <em>main.cpp</em> 的调用连接到实际的函数，因为这些函数从未被实例化。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">顺便说一句……</p><p>如果 <em>add.cpp</em> 中实例化了这些函数，程序本可以编译和链接成功。但这种解决方案很脆弱，应该避免：如果 <em>add.cpp</em> 中的代码后来被更改，使得这些函数不再被实例化，程序将再次链接失败。或者如果 <em>main.cpp</em> 调用了 <code>addOne</code> （例如 <code>addOne&lt;float&gt;</code>的一个不同版本（该版本未在 <em>add.cpp</em>中实例化），我们会遇到同样的问题。</p></div><p>解决这个问题最常规的方法是将所有模板代码放在头文件（.h）中，而不是源文件（.cpp）中：</p><p>add.h:</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#ifndef ADD_H
+#define ADD_H
+
+template &lt;typename T&gt;
+T addOne(T x) // 函数模板定义
+{
+    return x + 1;
+}
+
+#endif
+</code></pre><p>main.cpp:</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include "add.h" // import the function template definition
+#include &lt;iostream&gt;
+
+int main()
+{
+    std::cout &lt;&lt; addOne(1) &lt;&lt; '\n';
+    std::cout &lt;&lt; addOne(2.3) &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>这样，任何需要访问模板的文件都可以 #include 相关的头文件，模板定义会被预处理器复制到源文件中。然后编译器就能实例化任何需要的函数。</p><p>你可能想知道为什么这不会违反单一定义规则（ODR）。ODR 规定类型、模板、内联函数和内联变量允许在不同文件中具有相同的定义。因此，如果模板定义被复制到多个文件中（只要每个定义相同），就没有问题。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">相关内容</p><p>我们在第 <a href="forward-declarations.html#ODR">2.7 -- 前向声明和定义</a>。</p></div><p>课中介绍了 ODR。但实例化后的函数本身呢？如果一个函数在多个文件中被实例化，这如何不违反 ODR？答案是，从模板隐式实例化的函数是隐式内联的。如你所知，内联函数可以在多个文件中定义，只要每个定义相同。</p><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">关键提示</p><p>模板定义不受单一定义规则中要求每个程序只有一个定义的部分限制，因此将相同的模板定义 #include 到多个源文件中是没有问题的。而从函数模板隐式实例化的函数是隐式内联的，因此它们可以在多个文件中定义，只要每个定义相同。</p><p>模板本身不是内联的，因为内联的概念只适用于变量和函数。</p></div><p>下面是另一个将函数模板放在头文件中的示例，以便它可以被包含到多个源文件中：</p><p>max.h：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#ifndef MAX_H
+#define MAX_H
+
+template &lt;typename T&gt;
+T max(T x, T y)
+{
+    return (x &lt; y) ? y : x;
+}
+
+#endif
+</code></pre><p>foo.cpp：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include "max.h" // import template definition for max&lt;T&gt;(T, T)
+#include &lt;iostream&gt;
+
+void foo()
+{
+	std::cout &lt;&lt; max(3, 2) &lt;&lt; '\n';
+}
+</code></pre><p>main.cpp:</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include "max.h" // import template definition for max&lt;T&gt;(T, T)
+#include &lt;iostream&gt;
+
+void foo(); // 函数 foo 的前向声明
+
+int main()
+{
+    std::cout &lt;&lt; max(3, 5) &lt;&lt; '\n';
+    foo();
+
+    return 0;
+}
+</code></pre><p>在上面的示例中，main.cpp 和 foo.cpp 都 <code>#include "max.h"</code> ，因此两个文件中的代码都可以使用 <code>max&lt;T&gt;(T, T)</code> 函数模板。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>需要在多个文件中使用的模板应定义在头文件中，然后 #include 到需要的地方。这允许编译器看到完整的模板定义，并在需要时实例化模板。</p></div>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="non-type-template-parameters.html" rel="prev"><small>上一课</small><strong>11.9 — 非类型模板参数</strong></a><a class="lesson-nav-index" href="index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="chapter-11-summary-and-quiz.html" rel="next"><small>下一课</small><strong>11.x — 第11章 总结与测验</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

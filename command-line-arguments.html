@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/command-line-arguments/" name="learncpp:source-url"/>
+<meta content="8d337fef4dd8ae39ff8894856050cb60be1eda17e945bc062033ca38621e30bb" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:52:25.915454+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T18:03:30.540805+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>20.4 — Command line arguments</title>
+<link href="assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">20.4 — 命令行参数</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 20.4</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/command-line-arguments/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p><strong>命令行参数的必要性</strong></p><p>正如你在课程 <a href="introduction-to-the-compiler-linker-and-libraries.html">0.5 -- 编译器、链接器和库简介</a>中学到的，当你编译和链接程序时，输出是一个可执行文件。当程序运行时，执行从名为 main() 的函数顶部开始。到目前为止，我们这样声明 main：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int main()
+</code></pre><p>注意这个版本的 main() 不接受任何参数。然而，许多程序需要某种输入才能工作。例如，假设你正在编写一个名为 Thumbnail 的程序，它读取一个图像文件，然后生成一个缩略图（图像的较小版本）。Thumbnail 如何知道要读取和处理哪个图像？用户必须有某种方式告诉程序要打开哪个文件。为此，你可能会采用这种方法：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">// 程序：Thumbnail
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+int main()
+{
+    std::cout &lt;&lt; "Please enter an image filename to create a thumbnail for: ";
+    std::string filename{};
+    std::cin &gt;&gt; filename;
+
+    // 打开图像文件
+    // 创建缩略图
+    // 输出缩略图
+}
+</code></pre><p>然而，这种方法有一个潜在的问题。每次程序运行时，程序都会等待用户输入。如果你手动从命令行运行这个程序一次，这可能不是问题。但在其他情况下，比如你想在许多文件上运行这个程序，或者让另一个程序运行这个程序时，这就成问题了。</p><p>让我们进一步探讨这些情况。</p><p>考虑这样一种情况：你想为给定目录中的所有图像文件创建缩略图。你会怎么做？你可以根据目录中图像的数量多次运行这个程序，手动输入每个文件名。但是，如果有数百张图像，这可能需要一整天！一个好的解决方案是编写一个程序，循环遍历目录中的每个文件名，为每个文件调用一次 Thumbnail。</p><p>现在考虑另一种情况：你正在运行一个网站，并且希望每当用户上传图像到你的网站时，你的网站都能创建一个缩略图。这个程序没有设置接受来自网络的输入，那么上传者在这种情况下如何输入文件名？一个好的解决方案是让你的网站在上传后自动调用 Thumbnail。</p><p>在这两种情况下，我们确实需要一种方式让外部 <em>程序</em> 在 Thumbnail 启动时将文件名作为输入传递给我们的 Thumbnail 程序，而不是让 Thumbnail 等待 <em>用户</em> 在程序启动后输入文件名。</p><p><strong>命令行参数</strong> 是程序启动时由操作系统传递给程序的可选字符串参数。程序可以将它们用作输入（或忽略它们）。就像函数参数为函数提供向另一个函数传递输入的方式一样，命令行参数为人们或程序提供向 <em>程序</em>。</p><p><strong>传递命令行参数</strong></p><p>可执行程序可以通过在命令行中调用它们的名称来运行。例如，要运行位于 Windows 机器当前目录中的可执行文件“WordCount”，你可以输入：</p><pre>WordCount
+</pre><p>在基于 Unix 的操作系统上，等效的命令行是：</p><pre>./WordCount
+</pre><p>为了向 WordCount 传递命令行参数，我们只需在可执行文件名后面列出命令行参数：</p><pre>WordCount Myfile.txt
+</pre><p>现在当 WordCount 执行时，Myfile.txt 将作为命令行参数提供。一个程序可以有多个命令行参数，用空格分隔：</p><pre>WordCount Myfile.txt Myotherfile.txt
+</pre><p>如果你从 IDE 运行程序，IDE 应该提供一种输入命令行参数的方式。</p><p>在 Microsoft Visual Studio 中，右键单击解决方案资源管理器中的项目，然后选择属性。打开“配置属性”树元素，并选择“调试”。在右侧窗格中，有一行名为“命令参数”。你可以在此处输入命令行参数进行测试，它们将在你运行程序时自动传递给程序。</p><p>在 Code::Blocks 中，选择“项目 -&gt; 设置程序参数”。</p><p><strong>使用命令行参数</strong></p><p>既然你知道如何向程序提供命令行参数，下一步就是从 C++ 程序中访问它们。为此，我们使用一种之前未见过的不同形式的 main()。这种新形式的 main() 接受两个参数（按惯例命名为 argc 和 argv），如下所示：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int main(int argc, char* argv[])
+</code></pre><p>你有时也会看到它写成：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">int main(int argc, char** argv)
+</code></pre><p>尽管这两种写法被视为相同，但我们更喜欢第一种表示，因为它在直觉上更容易理解。</p><p><strong>argc</strong> 是一个整数参数，包含传递给程序的参数数量（思考：argc = 参 <b>数</b>计 <b>c</b>数）。argc 总是至少为 1，因为第一个参数始终是程序本身的名称。用户提供的每个命令行参数都会使 argc 增加 1。</p><p><strong>argv</strong> 是存储实际参数值的地方（思考：argv = 参 <b>数</b>计 <b>v</b>数值，但正确的名称是“参数向量”）。尽管 argv 的声明看起来令人生畏，但 argv 实际上只是一个 C 风格的 char 指针数组（每个指针指向一个 C 风格字符串）。这个数组的长度是 argc。</p><p>让我们编写一个名为“MyArgs”的简短程序来打印所有命令行参数的值：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">// 程序：MyArgs
+#include &lt;iostream&gt;
+
+int main(int argc, char* argv[])
+{
+    std::cout &lt;&lt; "There are " &lt;&lt; argc &lt;&lt; " arguments:\n";
+
+    // 遍历每个参数并打印其编号和值
+    for (int count{ 0 }; count &lt; argc; ++count)
+    {
+        std::cout &lt;&lt; count &lt;&lt; ' ' &lt;&lt; argv[count] &lt;&lt; '\n';
+    }
+
+    return 0;
+}
+</code></pre><p>现在，当我们使用命令行参数“Myfile.txt”和“100”调用这个程序（MyArgs）时，输出将如下所示：</p><pre>There are 3 arguments:
+0 C:\MyArgs
+1 Myfile.txt
+2 100
+</pre><p>参数 0 是当前正在运行的程序的路径和名称。在这种情况下，参数 1 和 2 是我们传入的两个命令行参数。</p><p>注意，我们不能使用基于范围的 for 循环来遍历 <code>argv</code>，因为基于范围的 for 循环不适用于退化的 C 风格数组。</p><p><strong>处理数值参数</strong></p><p>命令行参数总是以字符串形式传递，即使提供的值本质上是数值。要将命令行参数用作数字，必须将其从字符串转换为数字。不幸的是，C++ 使得这一过程比应有的更复杂。</p><p>C++ 的做法如下：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;sstream&gt; // for std::stringstream
+#include &lt;string&gt;
+
+int main(int argc, char* argv[])
+{
+	if (argc &lt;= 1)
+	{
+		// 在某些操作系统上，argv[0] 可能最终成为空字符串而不是程序名称。
+		// 我们将根据 argv[0] 是否为空来条件化我们的响应。
+		if (argv[0])
+			std::cout &lt;&lt; "Usage: " &lt;&lt; argv[0] &lt;&lt; " &lt;number&gt;" &lt;&lt; '\n';
+		else
+			std::cout &lt;&lt; "Usage: &lt;program name&gt; &lt;number&gt;" &lt;&lt; '\n';
+            
+		return 1;
+	}
+
+	std::stringstream convert{ argv[1] }; // 设置一个名为 convert 的 stringstream 变量，用 argv[1] 的输入初始化
+
+	int myint{};
+	if (!(convert &gt;&gt; myint)) // 进行转换
+		myint = 0; // 如果转换失败，将 myint 设置为默认值
+
+	std::cout &lt;&lt; "Got integer: " &lt;&lt; myint &lt;&lt; '\n';
+
+	return 0;
+}
+</code></pre><p>当输入“567”运行时，该程序打印：</p><pre>Got integer: 567
+</pre><p>std::stringstream 的工作方式与 std::cin 非常相似。在这种情况下，我们用 argv[1] 的值初始化它，以便可以使用 operator&gt;&gt; 将值提取到整数变量中（就像使用 std::cin 一样）。</p><p>我们将在未来的章节中详细讨论 std::stringstream。</p><p><strong>操作系统首先解析命令行参数</strong></p><p>当你在命令行输入内容（或从 IDE 运行程序）时，操作系统负责翻译和路由该请求。这不仅包括运行可执行文件，还包括解析任何参数以确定如何处理它们并将其传递给应用程序。</p><p>通常，操作系统对于双引号和反斜杠等特殊字符有特殊的处理规则。</p><p>例如：</p><pre>MyArgs Hello world!</pre><p>打印：</p><pre>There are 3 arguments:
+0 C:\MyArgs
+1 Hello
+2 world!
+</pre><p>通常，双引号内的字符串被视为同一字符串的一部分：</p><pre>MyArgs "Hello world!"</pre><p>打印：</p><pre>There are 2 arguments:
+0 C:\MyArgs
+1 Hello world!
+</pre><p>大多数操作系统允许你通过反斜杠转义双引号来包含字面双引号：</p><pre>MyArgs \"Hello world!\"</pre><p>打印：</p><pre>There are 3 arguments:
+0 C:\MyArgs
+1 "Hello
+2 world!"
+</pre><p>其他字符也可能需要反斜杠转义或转义，具体取决于你的操作系统如何解释它们。</p><p><strong>总结</strong></p><p>命令行参数为用户或其他程序在启动时向程序传递输入数据提供了一种很好的方式。考虑将程序启动时所需的任何输入数据作为命令行参数。如果未传入命令行，你总是可以检测到并询问用户输入。这样，你的程序可以以两种方式运行。</p>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="recursion.html" rel="prev"><small>上一课</small><strong>20.3 — 递归</strong></a><a class="lesson-nav-index" href="index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="ellipsis-and-why-to-avoid-them.html" rel="next"><small>下一课</small><strong>20.5 — 省略号（以及为何避免使用它们）</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/configuring-your-compiler-choosing-a-language-standard/" name="learncpp:source-url"/>
+<meta content="1b727cb40f2b4b2b5ec5ec331a2d4271184e9388ee71a9da7a7c84df07355203" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:44:20.534038+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T17:18:12.152808+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>0.12 — Configuring your compiler: Choosing a language standard</title>
+<link href="assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">0.12 — 配置编译器：选择语言标准</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 0.12</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/configuring-your-compiler-choosing-a-language-standard/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>面对众多不同的 C++ 版本（C++98、C++03、C++11、C++14、C++17、C++20、C++23 等），编译器如何知道该使用哪一个？通常，编译器会选择默认的标准。默认值一般是 <em>不是</em> 最新的语言标准——许多编译器默认使用 C++14，但这缺少了许多最新、最强大的特性。</p><p>如果你想使用不同的语言标准（很可能你会想这么做），你必须配置你的 IDE/编译器来实现。</p><p>语言标准的常规名称（例如 C++20）基于该语言标准发布（或预期发布）的年份。由于实际发布年份直到接近时才确定，早期开发中的语言标准有时会使用开发名称。例如，C++20 也被称为 C++2a。</p><p style="clear:both"></p><div class="cpp-table-wrapper"><table class="cpp-table"><tbody><tr><th>发布年份</th><th>正式名称</th><th>常规名称</th><th>开发名称</th><th>备注</th></tr><tr><td>2011</td><td>ISO/IEC 14882:2011</td><td>C++11</td><td>C++0x</td><td></td></tr><tr><td>2014</td><td>ISO/IEC 14882:2014</td><td>C++14</td><td>C++1y</td><td></td></tr><tr><td>2017</td><td>ISO/IEC 14882:2017</td><td>C++17</td><td>C++1z</td><td></td></tr><tr><td>2020</td><td>ISO/IEC 14882:2020</td><td>C++20</td><td>C++2a</td><td></td></tr><tr><td>2024</td><td>ISO/IEC 14882:2024</td><td>C++23</td><td>C++2b</td><td>于2023年定稿（技术上完成）</td></tr><tr><td>待定</td><td>待定</td><td>C++26</td><td>C++2c</td><td></td></tr></tbody></table></div><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">顺便说一句……</p><p>C++11有开发代号 <code>C++0x</code> 因为它最初预计在2010年之前发布。</p></div><p class="cpp-section cpp-topline" style="clear:both">你应该选择哪种语言标准？</p><p>在专业环境中，通常选择比最新定稿标准落后一到两个版本的语言标准（例如，如果C++20是最新定稿版本，则选择C++14或C++17）。这样做通常是为了确保编译器制造商有机会解决缺陷，并且新特性的最佳实践已得到充分理解。在相关情况下，这也有助于确保更好的跨平台兼容性，因为某些平台上的编译器可能不会立即完全支持较新的语言标准。</p><p>对于个人项目和学习，我们建议选择最新的定稿标准，因为这样做几乎没有缺点。</p><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">提示</p><p>许多编译器为即将发布的非定稿语言标准的特性提供“实验性”或“预览”支持。你的IDE可能在你配置语言标准的设置中提供此选项，或者你可以使用即将发布的语言标准的常规名称或开发名称手动启用它。</p><p>对未定稿语言标准特性的支持将是不完整的，并且可能存在缺陷。</p></div><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">作者注</p><p>本网站目前针对C++17标准，这意味着我们的课程和示例假设你的编译器支持C++17。某些C++20和C++23内容可供拥有兼容编译器的用户使用。</p><p>为了充分利用所有课程内容，我们建议使用编译器支持的最新语言标准。</p><p>如果你的编译器不支持C++17，我们建议升级到支持C++17的编译器，或者在学习时考虑使用支持C++17或更新版本的在线编译器。</p></div><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">提醒</p><p>更改语言标准（或任何其他项目设置）时，请确保对所有生成配置进行更改。</p></div><p class="cpp-section cpp-topline" style="clear:both">在 Visual Studio 中设置语言标准</p><p>截至目前，Visual Studio 2022 默认使用 C++14 功能，该功能不支持使用 C++17 和 C++20 中引入的较新特性。</p><p>要使用这些较新特性，您需要启用较新的语言标准。不幸的是，目前无法全局执行此操作——您必须逐个项目进行设置。</p><div class="cpp-note cpp-lightredbackground"><p class="cpp-note-title cpp-bottomline">警告</p><p>使用 Visual Studio 时，每次创建新项目都需要重新选择语言标准。</p></div><p>要选择语言标准，请打开项目，然后转到 <em>项目菜单 &gt; (您的应用程序名称)</em> 属性，然后打开 <em>配置属性 &gt; C/C++ &gt; 语言</em>。</p><div class="cpp-image-wrapper"><img alt="" src="assets/images/c1ef1940ef98ff5edf4355d9bf185da16787ec0d040418b29fcabaf35aa1002a.webp"/></div><p>首先，确保 <em>配置</em> 设置为“所有配置”。</p><p>然后，您可以设置 <em>C++ 语言标准</em> 为您希望使用的 C++ 版本。</p><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">提示</p><p>我们建议选择最新标准“ISO C++ Latest (/std:c++latest)”，这样可以确保您能使用编译器支持的所有特性。</p><p>请确保从下拉菜单中选择语言标准（不要手动输入）。</p></div><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">相关内容</p><p>有关 Visual Studio 语言标准设置的更多信息，Microsoft 提供了一篇 <a href="https://docs.microsoft.com/en-us/cpp/build/reference/std-specify-language-standard-version?view=msvc-160">Visual Studio 语言标准参考文档</a>。</p></div><p class="cpp-section cpp-topline" style="clear:both">在 Code::Blocks 中设置语言标准</p><p>Code::Blocks 可能默认使用 C++11 之前的语言标准。您务必检查并确保启用了更现代的语言标准。</p><p>好消息是，Code::Blocks 允许全局设置语言标准，这样就可以一次性设置（而不是每个项目单独设置）。为此，请前往 <em>设置菜单 &gt; 编译器…</em>：</p><div class="cpp-image-wrapper"><img alt="Code::Blocks Settings &gt; Compiler" src="assets/images/38735f4e583e6a0290f44639c7f3b78c878bf137cdb446198cdb4c216fc92091.webp"/></div><p>然后找到标有 <em>让 g++ 遵循 C++XX ISO C++ 语言标准 [-std=c++XX]</em>的复选框，其中 XX 是某个数字（例如 20、17 等），代表一个语言标准：</p><div class="cpp-image-wrapper"><img alt="Code::Blocks C++11 setting" src="assets/images/fbdb12c5324de783f0c444fe29d127196b80f77a5da94ce65123932fe2a0feda.webp"/></div><p>如果列表中出现了 C++23、C++20 或 C++17，请选择代表最新 ISO 标准的那一项（例如选择 <em>让 g++ 遵循 C++20 ISO 语言标准</em>）。如果列表中也有 GNU 标准，请忽略它们。</p><p>如果在列表中看不到 C++17，请升级到最新版本的 Code::Blocks。</p><div class="cpp-note cpp-lightredbackground"><p class="cpp-note-title cpp-bottomline">警告</p><p>撰写本文时，当前版本的 Code::Blocks（20.03）使用的是过时的编译器（GCC 8.1.0）。</p><p>我们建议通过更新 MinGW 来更新编译器。具体操作步骤可以在以下课程的 Code::Blocks 部分找到 <a href="installing-an-integrated-development-environment-ide.html">0.6 -- 安装集成开发环境（IDE）</a>。</p></div><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">提示</p><p>更新到最新版本的 MinGW 后，可以查看是否在 <em>设置菜单 &gt; 编译器…</em> 菜单中出现了更新语言标准的复选框。如果没有，可以按如下方式手动选择 C++ 版本：</p><ul><li>找到“全局编译器设置”对话框中的“其他编译器选项”选项卡。</li><li>添加以下编译器选项之一： <code>-std=c++11</code>， <code>-std=c++14</code>， <code>-std=c++17</code>， <code>-std=c++20</code>，或 <code>-std=c++23</code> （分别用于启用 C++11/14/17/20/23 支持）。也可以尝试最新的代号（例如 <code>-std=c++2c</code>）来获取对即将发布的语言标准特性的实验性支持。</li></ul></div><p class="cpp-section cpp-topline" style="clear:both">在 GCC/G++/Clang 中设置语言标准</p><p>对于 GCC/G++/Clang，可以使用编译器选项 <code>-std=c++11</code>， <code>-std=c++14</code>， <code>-std=c++17</code>， <code>-std=c++20</code>，或 <code>-std=c++23</code> （分别用于启用 C++11/14/17/20/23 支持）。如果你使用 GCC 8 或 9，则需要使用 <code>-std=c++2a</code> 来获取 C++20 支持。你也可以尝试最新代码名称（例如 <code>-std=c++2c</code>）来获取对即将发布的语言标准特性的实验性支持。</p><p class="cpp-section cpp-topline" style="clear:both">为 VS Code 设置语言标准</p><p>对于 VS Code，你可以按照上述规则在 GCC/G++/Clang 中设置语言标准。</p><p>将合适的语言标准标志（包括双引号和逗号）放入 <code>tasks.json</code> 配置文件的 <code>"args"</code> 部分中，放在单独一行，位于 <code>"${file}"</code>。</p><p>我们还需要配置 Intellisense 以使用相同的语言标准。对于 C++20，在 <code>settings.json</code>中，更改或添加以下设置到单独的一行： <code>"C_Cpp.default.cppStandard": "c++20"</code>。</p><p class="cpp-section cpp-topline" style="clear:both">我的编译器当前使用什么语言标准？</p><p>这已移至下一课。请参阅 <a href="what-language-standard-is-my-compiler-using.html">0.13 -- What language standard is my compiler using?</a>。</p><p class="cpp-section cpp-topline" style="clear:both">导出你的配置</p><p>每次创建新项目时都必须重新选择所有设置选项是很繁琐的。幸运的是，大多数 IDE 都提供了导出设置的方法。通常可以通过创建一个包含所需设置的新项目模板来实现，然后在创建新项目时选择该模板。</p><div class="cpp-note cpp-lightyellowbackground"><p class="cpp-note-title cpp-bottomline">适用于 Visual Studio 用户</p><p>在 Visual Studio 中，此选项可通过“项目”-&gt;“导出模板”来使用。选择“Project template”，添加名称和可选描述（例如 C++20 控制台应用程序），然后单击“完成”。</p><p>下次你创建新项目时，你会看到此模板出现在项目模板列表中。</p><p>使用此模板创建新项目后，可能不会打开任何文件。你可以通过在“解决方案资源管理器”窗口中依次转到“解决方案”-&gt;“&lt;项目名称&gt;”-&gt;“源文件”-&gt;“&lt;模板名称&gt;.cpp”来打开你的 .cpp 文件。</p><p>2025年2月：读者岳明涛友好地 <a href="https://www.learncpp.com/cpp-tutorial/configuring-your-compiler-choosing-a-language-standard/#comment-607992">留下了一条评论</a> 为该功能中的几个错误提供了一些变通方法。</p></div><div class="cpp-note cpp-lightyellowbackground"><p class="cpp-note-title cpp-bottomline">对于 Code::Blocks 用户</p><p>在 Code::Blocks 中，选择 File -&gt; Save project as template。为模板命名，然后保存。</p><p>创建新项目时，你会在“User templates”选项下找到此模板。</p></div><p class="cpp-section cpp-topline" style="clear:both">在哪里可以查看 C++ 标准文档？</p><p>每个 C++ 语言标准都由一个 <strong>标准文档</strong>，这是一份正式的技术文档，是给定语言标准规则和要求的权威来源。标准文档并非为学习而设计——而是为编译器编写者能够准确实现新语言标准而设计。你偶尔会看到人们在解释某些工作原理时引用标准文档。</p><p>特定语言标准的已批准 C++ 标准文档不免费提供。有链接可以购买最新标准 <a href="https://isocpp.org/std/the-standard">这里</a>。</p><p>当开发新语言标准时，会发布标准草案供审查。这些草案 <em>是</em> 在线免费获取。批准标准之前的最后一份草案通常与官方标准足够接近，可用于大多数用途。你可以找到草案标准 <a href="https://www.open-std.org/jtc1/sc22/wg21/docs/standards">这里</a>。</p><p class="cpp-section cpp-topline" style="clear:both">编译器通常对新语言功能的支持不完全</p><p>即使语言标准定稿后，支持该语言标准的编译器通常仍会对某些功能存在缺失、部分或有错误的支持。</p><p>如果你尝试编译一个按理应该能编译但却神秘失败的程序，很可能是因为以下两个原因之一：</p><ul><li>你的编译器配置为使用较旧的语言标准，不支持你正在使用的功能。尝试选择较新的语言标准并重新编译程序。你可以使用课程中的程序 <a href="what-language-standard-is-my-compiler-using.html">0.13 -- What language standard is my compiler using?</a> 来验证你是否正确配置了语言标准选择。</li><li>你正在运行的编译器版本可能对你使用的功能存在缺失、部分或有错误的支持。</li></ul><p>CPPReference 网站会跟踪每个语言标准中各功能的编译器支持情况。你可以在其 <a href="https://en.cppreference.com/w/cpp">主页</a>，右上角“Compiler Support”（按语言标准）下找到这些支持表格的链接。例如，你可以查看哪些 C++23 功能受支持 <a href="https://en.cppreference.com/w/cpp/compiler_support/23">这里</a>。</p><p>如果你的编译器的较新版本支持有问题的特性，你可以将编译器升级到最新版本并尝试重新编译程序。如果最新版本的编译器仍然不支持你试图使用的特性，你可以尝试使用另一个提供支持的编译器，或者找到使用不同特性集的解决方案。</p>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="configuring-your-compiler-warning-and-error-levels.html" rel="prev"><small>上一课</small><strong>0.11 — 配置你的编译器：警告和错误级别</strong></a><a class="lesson-nav-index" href="index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="what-language-standard-is-my-compiler-using.html" rel="next"><small>下一课</small><strong>0.13 — 我的编译器使用哪个语言标准？</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

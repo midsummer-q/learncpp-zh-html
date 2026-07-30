@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/halts-exiting-your-program-early/" name="learncpp:source-url"/>
+<meta content="f0731d39fa9512c42a570e353f2e3b61add88d851a1cd7728b056cdcd88fbb12" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:47:44.352533+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T17:26:36.278465+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>8.12 — Halts (exiting your program early)</title>
+<link href="assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">8.12 — 终止（提前退出程序）</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 8.12</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/halts-exiting-your-program-early/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>本章要介绍的最后一类流程控制语句是终止。 <strong>终止</strong> 是一种终止程序的流程控制语句。在C++中，终止是通过函数（而非关键字）实现的，因此我们的终止语句将是函数调用。</p><p>我们先简短回顾一下程序正常退出时会发生什么。当 <code>main()</code> 函数返回时（无论是到达函数末尾，还是通过 <code>return statement</code>），会发生一系列事情。</p><p>首先，由于我们离开了函数，所有局部变量和函数参数都会被销毁（照常）。</p><p>接下来，一个名为 <code>std::exit()</code> 的特殊函数会被调用，并将 <code>main()</code> 的返回值（即 <code>status code</code>）作为参数传入。那么 <code>std::exit()</code>？</p><p class="cpp-section cpp-topline" style="clear:both">是什么？std::exit() 函数</p><p><code>std::exit()</code> 是一个导致程序正常终止的函数。 <strong>正常终止</strong> 意味着程序以预期的方式退出。注意，“正常”一词 <code>normal termination</code> 并不暗示程序是否成功（那是 <code>status code</code> 的用途）。例如，假设你编写了一个程序，期望用户输入要处理的文件名。如果用户输入了无效的文件名，你的程序可能会返回一个非零的 <code>status code</code> 来表示失败状态，但它仍然是 <code>normal termination</code>。</p><p><code>std::exit()</code> 执行一些清理工作。首先，具有静态存储期的对象被销毁。然后，如果使用了任何文件，会进行一些其他文件清理。最后，控制权返回给操作系统，同时传递给 <code>std::exit()</code> 的参数被用作 <code>status code</code>。</p><p class="cpp-section cpp-topline" style="clear:both">显式调用 std::exit()</p><p>尽管 <code>std::exit()</code> 在函数 <code>main()</code> 返回后隐式调用， <code>std::exit()</code> 也可以显式调用，以便在程序正常终止之前提前终止。当以这种方式调用 <code>std::exit()</code> 时，你需要包含 <code>cstdlib</code> 头文件中。</p><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">关键提示</p><p><code>std::exit</code> 在 <code>main()</code> 返回时隐式调用。</p></div><p>下面是一个显式使用 <code>std::exit()</code> 的例子：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;cstdlib&gt; // for std::exit()
+#include &lt;iostream&gt;
+
+void cleanup()
+{
+    // 此处代码用于执行任何所需的清理工作
+    std::cout &lt;&lt; "cleanup!\n";
+}
+
+int main()
+{
+    std::cout &lt;&lt; 1 &lt;&lt; '\n';
+    cleanup();
+
+    std::exit(0); // 终止并向操作系统返回状态码0
+
+    // 以下语句永远不会执行
+    std::cout &lt;&lt; 2 &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>该程序打印出：</p><pre>1
+cleanup!
+</pre><p>注意，调用 <code>std::exit()</code> 之后的语句永远不会执行，因为程序已经终止。</p><p>尽管在上面的程序中，我们从函数 <code>std::exit()</code> 中调用了 <code>main()</code>， <code>std::exit()</code> ，但</p><p class="cpp-section cpp-topline" style="clear:both"><code>std::exit()</code> 可以从任何函数中调用，以在此时终止程序。std::exit() 不清除局部变量</p><p>关于调用 <code>std::exit()</code> 的例子： <code>std::exit()</code> 的一个重要注意事项： <code>std::exit()</code> 不会清除任何局部变量（无论是在当前函数中，还是在调用栈中的上层函数中）。这意味着如果程序依赖任何局部变量自行清理，调用</p><div class="cpp-note cpp-lightredbackground"><p class="cpp-note-title cpp-bottomline">警告</p><p>浮点类型的 <code>std::exit()</code> 函数不会清除当前函数或调用栈中的局部变量。</p></div><p class="cpp-section cpp-topline" style="clear:both">std::atexit</p><p>因为 <code>std::exit()</code> 立即终止程序，你可能希望在终止前手动进行一些清理工作。在此上下文中，清理指的是诸如关闭数据库或网络连接、释放已分配的内存、将信息写入日志文件等操作。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">顺便说一句……</p><p>当应用程序退出时，现代操作系统通常会清理应用程序未正确清理的任何内存。这就引出了一个问题：“那么为什么还要在退出时进行清理呢？”至少有两点原因：</p><ol start="1"><li>清理已分配的内存是一种“好习惯”，在应用程序运行时需要用它来避免内存泄漏。在某些情况下清理而在其他情况下不清理是不一致的，并且可能导致错误。不正确地清理内存还可能影响某些工具（如内存分析器）的行为（它们可能无法区分你无意中未清理的内存和你故意不清理的内存，因为你不必清理）。</li><li>还有其他类型的清理可能对于程序的可预测行为是必要的。例如，如果你将数据写入文件然后意外退出，这些数据可能尚未刷新到文件中，并在程序退出时丢失。在关闭前关闭文件有助于确保所有缓存数据首先被写入。或者你可能希望在关闭实际发生之前，将关于用户会话或程序关闭原因的数据发送到服务器。</li></ol></div><p>在上面的例子中，我们调用了函数 <code>cleanup()</code> 来处理我们的清理任务。然而，在每次调用 exit() 之前记住手动调用清理函数会增加程序员的负担，并且容易出错。</p><p>为了帮助解决这个问题，C++ 提供了 <code>std::atexit()</code> 函数，它允许你指定一个函数，该函数将在程序通过 <code>std::exit()</code>。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">相关内容</p><p>终止时自动调用。我们在第 <a href="function-pointers.html">20.1 -- 函数指针</a>。</p></div><p>下面是一个示例：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;cstdlib&gt; // for std::exit()
+#include &lt;iostream&gt;
+
+void cleanup()
+{
+    // 此处代码用于执行任何所需的清理工作
+    std::cout &lt;&lt; "cleanup!\n";
+}
+
+int main()
+{
+    // 注册cleanup()，使其在调用std::exit()时自动被调用
+    std::atexit(cleanup); // 注意：我们使用cleanup而不是cleanup()，因为我们现在不是要调用cleanup()函数
+
+    std::cout &lt;&lt; 1 &lt;&lt; '\n';
+
+    std::exit(0); // 终止并向操作系统返回状态码0
+
+    // 以下语句永远不会执行
+    std::cout &lt;&lt; 2 &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>课中讨论了将函数作为参数传递。</p><pre>1
+cleanup!
+</pre><p>该程序的输出与前面的示例相同： <code>cleanup()</code> 注意，当我们传递 <code>cleanup</code> 函数作为参数时，我们使用 <code>cleanup()</code> （函数名），而不是</p><p>（这实际上会调用函数）。 <code>std::atexit()</code> 的好处是，我们只需要调用它一次（可能从函数 <code>main()</code>内部）。由于 <code>std::atexit()</code> 将在退出时自动调用，我们不必在调用 <code>std::exit()</code>。</p><p>之前记住调用任何东西。 <code>std::atexit()</code> 关于 <code>std::exit()</code> 在 <code>main()</code> 和清理函数，有几点需要注意：首先，因为 <code>std::atexit()</code> 会终止程序，如果程序以这种方式退出，它将调用任何由 <code>std::atexit()</code> 注册的函数。其次，注册的函数必须不带参数且无返回值。最后，如果需要，你可以使用</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">进阶读者</p><p>注册多个清理函数，它们将按注册的相反顺序调用（最后注册的最先调用）。 <code>std::exit()</code> 在多线程程序中，调用 <code>std::exit()</code> 可能导致程序崩溃（因为调用 <code>std::exit()</code> 和 <code>std::atexit()</code> 调用 <code>std::quick_exit()</code> 和 <code>std::at_quick_exit()</code>。 <code>std::quick_exit()</code> 的线程会清理可能仍被其他线程访问的静态对象）。因此，C++ 引入了另一对函数，其工作方式类似于 <code>std::at_quick_exit()</code> 正常终止程序，但不清除静态对象，并且可能执行或不执行其他类型的清理。 <code>std::atexit()</code> 与 <code>std::quick_exit()</code>。</p></div><p class="cpp-section cpp-topline" style="clear:both">对于以</p><p>终止的程序扮演相同的角色。</p><p>浮点类型的 <code>std::abort()</code> std::abort 和 std::terminate <strong>C++ 包含另外两个与停止相关的函数。</strong> 函数导致程序异常终止。 <code>std::abort()</code> 异常终止</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;cstdlib&gt; // for std::abort()
+#include &lt;iostream&gt;
+
+int main()
+{
+    std::cout &lt;&lt; 1 &lt;&lt; '\n';
+    std::abort();
+
+    // 以下语句永远不会执行
+    std::cout &lt;&lt; 2 &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>意味着程序出现了某种不寻常的运行时错误，无法继续运行。例如，尝试除以 0 会导致异常终止。 <a href="assert-and-static_assert.html">9.6 -- Assert 和 static_assert</a> 不进行任何清理。 <code>std::abort</code> 我们将在未来的课程</p><p>浮点类型的 <code>std::terminate()</code> 中看到 <code>exceptions</code> （我们将在后面的章节中介绍异常）。尽管 <code>std::terminate</code> 可以被显式调用，但更常见的是在异常未被处理时隐式调用（以及在其他一些与异常相关的情况下）。默认情况下， <code>std::terminate()</code> 调用 <code>std::abort()</code>。</p><p class="cpp-section cpp-topline" style="clear:both">何时应该使用终止？</p><p>简短的回答是“几乎从不”。销毁局部对象是C++的重要组成部分（特别是当我们进入类时），而上述函数都不会清理局部变量。异常是处理错误情况的更好、更安全的机制。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>只有在没有安全或合理的方式从main函数正常返回时，才使用终止。如果你没有禁用异常，优先使用异常来安全地处理错误。</p></div><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">提示</p><p>尽管应尽量减少显式使用终止，但程序还有许多其他方式可能意外关闭。例如：</p><ul><li>应用程序可能因错误而崩溃（此时操作系统会将其关闭）。</li><li>用户可能以各种方式终止应用程序。</li><li>用户可能关闭（或失去）计算机电源。</li><li>太阳可能变成超新星，将地球吞噬在巨大的火球中。</li></ul><p>设计良好的程序应该能够在任何时刻被关闭，且影响最小。</p><p>一个常见的例子是，现代游戏通常会定期自动保存游戏状态和用户设置，这样如果游戏在没有保存的情况下意外关闭，用户可以使用之前的自动存档继续游戏，而不会丢失太多进度。</p></div>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="break-and-continue.html" rel="prev"><small>上一课</small><strong>8.11 — Break 和 continue</strong></a><a class="lesson-nav-index" href="index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="introduction-to-random-number-generation.html" rel="next"><small>下一课</small><strong>8.13 — 随机数生成简介</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/what-language-standard-is-my-compiler-using/" name="learncpp:source-url"/>
+<meta content="ffe0dd3f73d1ec6ec8ee14cdc3314565d5b1661bddaa74e9e1ffa1745a106dc6" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:44:22.923700+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T17:18:12.406044+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>0.13 — What language standard is my compiler using?</title>
+<link href="assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">0.13 — 我的编译器使用哪个语言标准？</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 0.13</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/what-language-standard-is-my-compiler-using/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>以下程序旨在打印你的编译器当前使用的语言标准名称。你可以复制/粘贴、编译并运行此程序，以确认你的编译器使用的是你期望的语言标准。</p><p style="clear:both"></p><p>PrintStandard.cpp：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">// 此程序打印你的编译器当前使用的 C++ 语言标准
+// 可自由再分发，由 learncpp.com 提供 (https://www.learncpp.com/cpp-tutorial/what-language-standard-is-my-compiler-using/)
+
+#include &lt;iostream&gt;
+
+const int numStandards = 7;
+// C++26 的 stdCode 是占位符，因为在标准最终确定之前无法确定确切的代码
+const long stdCode[numStandards] = { 199711L, 201103L, 201402L, 201703L, 202002L, 202302L, 202612L};
+const char* stdName[numStandards] = { "Pre-C++11", "C++11", "C++14", "C++17", "C++20", "C++23", "C++26" };
+
+long getCPPStandard()
+{
+    // Visual Studio 在 __cplusplus 支持方面不符合标准（除非你设置了特定的编译器标志，但你可能没有设置）
+    // 在 Visual Studio 2015 或更新版本中，我们可以改用 _MSVC_LANG
+    // 参见 https://devblogs.microsoft.com/cppblog/msvc-now-correctly-reports-__cplusplus/
+#if defined (_MSVC_LANG)
+    return _MSVC_LANG;
+#elif defined (_MSC_VER)
+    // 如果使用的是较旧版本的 Visual Studio，则退出
+    return -1;
+#else
+    // __cplusplus 是查询语言标准代码（由语言标准定义）的预期方式
+    return __cplusplus;
+#endif
+}
+
+int main()
+{
+    long standard = getCPPStandard();
+
+    if (standard == -1)
+    {
+        std::cout &lt;&lt; "Error: Unable to determine your language standard.  Sorry.\n";
+        return 0;
+    }
+    
+    for (int i = 0; i &lt; numStandards; ++i)
+    {
+        // 如果报告的版本是最终确定的标准代码之一
+        // 那么我们可以确切知道编译器运行的是哪个版本
+        if (standard == stdCode[i])
+        {
+            std::cout &lt;&lt; "Your compiler is using " &lt;&lt; stdName[i]
+                &lt;&lt; " (language standard code " &lt;&lt; standard &lt;&lt; "L)\n";
+            break;
+        }
+
+        // 如果报告的版本介于两个最终确定的标准代码之间，
+        // 这必定是下一个即将到来的版本的预览/实验性支持。
+        if (standard &lt; stdCode[i])
+        {
+            std::cout &lt;&lt; "Your compiler is using a preview/pre-release of " &lt;&lt; stdName[i]
+                &lt;&lt; " (language standard code " &lt;&lt; standard &lt;&lt; "L)\n";
+            break;
+        }
+    }
+    
+    return 0;
+}
+</code></pre><p class="cpp-section cpp-topline" style="clear:both">构建或运行时问题</p><p>如果在尝试构建时遇到错误，可能是因为你的项目设置不正确。请参阅 <a href="a-few-common-cpp-problems.html">0.8 -- 一些常见的C++问题</a> 获取关于一些常见问题的建议。如果那没有帮助，请复习从 <a href="installing-an-integrated-development-environment-ide.html">0.6 -- 安装集成开发环境（IDE）</a>。</p><p>如果程序打印出“错误：无法确定你的语言标准”，你的编译器可能不符合标准。如果你使用的是流行编译器且出现这种情况，请在下方留言提供相关信息（例如编译器的名称和版本）。</p><p>如果此程序打印出的语言标准与你期望的不同：</p><ul><li>检查你的 IDE 设置，确保编译器配置为使用你期望的语言标准。请参阅 <a href="configuring-your-compiler-choosing-a-language-standard.html">0.12 -- 配置你的编译器：选择语言标准</a> 了解如何在一些主流编译器上进行此操作的更多信息。确保没有拼写错误或格式错误。某些编译器要求为每个项目（而非全局）设置语言标准，因此如果你刚刚创建了一个新项目，可能就是这种情况。</li></ul><p></p><ul><li>你的 IDE 或编译器甚至可能没有读取你正在编辑的配置文件（我们偶尔会看到关于 VS Code 的读者反馈）。如果情况似乎如此，请查阅你的 IDE 或编译器的文档。</li></ul><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">问：如果我的编译器使用的是预览版/预发布版本，我应该回退一个版本吗？</p><p>如果你只是学习这门语言，那就不必。只需注意，即将到来的语言版本中的某些功能可能缺失、不完整、有缺陷或稍有变化。</p></div>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="configuring-your-compiler-choosing-a-language-standard.html" rel="prev"><small>上一课</small><strong>0.12 — 配置编译器：选择语言标准</strong></a><a class="lesson-nav-index" href="index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="statements-and-the-structure-of-a-program.html" rel="next"><small>下一课</small><strong>1.1 — 语句和程序的结构</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

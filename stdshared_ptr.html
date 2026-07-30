@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/stdshared_ptr/" name="learncpp:source-url"/>
+<meta content="62ec64b53cff44709f0e61faa44b31f7cf6baf7bfebc69678b96ea5db4d82f50" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:53:18.301960+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T18:09:54.026598+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>22.6 — std::shared_ptr</title>
+<link href="assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">22.6 — std::shared_ptr</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 22.6</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/stdshared_ptr/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>与设计为单独拥有和管理资源的 std::unique_ptr 不同，std::shared_ptr 旨在解决需要多个智能指针共同拥有一个资源的情况。</p><p>这意味着可以有多个 std::shared_ptr 指向同一个资源。在内部，std::shared_ptr 会跟踪有多少个 std::shared_ptr 共享该资源。只要至少有一个 std::shared_ptr 指向该资源，资源就不会被释放，即使单个 std::shared_ptr 被销毁。当管理该资源的最后一个 std::shared_ptr 离开作用域（或被重新赋值指向其他东西）时，资源将被释放。</p><p>与 std::unique_ptr 一样，std::shared_ptr 位于 &lt;memory&gt; 头文件中。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;memory&gt; // for std::shared_ptr
+
+class Resource
+{
+public:
+	Resource() { std::cout &lt;&lt; "Resource acquired\n"; }
+	~Resource() { std::cout &lt;&lt; "Resource destroyed\n"; }
+};
+
+int main()
+{
+	// 分配一个 Resource 对象并由 std::shared_ptr 拥有
+	Resource* res { new Resource };
+	std::shared_ptr&lt;Resource&gt; ptr1{ res };
+	{
+		std::shared_ptr&lt;Resource&gt; ptr2 { ptr1 }; // 创建另一个指向同一对象的 std::shared_ptr
+
+		std::cout &lt;&lt; "Killing one shared pointer\n";
+	} // ptr2 在此处离开作用域，但什么也不会发生
+
+	std::cout &lt;&lt; "Killing another shared pointer\n";
+
+	return 0;
+} // ptr1 在此处离开作用域，分配的 Resource 被销毁
+</code></pre><p>这会打印：</p><pre>Resource acquired
+Killing one shared pointer
+Killing another shared pointer
+Resource destroyed
+</pre><p>在上面的代码中，我们创建了一个动态的 Resource 对象，并设置一个名为 ptr1 的 std::shared_ptr 来管理它。在嵌套块内部，我们使用拷贝构造函数创建了第二个 std::shared_ptr (ptr2)，它指向同一个 Resource。当 ptr2 离开作用域时，Resource 不会被释放，因为 ptr1 仍然指向该 Resource。当 ptr1 离开作用域时，ptr1 注意到没有更多的 std::shared_ptr 管理该 Resource，因此它释放了 Resource。</p><p>注意，我们是从第一个共享指针创建了第二个共享指针。这一点很重要。考虑以下类似的程序：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;memory&gt; // for std::shared_ptr
+
+class Resource
+{
+public:
+	Resource() { std::cout &lt;&lt; "Resource acquired\n"; }
+	~Resource() { std::cout &lt;&lt; "Resource destroyed\n"; }
+};
+
+int main()
+{
+	Resource* res { new Resource };
+	std::shared_ptr&lt;Resource&gt; ptr1 { res };
+	{
+		std::shared_ptr&lt;Resource&gt; ptr2 { res }; // 直接从 res（而不是 ptr1）创建 ptr2
+
+		std::cout &lt;&lt; "Killing one shared pointer\n";
+	} // ptr2 在此处离开作用域，分配的 Resource 被销毁
+
+	std::cout &lt;&lt; "Killing another shared pointer\n";
+
+	return 0;
+} // ptr1 在此处离开作用域，分配的 Resource 再次被销毁
+</code></pre><p>该程序打印出：</p><pre>Resource acquired
+Killing one shared pointer
+Resource destroyed
+Killing another shared pointer
+Resource destroyed
+</pre><p>然后崩溃（至少在作者的机器上是这样）。</p><p>这里的区别在于，我们独立地创建了两个 std::shared_ptr。结果，尽管它们都指向同一个 Resource，但它们彼此并不知道。当 ptr2 离开作用域时，它认为自己是 Resource 的唯一所有者，并释放了它。当 ptr1 稍后离开作用域时，它也这样认为，并试图再次删除 Resource。然后糟糕的事情发生了。</p><p>幸运的是，这很容易避免：如果你需要多个 std::shared_ptr 指向同一个资源，请拷贝一个现有的 std::shared_ptr。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>如果你需要多个 std::shared_ptr 指向同一个资源，始终拷贝一个现有的 std::shared_ptr。</p></div><p>与 std::unique_ptr 一样，std::shared_ptr 可以是空指针，因此在使用前要检查它是否有效。</p><p class="cpp-section cpp-topline" style="clear:both">std::make_shared</p><p>就像 std::make_unique() 可以在 C++14 中用于创建 std::unique_ptr 一样，std::make_shared() 可以（并且应该）用于创建 std::shared_ptr。std::make_shared() 在 C++11 中可用。</p><p>下面是我们的原始示例，使用 std::make_shared()：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;memory&gt; // for std::shared_ptr
+
+class Resource
+{
+public:
+	Resource() { std::cout &lt;&lt; "Resource acquired\n"; }
+	~Resource() { std::cout &lt;&lt; "Resource destroyed\n"; }
+};
+
+int main()
+{
+	// 分配一个 Resource 对象并由 std::shared_ptr 拥有
+	auto ptr1 { std::make_shared&lt;Resource&gt;() };
+	{
+		auto ptr2 { ptr1 }; // 使用 ptr1 的拷贝创建 ptr2
+
+		std::cout &lt;&lt; "Killing one shared pointer\n";
+	} // ptr2 在此处离开作用域，但什么也不会发生
+
+	std::cout &lt;&lt; "Killing another shared pointer\n";
+
+	return 0;
+} // ptr1 在此处离开作用域，分配的 Resource 被销毁
+</code></pre><p>使用 std::make_shared() 的原因与 std::make_unique() 相同——std::make_shared() 更简单、更安全（使用这种方法无法创建两个指向同一资源但彼此不知道的独立 std::shared_ptr）。然而，std::make_shared() 也比不使用它性能更好。其原因在于 std::shared_ptr 跟踪有多少指针指向给定资源的方式。</p><p class="cpp-section cpp-topline" style="clear:both">深入探讨 std::shared_ptr</p><p>与内部使用单个指针的 std::unique_ptr 不同，std::shared_ptr 内部使用两个指针。一个指针指向被管理的资源。另一个指针指向一个“控制块”，这是一个动态分配的对象，用于跟踪一堆东西，包括有多少个 std::shared_ptr 指向该资源。当通过 std::shared_ptr 构造函数创建 std::shared_ptr 时，托管对象（通常传入）和控制块（由构造函数创建）的内存是分开分配的。然而，当使用 std::make_shared() 时，这可以优化为单个内存分配，从而带来更好的性能。</p><p>这也解释了为什么独立创建两个指向同一资源的 std::shared_ptr 会给我们带来麻烦。每个 std::shared_ptr 将有一个指针指向资源。然而，每个 std::shared_ptr 将独立分配自己的控制块，这将表明它是拥有该资源的唯一指针。因此，当该 std::shared_ptr 离开作用域时，它将释放资源，而没有意识到还有其他 std::shared_ptr 也在尝试管理该资源。</p><p>然而，当使用拷贝赋值克隆 std::shared_ptr 时，控制块中的数据可以适当更新，以表明现在有额外的 std::shared_ptr 共同管理该资源。</p><p class="cpp-section cpp-topline" style="clear:both">可以从 unique_ptr 创建 shared_ptr</p><p>std::unique_ptr 可以通过一个接受 std::unique_ptr 右值的特殊 std::shared_ptr 构造函数转换为 std::shared_ptr。std::unique_ptr 的内容将被移动到 std::shared_ptr。</p><p>然而，std::shared_ptr 不能安全地转换为 std::unique_ptr。这意味着，如果你要创建一个返回智能指针的函数，最好返回 std::unique_ptr，并在适当的时候将其赋值给 std::shared_ptr。</p><p class="cpp-section cpp-topline" style="clear:both">std::shared_ptr 的危险</p><p>std::shared_ptr 有一些与 std::unique_ptr 相同的挑战——如果 std::shared_ptr 没有被正确销毁（要么是因为它是动态分配的且从未被删除，要么是它属于一个动态分配且从未被删除的对象），那么它管理的资源也不会被释放。对于 std::unique_ptr，你只需要担心一个智能指针是否被正确销毁。对于 std::shared_ptr，你需要担心所有指针。如果管理某个资源的任何 std::shared_ptr 没有被正确销毁，该资源将不会被正确释放。</p><p class="cpp-section cpp-topline" style="clear:both">std::shared_ptr 与数组</p><p>在 C++17 及更早版本中，std::shared_ptr 没有对管理数组的适当支持，不应将其用于管理 C 风格数组。从 C++20 开始，std::shared_ptr 确实支持数组。</p><p class="cpp-section cpp-topline" style="clear:both">总结</p><p>std::shared_ptr 是为需要多个智能指针共同管理同一资源的情况而设计的。当管理该资源的最后一个 std::shared_ptr 被销毁时，资源将被释放。</p>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="stdunique_ptr.html" rel="prev"><small>上一课</small><strong>22.5 — std::unique_ptr</strong></a><a class="lesson-nav-index" href="index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="circular-dependency-issues-with-stdshared_ptr-and-stdweak_ptr.html" rel="next"><small>下一课</small><strong>22.7 — std::shared_ptr 的循环依赖问题与 std::weak_ptr</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

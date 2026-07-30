@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/stdmove/" name="learncpp:source-url"/>
+<meta content="20f8f906f25a7a2f29788aa5a09cf50f4b7a291b8339ac2d90487a3054e7e5b7" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:53:14.333726+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T18:09:29.184137+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>22.4 — std::move</title>
+<link href="assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">22.4 — std::move</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 22.4</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/stdmove/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>一旦你开始更频繁地使用移动语义，你会遇到这样的情况：你想调用移动语义，但手头的对象是左值，而不是右值。考虑下面的 swap 函数作为例子：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+template &lt;typename T&gt;
+void mySwapCopy(T&amp; a, T&amp; b) 
+{ 
+	T tmp { a }; // 调用拷贝构造函数
+	a = b; // 调用拷贝赋值运算符
+	b = tmp; // 调用拷贝赋值运算符
+}
+
+int main()
+{
+	std::string x{ "abc" };
+	std::string y{ "de" };
+
+	std::cout &lt;&lt; "x: " &lt;&lt; x &lt;&lt; '\n';
+	std::cout &lt;&lt; "y: " &lt;&lt; y &lt;&lt; '\n';
+
+	mySwapCopy(x, y);
+
+	std::cout &lt;&lt; "x: " &lt;&lt; x &lt;&lt; '\n';
+	std::cout &lt;&lt; "y: " &lt;&lt; y &lt;&lt; '\n';
+
+	return 0;
+}
+</code></pre><p>传入两个类型为 T（这里为 std::string）的对象，该函数通过三次拷贝来交换它们的值。因此，该程序输出：</p><pre>x: abc
+y: de
+x: de
+y: abc
+</pre><p>正如上一课所示，进行拷贝可能效率低下。而这个版本的 swap 进行了 3 次拷贝。这会导致大量不必要的字符串创建和销毁，速度很慢。</p><p>然而，这里并不需要拷贝。我们真正要做的只是交换 a 和 b 的值，这完全可以通过 3 次移动来实现！因此，如果我们从拷贝语义切换到移动语义，可以使代码更高效。</p><p>但如何做到呢？问题在于参数 a 和 b 是左值引用，而不是右值引用，所以我们无法调用移动构造函数和移动赋值运算符来代替拷贝构造函数和拷贝赋值运算符。默认情况下，我们得到的是拷贝构造函数和拷贝赋值的行为。我们该怎么办？</p><p class="cpp-section cpp-topline" style="clear:both">std::move</p><p>在 C++11 中，std::move 是一个标准库函数，它将参数（使用 static_cast）转换为右值引用，从而可以调用移动语义。因此，我们可以使用 std::move 将左值转换为更倾向于被移动而不是被拷贝的类型。std::move 定义在 utility 头文件中。</p><p>下面是相同的程序，但带有一个 mySwapMove() 函数，它使用 std::move 将左值转换为右值，以便调用移动语义：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;utility&gt; // for std::move
+
+template &lt;typename T&gt;
+void mySwapMove(T&amp; a, T&amp; b) 
+{ 
+	T tmp { std::move(a) }; // 调用移动构造函数
+	a = std::move(b); // 调用移动赋值运算符
+	b = std::move(tmp); // 调用移动赋值运算符
+}
+
+int main()
+{
+	std::string x{ "abc" };
+	std::string y{ "de" };
+
+	std::cout &lt;&lt; "x: " &lt;&lt; x &lt;&lt; '\n';
+	std::cout &lt;&lt; "y: " &lt;&lt; y &lt;&lt; '\n';
+
+	mySwapMove(x, y);
+
+	std::cout &lt;&lt; "x: " &lt;&lt; x &lt;&lt; '\n';
+	std::cout &lt;&lt; "y: " &lt;&lt; y &lt;&lt; '\n';
+
+	return 0;
+}
+</code></pre><p>输出与上面相同：</p><pre>x: abc
+y: de
+x: de
+y: abc
+</pre><p>但效率更高。当初始化 tmp 时，我们不是拷贝 x，而是使用 std::move 将左值变量 x 转换为右值。由于参数是右值，移动语义被调用，x 被移动到 tmp 中。</p><p>再经过几次交换，变量 x 的值被移动到 y，y 的值被移动到 x。</p><p class="cpp-section cpp-topline" style="clear:both">另一个示例</p><p>我们也可以在填充容器（如 std::vector）的元素时使用 std::move 来处理左值。</p><p>在下面的程序中，我们首先使用拷贝语义向 vector 添加一个元素。然后使用移动语义向 vector 添加一个元素。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;utility&gt; // for std::move
+#include &lt;vector&gt;
+
+int main()
+{
+	std::vector&lt;std::string&gt; v;
+
+	// 我们使用 std::string，因为它是可移动的（std::string_view 不可移动）
+	std::string str { "Knock" };
+
+	std::cout &lt;&lt; "Copying str\n";
+	v.push_back(str); // 调用 push_back 的左值版本，将 str 拷贝到数组元素中
+	
+	std::cout &lt;&lt; "str: " &lt;&lt; str &lt;&lt; '\n';
+	std::cout &lt;&lt; "vector: " &lt;&lt; v[0] &lt;&lt; '\n';
+
+	std::cout &lt;&lt; "\nMoving str\n";
+
+	v.push_back(std::move(str)); // 调用 push_back 的右值版本，将 str 移动到数组元素中
+	
+	std::cout &lt;&lt; "str: " &lt;&lt; str &lt;&lt; '\n'; // 此结果是不确定的
+	std::cout &lt;&lt; "vector:" &lt;&lt; v[0] &lt;&lt; ' ' &lt;&lt; v[1] &lt;&lt; '\n';
+
+	return 0;
+}
+</code></pre><p>在作者的机器上，该程序输出：</p><pre>Copying str
+str: Knock
+vector: Knock
+
+Moving str
+str:
+vector: Knock Knock
+</pre><p>在第一种情况下，我们向 push_back() 传递了一个左值，因此它使用拷贝语义向 vector 添加元素。因此，str 中的值保持不变。</p><p>在第二种情况下，我们向 push_back() 传递了一个右值（实际上是通过 std::move 转换的左值），因此它使用移动语义向 vector 添加元素。这样更高效，因为 vector 元素可以窃取字符串的值，而不必复制它。</p><p class="cpp-section cpp-topline" style="clear:both">被移动的对象将处于有效但可能不确定的状态</p><p>当我们从临时对象移动值时，被移动对象留下什么值并不重要，因为临时对象会立即被销毁。但对于我们使用 std::move() 的左值对象呢？因为我们可以继续访问这些对象（例如在上面的例子中，我们在移动后打印了 <code>str</code> 的值），所以知道它们被留下什么值是有用的。</p><p>这里有两种观点。一种观点认为，被移动的对象应该重置为某种默认/零状态，即对象不再拥有资源。我们在上面看到了一个例子，其中 <code>str</code> 被清空为空字符串。</p><p>另一种观点认为，我们应该做最方便的事情，而不必拘泥于必须清除被移动的对象，如果这样做不方便的话。</p><p>那么标准库在这种情况下是怎么做的呢？关于这一点，C++ 标准说：“除非另有说明，被移动的对象（C++ 标准库中定义的类型）应置于有效但未指定的状态。”</p><p>在上面的例子中，当作者打印 <code>str</code> 在调用 <code>std::move</code> 后的值时，它打印了一个空字符串。然而，这不是必需的，它可能打印任何有效的字符串，包括空字符串、原始字符串或任何其他有效字符串。因此，我们应该避免使用被移动对象的值，因为结果将是实现特定的。</p><p>在某些情况下，我们希望重用值已被移动的对象（而不是分配新对象）。例如，在上面的 mySwapMove() 实现中，我们首先将资源移出 <code>a</code>，然后将另一个资源移入 <code>a</code>。这没问题，因为我们从未在移出资源和赋予 <code>a</code> 新的确定值之间使用 <code>a</code> 的值。</p><p>对于被移动的对象，调用任何不依赖于对象当前值的函数都是安全的。这意味着我们可以设置或重置被移动对象的值（使用 <code>operator=</code>，或任何类型的 <code>clear()</code> 或 <code>reset()</code> 成员函数）。我们也可以测试被移动对象的状态（例如使用 <code>empty()</code> 来查看对象是否有值）。然而，我们应该避免像 <code>operator[]</code> 或 <code>front()</code> （返回容器中的第一个元素）这样的函数，因为这些函数依赖于容器有元素，而被移动的容器可能有也可能没有元素。</p><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">关键提示</p><p><code>std::move()</code> 向编译器提示程序员不再需要某个对象的值。仅在你想移动值的持久对象上使用 <code>std::move()</code> ，并且不要对之后该对象的值做任何假设。在当前值被移动后，可以给被移动对象赋予新值（例如使用 <code>operator=</code>）。</p></div><p class="cpp-section cpp-topline" style="clear:both">std::move 还有哪些其他用途？</p><p>std::move 在对数组元素进行排序时也很有用。许多排序算法（如选择排序和冒泡排序）通过交换元素对来工作。在之前的课程中，我们不得不使用拷贝语义来进行交换。现在我们可以使用移动语义，效率更高。</p><p>如果我们想将一个智能指针管理的内容移动到另一个智能指针，它也会很有用。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">相关内容</p><p>有一个有用的变体 <code>std::move()</code> 调用 <code>std::move_if_noexcept()</code> ，如果对象有移动构造函数，则返回可移动的右值，否则返回可拷贝的左值。我们在课程 <code>noexcept</code> 中介绍了这一点。 <a href="stdmove_if_noexcept.html">27.10 -- std::move_if_noexcept</a>。</p></div><p class="cpp-section cpp-topline" style="clear:both">总结</p><p>当我们想将左值视为右值以调用移动语义而不是拷贝语义时，可以使用 std::move。</p>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="move-constructors-and-move-assignment.html" rel="prev"><small>上一课</small><strong>22.3 — 移动构造函数和移动赋值</strong></a><a class="lesson-nav-index" href="index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="stdunique_ptr.html" rel="next"><small>下一课</small><strong>22.5 — std::unique_ptr</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

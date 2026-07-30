@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/bitwise-operators/" name="learncpp:source-url"/>
+<meta content="553b56a15eeabe071ebbe2d54b3c37b491e85df7383662507db4847ad1560343" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:46:44.884849+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T17:21:40.822769+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>O.2 — Bitwise operators</title>
+<link href="assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">O.2 — 位运算符</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 O.2</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/bitwise-operators/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p class="cpp-section">位运算符</p><p>C++ 提供了 6 个位操作运算符，通常称为 <strong>位</strong> 运算符：</p><p style="clear:both"></p><div class="cpp-table-wrapper"><table class="cpp-table"><tbody><tr><th>运算符</th><th>符号</th><th>形式</th><th>该操作返回一个值，其中：</th></tr><tr><td>左移</td><td>&lt;&lt;</td><td>x &lt;&lt; n</td><td>来自 <code>x</code> 的位向左移动 <code>n</code> 个位置，新位为 <code>0</code>。</td></tr><tr><td>右移</td><td>&gt;&gt;</td><td>x &gt;&gt; n</td><td>来自 <code>x</code> 向右移动 <code>n</code> 个位置，新位为 <code>0</code>。</td></tr><tr><td>按位取反</td><td>~</td><td>~x</td><td>来自 <code>x</code> 的每一位被翻转。</td></tr><tr><td>按位与</td><td>&amp;</td><td>x &amp; y</td><td>当 <code>x</code> 和 <code>y</code> 是 <code>1</code>。</td></tr><tr><td>按位或</td><td>|</td><td>x | y</td><td>当 <code>x</code> 和 <code>y</code> 等于 <code>1</code>。</td></tr><tr><td>按位异或</td><td>^</td><td>x ^ y</td><td>当 <code>x</code> 和 <code>y</code> 中的对应位不同时，该位被设置。</td></tr></tbody></table></div><p>这些是非修改运算符（它们不修改操作数）。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">作者注</p><p>在以下示例中，我们主要使用 4 位二进制值。这是为了方便并保持示例简单。在实际程序中，使用的位数取决于对象的大小（例如，一个 2 字节的对象将存储 16 位）。</p><p>为了提高可读性，我们可能还会省略 <code>0b</code> 代码示例之外的二进制字面量的前缀（例如，不使用 <code>0b0101</code>，我们可能选择使用 <code>0101</code>)。</p></div><p>位运算符是为整型类型和 <code>std::bitset</code>定义的。我们将在示例中使用 <code>std::bitset</code> ，因为以二进制形式打印输出更容易。</p><p>避免对有符号整型操作数使用位运算符，因为许多运算符在 C++20 之前会返回实现定义的结果，或者有其他潜在的陷阱，通过使用无符号操作数（或 <code>std::bitset</code>)。</p><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>为了避免意外，请将位运算符与无符号整型操作数或 <code>std::bitset</code>。</p></div><p class="cpp-section cpp-topline" style="clear:both">一起使用。</p><p>浮点类型的 <strong>按位左移</strong> (&lt;&lt;) 运算符将位向左移动。左操作数是提供初始位序列的表达式，右操作数是一个整数，指定要移动的位数。例如，当我们写 <code>x &lt;&lt; 2</code>时，我们是在说“生成一个值，其中来自 <code>x</code> 已被左移了2个位置。</p><p>左操作数不会被修改，而从右侧移入的新位是 <code>0</code>。</p><p>以下是一些左移位序列的例子 <code>0011</code>：</p><pre>0011 \&lt;\&lt; 1 is 0110
+0011 \&lt;\&lt; 2 is 1100
+0011 \&lt;\&lt; 3 is 1000
+</pre><p>注意，在第三种情况下，我们将一个 <code>1</code> 位移出了数字的末端！被移出位序列的位将永远丢失。</p><p>浮点类型的 <strong>按位右移</strong> (&gt;&gt;) 运算符的工作方式类似，但将位向右移动。</p><p>以下是一些右移位序列的例子 <code>1100</code>：</p><pre>1100 /&gt;/&gt; 1 is 0110
+1100 /&gt;/&gt; 2 is 0011
+1100 /&gt;/&gt; 3 is 0001
+</pre><p>注意，在第三种情况下，我们将一个位移出了数字的右端，因此它丢失了。</p><p>让我们在 C++ 中做一个可以编译和运行的例子：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;bitset&gt;
+#include &lt;iostream&gt;
+
+int main()
+{
+    std::bitset&lt;4&gt; x { 0b1100 };
+
+    std::cout &lt;&lt; x &lt;&lt; '\n';
+    std::cout &lt;&lt; (x &gt;&gt; 1) &lt;&lt; '\n'; // 右移1位，得到0110
+    std::cout &lt;&lt; (x &lt;&lt; 1) &lt;&lt; '\n'; // 左移1位，得到1000
+
+    return 0;
+}
+</code></pre><p>这会打印：</p><pre>1100
+0110
+1000
+</pre><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">进阶读者</p><p>C++ 中的位移是 <a href="https://en.wikipedia.org/wiki/Endianness">字节序</a>无关的。左移总是朝向最高有效位，右移朝向最低有效位。</p></div><p class="cpp-section cpp-topline" style="clear:both">什么！？operator&lt;&lt; 和 operator&gt;&gt; 不是用于输入和输出的吗？</p><p>它们确实是。</p><p>如今的程序通常不会大量使用按位左移和右移运算符来移位。相反，按位左移运算符更常与 <code>std::cout</code> （或其他输出流对象）一起使用来输出文本。考虑以下程序：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;bitset&gt;
+#include &lt;iostream&gt;
+
+int main()
+{
+    unsigned int x { 0b0100 };
+    x = x &lt;&lt; 1; // 使用operator&lt;&lt;进行左移
+    std::cout &lt;&lt; std::bitset&lt;4&gt;{ x } &lt;&lt; '\n'; // 使用operator&lt;&lt;进行输出
+
+    return 0;
+}
+</code></pre><p>该程序打印出：</p><pre>1000
+</pre><p>在上面的程序中， <code>operator&lt;&lt;</code> 如何知道在一种情况下移位，而在另一种情况下输出 <code>x</code> ？答案是它查看操作数的类型。如果左操作数是整数类型，那么 <code>operator&lt;&lt;</code> 知道执行其通常的位移行为。如果左操作数是输出流对象，如 <code>std::cout</code>，那么它知道应该执行输出。</p><p>同样适用于 <code>operator&gt;&gt;</code>。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">相关内容</p><p>这种运算符根据参数类型改变其行为的能力利用了称为 <em>运算符重载</em>的特性，我们将在后面的课程 <a href="introduction-to-overloading-the-i-o-operators.html">13.5 -- 重载 I/O 运算符简介</a>。</p></div><p>中介绍。注意，如果你同时使用 <code>operator&lt;&lt;</code> 进行输出和左移，则需要使用括号来进行左移：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;bitset&gt;
+#include &lt;iostream&gt;
+
+int main()
+{
+	std::bitset&lt;4&gt; x{ 0b0110 };
+
+	std::cout &lt;&lt; x &lt;&lt; 1 &lt;&lt; '\n'; // 打印x的值（0110），然后打印1
+	std::cout &lt;&lt; (x &lt;&lt; 1) &lt;&lt; '\n'; // 打印x左移1位的结果（1100）
+
+	return 0;
+}
+</code></pre><p>这会打印：</p><pre>01101
+1100
+</pre><p>第一行打印 <code>x</code> (<code>0110</code>的值，然后打印字面量 <code>1</code>。第二行打印 <code>x</code> 左移 <code>1</code> (<code>1100</code>)。</p><p class="cpp-section cpp-topline" style="clear:both">按位非</p><p>浮点类型的 <strong>按位取反</strong> 运算符 (~) 概念上很简单：它只是将每个位从 <code>0</code> 转换为 <code>1</code>翻转，反之亦然。</p><pre>~0011 is 1100
+~0000 0100 is 1111 1011
+</pre><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">进阶读者</p><p>当解释为整数时，按位 NOT 结果中的位数会影响产生的值。</p><p>以下程序说明了这一点：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;bitset&gt;
+#include &lt;iostream&gt;
+
+int main()
+{
+    std::bitset&lt;4&gt; b4{ 0b100 }; // b4是0100
+    std::bitset&lt;8&gt; b8{ 0b100 }; // b8是0000 0100
+
+    std::cout &lt;&lt; "Initial values:\n";
+    std::cout &lt;&lt; "Bits: " &lt;&lt; b4 &lt;&lt; ' ' &lt;&lt; b8 &lt;&lt; '\n';
+    std::cout &lt;&lt; "Values: " &lt;&lt; b4.to_ulong() &lt;&lt; ' ' &lt;&lt; b8.to_ulong() &lt;&lt; "\n\n";    
+
+    b4 = ~b4; // 翻转b4为1011
+    b8 = ~b8; // 翻转b8为1111 1011
+    
+    std::cout &lt;&lt; "After bitwise NOT:\n";
+    std::cout &lt;&lt; "Bits: " &lt;&lt; b4 &lt;&lt; ' ' &lt;&lt; b8 &lt;&lt; '\n';
+    std::cout &lt;&lt; "Values: " &lt;&lt; b4.to_ulong() &lt;&lt; ' ' &lt;&lt; b8.to_ulong() &lt;&lt; '\n';    
+
+    return 0;
+}
+</code></pre><p>这会打印：</p><pre>Initial values:
+Bits: 0100 00000100
+Values: 4 4
+
+After bitwise NOT:
+Bits: 1011 11111011
+Values: 11 251
+</pre><p>最初， <code>b4</code> 和 <code>b8</code> 都设置为 <code>0b100</code>。当用前导零填充时， <code>b4</code> 最终变成 <code>0100</code> 和 <code>b8</code> 为 <code>00000100</code>，并在下一行打印出来。</p><p>然后我们使用 <code>to_ulong()</code> 成员函数来解释这些位的值，将其解释为一个 <code>long</code> 整数。你可以看到，两者都 <code>b4</code> 和 <code>b8</code> 打印出值 <code>4</code>。尽管位数不同，但它们表示相同的值。这是因为前导零位对解释后的整数没有贡献任何值。</p><p>然后我们使用按位非来翻转每个数的位，所以 <code>b4</code> 现在的位是 <code>1011</code> 和 <code>b8</code> 现在的位是 <code>1111 1011</code>。当作为整数打印时，打印出的值是 <code>11</code> 和 <code>251</code>。如你所见，这些值不再相同。这是因为前导一位对解释后的整数有贡献，而 <code>b8</code> 比 <code>b4</code>。</p></div><p class="cpp-section cpp-topline" style="clear:both">按位或</p><p><strong>按位或</strong> （|）的工作方式很像它的逻辑或对应物。如果你还记得，逻辑或的结果为 <code>true</code> (<code>1</code>）如果两个操作数中的任何一个为 <em>操作数</em> 是 <code>true</code>，否则结果为 <code>false</code> (<code>0</code>)。</p><p>然而，逻辑或应用于整个操作数（产生单个真或假结果），而按位或应用于操作数中的每一对位（为每一位产生单个真或假结果）。</p><p>让我们用一个例子来说明这一点。考虑表达式 <code>0b0101 | 0b0110</code>。</p><div class="cpp-note cpp-lightbluebackground"><p class="cpp-note-title cpp-bottomline">提示</p><p>要手动进行任何二进制按位运算，最容易的方法是将两个操作数像这样对齐：</p><pre>0 1 0 1 OR (or whatever bitwise operation you are doing)
+0 1 1 0
+</pre><p>然后，对每一 <em>列</em> 的位应用运算，并将结果写在下面。</p></div><p>在第一列中， <code>0</code> 或 <code>0</code> 等于 <code>0</code>，所以我们在线下面放一个0。</p><pre>0 1 0 1 OR
+0 1 1 0
+-------
+0
+</pre><p>第二列， <code>1</code> 或 <code>1</code> 等于 <code>1</code>。第三列 <code>0</code> 或 <code>1</code> 等于 <code>1</code>。第四列， <code>1</code> 或 <code>0</code> 等于 <code>1</code>。</p><pre>0 1 0 1 OR
+0 1 1 0
+-------
+0 1 1 1
+</pre><p>我们的结果是 <code>0111</code> 二进制。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;bitset&gt;
+#include &lt;iostream&gt;
+
+int main()
+{
+	std::cout &lt;&lt; (std::bitset&lt;4&gt;{ 0b0101 } | std::bitset&lt;4&gt;{ 0b0110 }) &lt;&lt; '\n';
+
+	return 0;
+}
+</code></pre><p>这会打印：</p><pre>0111
+</pre><p>我们可以对复合按位或表达式做同样的事情，例如 <code>0b0111 | 0b0011 | 0b0001</code>。如果一列中的任何一位是 <code>1</code>，则该列的结果为 <code>1</code>：</p><pre>0 1 1 1 OR
+0 0 1 1 OR
+0 0 0 1
+--------
+0 1 1 1
+</pre><p>以下是上述代码：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;bitset&gt;
+#include &lt;iostream&gt;
+
+int main()
+{
+	std::cout &lt;&lt; (std::bitset&lt;4&gt;{ 0b0111 } | std::bitset&lt;4&gt;{ 0b0011 } | std::bitset&lt;4&gt;{ 0b0001 }) &lt;&lt; '\n';
+
+	return 0;
+}
+</code></pre><p>这会打印：</p><pre>0111
+</pre><p class="cpp-section cpp-topline" style="clear:both">按位与</p><p><strong>按位与</strong> （&amp;）的工作方式与上述类似，只是它使用与逻辑而不是或逻辑。也就是说，对于操作数中的每一对位，按位与将结果位设置为 <code>true</code> (<code>1</code>）如果两个配对的位都是 <code>1</code>、和 <code>false</code> (<code>0</code>）否则。</p><p>考虑表达式 <code>0b0101 &amp; 0b0110</code>。将每一位对齐并对每一列位应用按位与：</p><pre>0 1 0 1 AND
+0 1 1 0
+--------
+0 1 0 0
+</pre><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;bitset&gt;
+#include &lt;iostream&gt;
+
+int main()
+{
+	std::cout &lt;&lt; (std::bitset&lt;4&gt;{ 0b0101 } &amp; std::bitset&lt;4&gt;{ 0b0110 }) &lt;&lt; '\n';
+
+	return 0;
+}
+</code></pre><p>这会打印：</p><pre>0100
+</pre><p>类似地，我们可以对复合按位与表达式做同样的事情，例如 <code>0b0001 &amp; 0b0011 &amp; 0b0111</code>。如果一列中的所有位都是 <code>1</code>，则该列的结果为 <code>1</code>。</p><pre>0 0 0 1 AND
+0 0 1 1 AND
+0 1 1 1
+--------
+0 0 0 1
+</pre><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;bitset&gt;
+#include &lt;iostream&gt;
+
+int main()
+{
+	std::cout &lt;&lt; (std::bitset&lt;4&gt;{ 0b0001 } &amp; std::bitset&lt;4&gt;{ 0b0011 } &amp; std::bitset&lt;4&gt;{ 0b0111 }) &lt;&lt; '\n';
+
+	return 0;
+}
+</code></pre><p>这会打印：</p><pre>0001
+</pre><p class="cpp-section cpp-topline" style="clear:both">按位异或</p><p>最后一个运算符是 <strong>按位异或</strong> (^)，也称为 <strong>异或</strong>。</p><p>对于操作数中的每一对位，按位异或将结果位设置为 <code>true</code> (<code>1</code>当且仅当配对位中恰好有一个为 <code>1</code>、和 <code>false</code> (<code>0</code>时。换句话说，按位异或将结果位设置为 <code>true</code> 当配对位不同时（一个为 <code>0</code> ，另一个为 <code>1</code>)。</p><p>考虑表达式 <code>0b0110 ^ 0b0011</code>：</p><pre>0 1 1 0 XOR
+0 0 1 1
+-------
+0 1 0 1
+</pre><p>也可以按列方式计算复合异或表达式，例如 <code>0b0001 ^ 0b0011 ^ 0b0111</code>。如果一列中有偶数个 <code>1</code> 位，结果为 <code>0</code>。如果有奇数个 <code>1</code> 位，结果为 <code>1</code>。</p><pre>0 0 0 1 XOR
+0 0 1 1 XOR
+0 1 1 1
+--------
+0 1 0 1
+</pre><p class="cpp-section cpp-topline" style="clear:both">按位赋值运算符</p><p>与算术赋值运算符类似，C++ 提供了按位赋值运算符。这些运算符会修改左操作数。</p><div class="cpp-table-wrapper"><table class="cpp-table"><tbody><tr><th>运算符</th><th>符号</th><th>形式</th><th>该操作修改左操作数，其中：</th></tr><tr><td>左移</td><td>&lt;&lt;</td><td>x &lt;&lt;= n</td><td>将 <code>x</code> 的位向左移动 <code>n</code> 个位置，新位为 <code>0</code>。</td></tr><tr><td>右移</td><td>&gt;&gt;</td><td>x &gt;&gt;= n</td><td>将 <code>x</code> 向右移动 <code>n</code> 个位置，新位为 <code>0</code>。</td></tr><tr><td>按位与</td><td>&amp;</td><td>x &amp;= y</td><td>当 <code>x</code> 和 <code>y</code> 是 <code>1</code>。</td></tr><tr><td>按位或</td><td>|</td><td>x |= y</td><td>当 <code>x</code> 和 <code>y</code> 等于 <code>1</code>。</td></tr><tr><td>按位异或</td><td>^</td><td>x ^= y</td><td>当 <code>x</code> 和 <code>y</code> 中的对应位不同时，该位被设置。</td></tr></tbody></table></div><p>例如，与其写 <code>x = x &gt;&gt; 1;</code>，你可以写 <code>x &gt;&gt;= 1;</code>。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;bitset&gt;
+#include &lt;iostream&gt;
+
+int main()
+{
+    std::bitset&lt;4&gt; bits { 0b0100 };
+    bits &gt;&gt;= 1;
+    std::cout &lt;&lt; bits &lt;&lt; '\n';
+
+    return 0;
+}
+</code></pre><p>该程序打印出：</p><pre>0010
+</pre><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">顺便说一句……</p><p>没有按位非赋值运算符。这是因为其他按位运算符是二元的，但按位非是一元的（那么 <code>~=</code> 运算符的右侧应该放什么呢？）。如果你想翻转一个对象的所有位，可以使用普通赋值： <code>x = ~x;</code></p></div><p class="cpp-section cpp-topline" style="clear:both">按位运算符对较小的整数类型执行整型提升 <span class="cpp-section-pill cpp-section-advanced">高级</span></p><p>如果按位运算符的操作数是小于 <code>int</code>的整数类型，这些操作数将被提升（转换）为 <code>int</code> 或 <code>unsigned int</code>，并且返回的结果也将是 <code>int</code> 或 <code>unsigned int</code>。例如，如果我们的操作数是 <code>unsigned short</code>，它们将被提升（转换）为 <code>unsigned int</code>，并且操作的结果将作为 <code>unsigned int</code>。</p><p>返回。在许多情况下，这无关紧要。</p><div class="cpp-note cpp-lightgraybackground"><p class="cpp-note-title cpp-bottomline">相关内容</p><p>我们在课程 <a href="floating-point-and-integral-promotion.html">10.2 -- 浮点数和整型提升</a>。</p></div><p>中介绍了整型提升。然而，当对宽度小于 <code>int</code> 或 <code>unsigned int</code>的整数类型使用按位运算符时，有两种情况需要注意：</p><ul><li><code>operator~</code> 和 <code>operator&lt;&lt;</code> 对宽度敏感，并且可能根据操作数的宽度产生不同的结果。</li><li>将结果初始化或赋值给较小整数类型的变量是一种窄化转换（因为将 <code>int</code> 或 <code>unsigned int</code> 转换为较小的整数类型可能导致数据丢失）。这在列表初始化中是不允许的，并且你的编译器可能会或可能不会对窄化赋值发出警告。</li></ul><p>以下程序展示了这些问题（假设32位整数）：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;bitset&gt;
+#include &lt;cstdint&gt;
+#include &lt;iostream&gt;
+
+int main()
+{
+    std::uint8_t c { 0b00001111 };
+    
+    std::cout &lt;&lt; std::bitset&lt;32&gt;(~c) &lt;&lt; '\n';     // 错误：打印 11111111111111111111111111110000
+    std::cout &lt;&lt; std::bitset&lt;32&gt;(c &lt;&lt; 6) &lt;&lt; '\n'; // 错误：打印 0000000000000000001111000000
+    std::uint8_t cneg { ~c };                     // 错误：从 unsigned int 到 std::uint8_t 的窄化转换
+    c = ~c;                                       // 可能的警告：从 unsigned int 到 std::uint8_t 的窄化转换
+ 
+    return 0;
+}
+</code></pre><p>这些问题可以通过使用 <code>static_cast</code> 将位运算的结果转换回较窄的整数类型来解决。以下程序产生了正确的结果：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;bitset&gt;
+#include &lt;cstdint&gt;
+#include &lt;iostream&gt;
+
+int main()
+{
+    std::uint8_t c { 0b00001111 };
+
+    std::cout &lt;&lt; std::bitset&lt;32&gt;(static_cast&lt;std::uint8_t&gt;(~c)) &lt;&lt; '\n';     // 正确：打印 00000000000000000000000011110000
+    std::cout &lt;&lt; std::bitset&lt;32&gt;(static_cast&lt;std::uint8_t&gt;(c &lt;&lt; 6)) &lt;&lt; '\n'; // 正确：打印 0000000000000000000011000000
+    std::uint8_t cneg { static_cast&lt;std::uint8_t&gt;(~c) };                     // 编译通过
+    c = static_cast&lt;std::uint8_t&gt;(~c);                                       // 无警告
+ 
+    return 0;
+}
+</code></pre><div class="cpp-note cpp-lightredbackground"><p class="cpp-note-title cpp-bottomline">警告</p><p>位运算符会将操作数提升为较窄的整数类型到 <code>int</code> 或 <code>unsigned int</code>。</p><p><code>operator~</code> 和 <code>operator&lt;&lt;</code> 对宽度敏感，并且可能根据操作数的宽度产生不同的结果。 <code>static_cast</code> 在使用之前，将此类位运算的结果转换回较窄的整数类型，以确保正确的结果。</p></div><div class="cpp-note cpp-lightgreenbackground"><p class="cpp-note-title cpp-bottomline">最佳实践</p><p>尽可能避免对小于 <code>int</code> 的整数类型进行位移操作。</p></div><p class="cpp-section cpp-topline" style="clear:both">总结</p><p>总结如何使用列方法评估位运算：</p><p>评估按位或时，如果某一列中的任何位为1，则该列的结果为1。<br/>评估按位与时，如果某一列中的所有位都为1，则该列的结果为1。<br/>评估按位异或时，如果某一列中1的位数为奇数，则该列的结果为1。</p><p>在下一课中，我们将探讨如何将这些运算符与位掩码结合使用，以方便位操作。</p><p class="cpp-section cpp-topline" style="clear:both">小测验时间</p><p class="cpp-quiz-question" style="clear:both">问题 #1</p><p>a) 0110 &gt;&gt; 2 的二进制结果是什么？</p><p><a aria-controls="cpp_solution_id_0" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_0" href="#cpp_solution_id_0">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_0"><p>0110 &gt;&gt; 2 的结果是 0001</p></div><p>b) 以下表达式的二进制结果是什么：0011 | 0101？</p><p><a aria-controls="cpp_solution_id_1" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_1" href="#cpp_solution_id_1">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_1"><pre>0 0 1 1 OR
+0 1 0 1
+--------
+0 1 1 1
+</pre></div><p>c) 以下表达式的二进制结果是什么：0011 &amp; 0101？</p><p><a aria-controls="cpp_solution_id_2" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_2" href="#cpp_solution_id_2">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_2"><pre>0 0 1 1 AND
+0 1 0 1
+--------
+0 0 0 1
+</pre></div><p>d) 以下表达式的二进制结果是什么：(0011 | 0101) &amp; 1001？</p><p><a aria-controls="cpp_solution_id_3" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_3" href="#cpp_solution_id_3">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_3"><pre>Inside the parenthesis:
+
+0 0 1 1 OR
+0 1 0 1
+--------
+0 1 1 1
+
+Then:
+
+0 1 1 1 AND
+1 0 0 1
+--------
+0 0 0 1
+</pre></div><p class="cpp-quiz-question cpp-topline" style="clear:both">问题 #2</p><p>位旋转类似于位移，只是移出的一端会补回到另一端。例如 <code>0b1001 &lt;&lt; 1</code> 会是 <code>0b0010</code>，但左旋转1位的结果是 <code>0b0011</code> 实现一个函数，对 <code>std::bitset&lt;4&gt;</code>进行左旋转。对于这个问题，可以使用 test() 和 set()。</p><p>以下代码应该执行：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;bitset&gt;
+#include &lt;iostream&gt;
+
+// "rotl" 代表 "rotate left"
+std::bitset&lt;4&gt; rotl(std::bitset&lt;4&gt; bits)
+{
+// 在此处编写你的代码
+}
+
+int main()
+{
+	std::bitset&lt;4&gt; bits1{ 0b0001 };
+	std::cout &lt;&lt; rotl(bits1) &lt;&lt; '\n';
+
+	std::bitset&lt;4&gt; bits2{ 0b1001 };
+	std::cout &lt;&lt; rotl(bits2) &lt;&lt; '\n';
+
+	return 0;
+}
+</code></pre><p>并打印以下内容：</p><pre>0010
+0011
+</pre><p><a aria-controls="cpp_solution_id_4" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_4" href="#cpp_solution_id_4">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_4"><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;bitset&gt;
+#include &lt;iostream&gt;
+
+std::bitset&lt;4&gt; rotl(std::bitset&lt;4&gt; bits)
+{
+	// 跟踪最左边的位是否为 1
+	const bool leftbit{ bits.test(3) };
+
+	bits &lt;&lt;= 1; // 执行左移（将最左边的位移出末尾）
+
+	// 如果最左边的位是 1
+	if (leftbit)
+		bits.set(0); // 将最右边的位设置为 1
+
+	return bits;
+}
+
+int main()
+{
+	std::bitset&lt;4&gt; bits1{ 0b0001 };
+	std::cout &lt;&lt; rotl(bits1) &lt;&lt; '\n';
+
+	std::bitset&lt;4&gt; bits2{ 0b1001 };
+	std::cout &lt;&lt; rotl(bits2) &lt;&lt; '\n';
+
+	return 0;
+}
+</code></pre><p>我们将函数命名为“rotl”而不是“rotateLeft”，因为“rotl”是计算机科学中一个公认的名称，也是标准函数的名称， <a href="https://en.cppreference.com/w/cpp/numeric/rotl"><code>std::rotl</code></a>。</p></div><p class="cpp-quiz-question cpp-topline" style="clear:both">问题 #3</p><p>额外挑战：重做测验#2，但不要使用 test 和 set 函数（使用位运算符）。</p><p><a aria-controls="cpp_hint_id_0" aria-expanded="false" class="hint_link_show" data-hide-label="隐藏提示" data-hint-target="cpp_hint_id_0" data-show-label="显示提示" href="#cpp_hint_id_0">显示提示</a></p><div class="wphint" hidden="" id="cpp_hint_id_0">提示：如何将最左边的位移到最右边的位置？</div><p><a aria-controls="cpp_hint_id_1" aria-expanded="false" class="hint_link_show" data-hide-label="隐藏提示" data-hint-target="cpp_hint_id_1" data-show-label="显示提示" href="#cpp_hint_id_1">显示提示</a></p><div class="wphint" hidden="" id="cpp_hint_id_1">提示：考虑一下“移位”的视角</div><p><a aria-controls="cpp_solution_id_5" aria-expanded="false" class="solution_link_show" data-hide-label="隐藏答案" data-show-label="显示答案" data-solution-target="cpp_solution_id_5" href="#cpp_solution_id_5">显示答案</a></p><div class="wpsolution" hidden="" id="cpp_solution_id_5"><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;bitset&gt;
+#include &lt;iostream&gt;
+
+// 感谢读者 Chris 提供此解决方案
+std::bitset&lt;4&gt; rotl(std::bitset&lt;4&gt; bits)
+{
+	// bits &lt;&lt; 1 执行左移
+	// bits &gt;&gt; 3 处理最左边位的旋转
+	return (bits&lt;&lt;1) | (bits&gt;&gt;3);
+}
+
+int main()
+{
+	std::bitset&lt;4&gt; bits1{ 0b0001 };
+	std::cout &lt;&lt; rotl(bits1) &lt;&lt; '\n';
+
+	std::bitset&lt;4&gt; bits2{ 0b1001 };
+	std::cout &lt;&lt; rotl(bits2) &lt;&lt; '\n';
+
+	return 0;
+}
+</code></pre></div>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="bit-flags-and-bit-manipulation-via-stdbitset.html" rel="prev"><small>上一课</small><strong>O.1 — 位标志与位操作：std::bitset</strong></a><a class="lesson-nav-index" href="index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="bit-manipulation-with-bitwise-operators-and-bit-masks.html" rel="next"><small>下一课</small><strong>O.3 — 使用位运算符和位掩码进行位操作</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

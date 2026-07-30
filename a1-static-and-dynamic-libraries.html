@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/a1-static-and-dynamic-libraries/" name="learncpp:source-url"/>
+<meta content="dde7c13b29a7040c366558caa104d03592ea6e77e28b32842cb9e0dbb00a7a1b" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:55:15.560620+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T18:21:36.226255+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>A.1 — Static and dynamic libraries</title>
+<link href="assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">A.1 — 静态库与动态库</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 A.1</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/a1-static-and-dynamic-libraries/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>一个 <strong>库</strong> 是一组旨在被多个程序重用的代码包。通常，一个C++库由两部分组成：</p><ol start="1"><li>一个头文件，定义了库向使用它的程序暴露（提供）的功能。</li><li>一个预编译的二进制文件，包含了预编译为机器语言的该功能的实现。</li></ol><p>有些库可能被拆分成多个文件和/或有多个头文件。</p><p>库被预编译有几个原因。首先，由于库很少更改，它们不需要经常重新编译。每次编写使用它们的程序时都重新编译库是浪费时间。其次，因为预编译对象是机器语言，它阻止了人们访问或更改源代码，这对于不希望因知识产权原因公开源代码的企业或个人来说很重要。</p><p>有两种类型的库：静态库和动态库。</p><p>一个 <strong>静态库</strong> （也称为 <strong>归档文件</strong>）由编译并直接链接到程序中的例程组成。当你编译使用静态库的程序时，静态库中程序使用的所有功能都成为可执行文件的一部分。在Windows上，静态库通常具有.lib扩展名，而在Linux上，静态库通常具有.a（归档）扩展名。静态库的一个优点是，你只需分发可执行文件，用户就能运行你的程序。由于库成为程序的一部分，这确保了始终使用正确版本的库与你的程序一起。此外，由于静态库成为程序的一部分，你可以像使用自己编写的功能一样使用它们。缺点是，因为库的副本成为每个使用它的可执行文件的一部分，这可能导致大量空间浪费。静态库也不容易升级——要更新库，需要替换整个可执行文件。</p><p>一个 <strong>动态库</strong> （也称为 <strong>共享库</strong>）由在运行时加载到应用程序中的例程组成。当你编译使用动态库的程序时，库不会成为可执行文件的一部分——它作为一个独立的单元存在。在Windows上，动态库通常具有.dll（动态链接库）扩展名，而在Linux上，动态库通常具有.so（共享对象）扩展名。动态库的一个优点是许多程序可以共享一个副本，从而节省空间。也许更大的优点是，动态库可以升级到新版本，而无需替换所有使用它的可执行文件。</p><p>由于动态库没有链接到程序中，使用动态库的程序必须显式加载并与动态库交互。这种机制可能令人困惑，并使与动态库的交互变得笨拙。为了使动态库更易于使用，可以使用导入库。</p><p>一种 <strong>导入库</strong> 是一个自动化加载和使用动态库过程的库。在Windows上，这通常通过一个与动态库（.dll）同名的静态库（.lib）来完成。该静态库在编译时链接到程序中，然后动态库的功能可以像静态库一样有效地使用。在Linux上，共享对象（.so）文件同时充当动态库和导入库。大多数链接器可以在创建动态库时为其构建导入库。</p><p><strong>安装和使用库</strong></p><p>现在你已经了解了不同类型的库，让我们谈谈如何在程序中实际使用库。在C++中安装库通常涉及4个步骤：</p><ol start="1"><li>获取库。最好的选择是下载针对你的操作系统的预编译包（如果存在），这样你就不必自己编译库。如果没有为你的操作系统提供预编译包，你将不得不下载仅包含源代码的包并自己编译（这超出了本课的范围）。在Windows上，库通常以.zip文件形式分发。在Linux上，库通常以包（例如.RPM）形式分发。你的包管理器可能已经列出了一些流行的库（例如SDL）以便于安装，所以先检查那里。</li><li>安装库。在Linux上，这通常涉及调用包管理器并让它完成所有工作。在Windows上，这通常涉及将库解压到你选择的目录。我们建议将所有库放在一个位置以便于访问。例如，使用一个名为C:\Libs的目录，并将每个库放在自己的子目录中。</li><li>确保编译器知道在哪里查找库的头文件。在Windows上，这通常是安装库文件的目录下的include子目录（例如，如果你将库安装到C:\libs\SDL-1.2.11，头文件可能在C:\libs\SDL-1.2.11\include）。在Linux上，头文件通常安装到/usr/include，这应该已经是头文件搜索路径的一部分。但是，如果文件安装在其他地方，你必须告诉编译器在哪里找到它们。</li><li>告诉链接器在哪里查找库文件。与步骤3类似，这通常涉及将目录添加到链接器查找库的路径列表中。在Windows上，这通常是安装库文件的目录下的/lib子目录。在Linux上，库通常安装到/usr/lib，这应该已经是库搜索路径的一部分。</li></ol><p>一旦库安装完毕并且IDE知道在哪里查找它，对于每个想要使用该库的项目，通常需要执行以下3个步骤：</p><ol start="5"><li>如果使用静态库或导入库，告诉链接器要链接哪些库文件。</li><li>在程序中#include库的头文件。这告诉编译器库提供的所有功能，以便你的程序能够正确编译。</li><li>如果使用动态库，确保程序知道在哪里找到它们。在Linux下，库通常安装到/usr/lib，该路径在 <code>LD_LIBRARY_PATH</code> 环境变量中的路径之后位于默认搜索路径中。在Windows上，默认搜索路径包括程序运行的目录、通过调用SetDllDirectory()设置的目录、Windows、System和System32目录，以及PATH环境变量中的目录。使用.dll最简单的方法是将.dll复制到可执行文件的位置。由于你通常会将.dll与可执行文件一起分发，因此将它们放在一起是有意义的。</li></ol><p>步骤3-5涉及配置你的IDE——幸运的是，几乎所有IDE在执行这些操作时都以相同的方式工作。不幸的是，由于每个IDE都有不同的界面，这个过程最困难的部分仅仅是找到 <em>不进行任何清理。</em> 执行每个步骤的正确位置。因此，在本节的接下来几课中，我们将介绍如何在Visual Studio和Code::Blocks中完成所有这些步骤。如果你使用其他IDE，请阅读两者——完成后，你应该有足够的信息通过一些搜索在自己的IDE中完成相同操作。</p>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="random-file-io.html" rel="prev"><small>上一课</small><strong>28.7 — 随机文件I/O</strong></a><a class="lesson-nav-index" href="index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="a2-using-libraries-with-visual-studio-2005-express.html" rel="next"><small>下一课</small><strong>A.2 — 在 Visual Studio 中使用库</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>

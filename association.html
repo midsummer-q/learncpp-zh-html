@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="https://www.learncpp.com/cpp-tutorial/association/" name="learncpp:source-url"/>
+<meta content="3b8ad5c0d8709c493d47aa61d4354fa795c48f3c3ca160b2e0081385b9dd58ee" name="learncpp:source-hash"/>
+<meta content="2026-07-28T14:53:31.942012+00:00" name="learncpp:fetched-at"/>
+<meta content="2026-07-28T18:11:40.788317+00:00" name="learncpp:translated-at"/>
+<meta content="deepseek-v4-flash" name="learncpp:model"/>
+<meta content="1" name="learncpp:glossary-version"/>
+<title>23.4 — Association</title>
+<link href="assets/stylesheets/learncpp.css" rel="stylesheet"/>
+<script defer="" src="assets/scripts/learncpp.js"></script>
+</head>
+<body>
+<nav aria-label="主导航" class="navbar">
+<div class="container">
+<a class="learncpp-brand" href="index.html">
+<span aria-hidden="true" class="cpp-logo">cpp</span>
+<span class="brand-copy">
+<strong>LEARN C++ 中文版</strong>
+<small>通过免费教程提升 C++ 技能</small>
+</span>
+</a>
+<header class="learncpp-header">
+<ul class="learncpp-menu">
+<li><a href="index.html">课程目录</a></li>
+<li><a href="https://www.learncpp.com/learn-c-site-index/">原站索引</a></li>
+</ul>
+</header>
+</div>
+</nav>
+<div class="container">
+<div class="row">
+<main class="lesson-shell">
+<article class="lesson-card">
+<header class="lesson-heading">
+<h1 class="lesson-title">23.4 — 关联</h1>
+<div class="lesson-meta">
+<span>● 机器译文</span>
+<span>课程 23.4</span>
+<a data-keep-external="" href="https://www.learncpp.com/cpp-tutorial/association/">查看英文原文</a>
+</div>
+</header>
+<div class="lesson-content">
+<p>在前两节课中，我们学习了两种对象组合：组合和聚合。对象组合用于建模复杂对象由一个或多个更简单的对象（部分）构建的关系。</p><p>在本节课中，我们将探讨两个原本无关的对象之间的一种较弱的关系，称为关联。与对象组合关系不同，在关联中，不存在隐含的整体/部分关系。</p><p class="cpp-section cpp-topline" style="clear:both">关联</p><p>要成为 <strong>关联</strong>，一个对象和另一个对象必须满足以下关系：</p><ul><li>关联对象（成员）与对象（类）原本无关</li><li>关联对象（成员）可以同时属于多个对象（类）</li><li>关联对象（成员）的 <em>不是</em> 存在不由对象（类）管理</li><li>关联对象（成员）可能知道也可能不知道对象（类）的存在</li></ul><p>与组合或聚合不同（其中部分是整体对象的一部分），在关联中，关联对象与对象原本无关。就像聚合一样，关联对象可以同时属于多个对象，并且不受这些对象的管理。然而，与聚合（关系总是单向的）不同，关联中的关系可以是单向或双向的（两个对象彼此知道对方的存在）。</p><p>医生和患者之间的关系是关联的一个很好的例子。医生显然与他的患者有关系，但从概念上讲，这不是部分/整体（对象组合）关系。医生一天可以看很多患者，而一个患者也可以看很多医生（也许他们想寻求第二意见，或者他们正在看不同类型的医生）。两个对象的生命周期都不依赖于对方。</p><p>我们可以说关联建模的是“使用”关系。医生“使用”患者（来赚取收入）。患者使用医生（为了他们需要的任何健康目的）。</p><p class="cpp-section cpp-topline" style="clear:both">实现关联</p><p>由于关联是一种广泛的关系类型，它们可以通过多种方式实现。然而，大多数情况下，关联是使用指针实现的，其中对象指向关联对象。</p><p>在这个例子中，我们将实现一个双向的医生/患者关系，因为让医生知道他们的患者是谁，反之亦然，是有意义的。</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;functional&gt; // reference_wrapper
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;string_view&gt;
+#include &lt;vector&gt;
+
+// 由于 Doctor 和 Patient 存在循环依赖，我们将前置声明 Patient
+class Patient;
+
+class Doctor
+{
+private:
+	std::string m_name{};
+	std::vector&lt;std::reference_wrapper&lt;const Patient&gt;&gt; m_patient{};
+
+public:
+	Doctor(std::string_view name) :
+		m_name{ name }
+	{
+	}
+
+	void addPatient(Patient&amp; patient);
+	
+	// 我们将在 Patient 下方实现此函数，因为我们需要先定义 Patient
+	friend std::ostream&amp; operator&lt;&lt;(std::ostream&amp; out, const Doctor&amp; doctor);
+
+	const std::string&amp; getName() const { return m_name; }
+};
+
+class Patient
+{
+private:
+	std::string m_name{};
+	std::vector&lt;std::reference_wrapper&lt;const Doctor&gt;&gt; m_doctor{}; // 以便在此处使用它
+
+	// 我们将把 addDoctor 设为私有，因为我们不希望公众使用它。
+	// 他们应该使用公开暴露的 Doctor::addPatient() 代替
+	void addDoctor(const Doctor&amp; doctor)
+	{
+		m_doctor.push_back(doctor);
+	}
+
+public:
+	Patient(std::string_view name)
+		: m_name{ name }
+	{
+	}
+
+	// 我们将在下方实现此函数，以与 operator&lt;&lt;(std::ostream&amp;, const Doctor&amp;) 对应
+	friend std::ostream&amp; operator&lt;&lt;(std::ostream&amp; out, const Patient&amp; patient);
+
+	const std::string&amp; getName() const { return m_name; }
+
+	// 我们将把 Doctor::addPatient() 声明为友元，以便它能访问私有函数 Patient::addDoctor()
+	friend void Doctor::addPatient(Patient&amp; patient);
+};
+
+void Doctor::addPatient(Patient&amp; patient)
+{
+	// 我们的医生将添加此患者
+	m_patient.push_back(patient);
+
+	// 并且患者也将添加此医生
+	patient.addDoctor(*this);
+}
+
+std::ostream&amp; operator&lt;&lt;(std::ostream&amp; out, const Doctor&amp; doctor)
+{
+	if (doctor.m_patient.empty())
+	{
+		out &lt;&lt; doctor.m_name &lt;&lt; " has no patients right now";
+		return out;
+	}
+
+	out &lt;&lt; doctor.m_name &lt;&lt; " is seeing patients: ";
+	for (const auto&amp; patient : doctor.m_patient)
+		out &lt;&lt; patient.get().getName() &lt;&lt; ' ';
+
+	return out;
+}
+
+std::ostream&amp; operator&lt;&lt;(std::ostream&amp; out, const Patient&amp; patient)
+{
+	if (patient.m_doctor.empty())
+	{
+		out &lt;&lt; patient.getName() &lt;&lt; " has no doctors right now";
+		return out;
+	}
+
+	out &lt;&lt; patient.m_name &lt;&lt; " is seeing doctors: ";
+	for (const auto&amp; doctor : patient.m_doctor)
+		out &lt;&lt; doctor.get().getName() &lt;&lt; ' ';
+
+	return out;
+}
+
+int main()
+{
+	// 在 Doctor 的作用域外创建一个 Patient
+	Patient dave{ "Dave" };
+	Patient frank{ "Frank" };
+	Patient betsy{ "Betsy" };
+
+	Doctor james{ "James" };
+	Doctor scott{ "Scott" };
+
+	james.addPatient(dave);
+
+	scott.addPatient(dave);
+	scott.addPatient(betsy);
+
+	std::cout &lt;&lt; james &lt;&lt; '\n';
+	std::cout &lt;&lt; scott &lt;&lt; '\n';
+	std::cout &lt;&lt; dave &lt;&lt; '\n';
+	std::cout &lt;&lt; frank &lt;&lt; '\n';
+	std::cout &lt;&lt; betsy &lt;&lt; '\n';
+
+	return 0;
+}
+</code></pre><p>这会打印：</p><pre>James is seeing patients: Dave
+Scott is seeing patients: Dave Betsy
+Dave is seeing doctors: James Scott
+Frank has no doctors right now
+Betsy is seeing doctors: Scott
+</pre><p>一般来说，如果单向关系可行，你应该避免双向关联，因为它们会增加复杂性，并且往往更难编写而不出错。</p><p class="cpp-section cpp-topline" style="clear:both">自反关联</p><p>有时对象可能与同一类型的其他对象有关系。这称为 <strong>自反关联</strong>。自反关联的一个很好的例子是大学课程与其先修课程（也是大学课程）之间的关系。</p><p>考虑简化的情况，一门课程只能有一个先修课程。我们可以这样做：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;string&gt;
+#include &lt;string_view&gt;
+
+class Course
+{
+private:
+    std::string m_name{};
+    const Course* m_prerequisite{};
+
+public:
+    Course(std::string_view name, const Course* prerequisite = nullptr):
+        m_name{ name }, m_prerequisite{ prerequisite }
+    {
+    }
+
+};
+</code></pre><p>这可能导致关联链（一门课程有一个先修课程，该先修课程又有一个先修课程，等等……）</p><p class="cpp-section cpp-topline" style="clear:both">关联可以是间接的</p><p>在之前的所有情况中，我们使用指针或引用来直接链接对象。然而，在关联中，这并不是严格必需的。任何允许你链接两个对象的数据都足够了。在下面的例子中，我们展示了 Driver 类如何与 Car 建立单向关联，而不实际包含 Car 指针或引用成员：</p><pre class="language-cpp line-numbers"><code class="language-cpp match-braces">#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;string_view&gt;
+
+class Car
+{
+private:
+	std::string m_name{};
+	int m_id{};
+
+public:
+	Car(std::string_view name, int id)
+		: m_name{ name }, m_id{ id }
+	{
+	}
+
+	const std::string&amp; getName() const { return m_name; }
+	int getId() const { return m_id; }
+};
+
+// 我们的 CarLot 本质上只是一个静态的 Car 数组和一个用于检索它们的查找函数。
+// 因为它是静态的，我们不需要分配 CarLot 类型的对象来使用它
+namespace CarLot
+{
+    Car carLot[4] { { "Prius", 4 }, { "Corolla", 17 }, { "Accord", 84 }, { "Matrix", 62 } };
+
+	Car* getCar(int id)
+	{
+		for (auto&amp; car : carLot)
+        {
+			if (car.getId() == id)
+			{
+				return &amp;car;
+			}
+		}
+		
+		return nullptr;
+	}
+};
+
+class Driver
+{
+private:
+	std::string m_name{};
+	int m_carId{}; // 我们通过 ID 而不是指针与 Car 关联
+
+public:
+	Driver(std::string_view name, int carId)
+		: m_name{ name }, m_carId{ carId }
+	{
+	}
+
+	const std::string&amp; getName() const { return m_name; }
+	int getCarId() const { return m_carId; }
+};
+
+int main()
+{
+	Driver d{ "Franz", 17 }; // Franz 正在驾驶 ID 为 17 的汽车
+
+	Car* car{ CarLot::getCar(d.getCarId()) }; // 从汽车场获取那辆车
+	
+	if (car)
+		std::cout &lt;&lt; d.getName() &lt;&lt; " is driving a " &lt;&lt; car-&gt;getName() &lt;&lt; '\n';
+	else
+		std::cout &lt;&lt; d.getName() &lt;&lt; " couldn't find his car\n";
+
+	return 0;
+}
+</code></pre><p>在上面的例子中，我们有一个 CarLot 来存放我们的汽车。需要汽车的 Driver 没有指向他的 Car 的指针——相反，他拥有汽车的 ID，当我们需要时，可以使用该 ID 从 CarLot 中获取 Car。</p><p>在这个特定的例子中，这样做有点傻，因为从 CarLot 中取出 Car 需要低效的查找（连接两者的指针要快得多）。然而，通过唯一 ID 而不是指针来引用事物有一些优点。例如，你可以引用当前不在内存中的事物（也许它们在文件中，或者在数据库中，并且可以按需加载）。此外，指针可能占用 4 或 8 字节——如果空间非常宝贵且唯一对象的数量相当少，通过 8 位或 16 位整数来引用它们可以节省大量内存。</p><p class="cpp-section cpp-topline" style="clear:both">组合 vs 聚合 vs 关联总结</p><p>这里有一个总结表，帮助你记住组合、聚合和关联之间的区别：</p><div class="cpp-table-wrapper"><p></p><p></p><table class="cpp-table"><tbody><tr><th>属性</th><th>组合</th><th>聚合</th><th>关联</th></tr><tr><td>关系类型</td><td>整体/部分</td><td>整体/部分</td><td>原本无关</td></tr><tr><td>成员可以属于多个类</td><td>否</td><td>是</td><td>是</td></tr><tr><td>成员的存在由类管理</td><td>是</td><td>否</td><td>否</td></tr><tr><td>方向性</td><td>单向</td><td>单向</td><td>单向或双向</td></tr><tr><td>关系动词</td><td>是……的一部分</td><td>拥有</td><td>使用-a</td></tr></tbody></table></div>
+</div>
+<nav aria-label="课程翻页" class="lesson-nav"><a href="aggregation.html" rel="prev"><small>上一课</small><strong>23.3 — 聚合</strong></a><a class="lesson-nav-index" href="index.html">
+<small>返回</small><strong>课程目录</strong>
+</a><a href="dependencies.html" rel="next"><small>下一课</small><strong>23.5 — 依赖关系</strong></a></nav>
+</article>
+</main>
+</div>
+</div>
+<footer>
+<p>经授权制作的本地中文翻译原型 · 课程版权归原作者所有</p>
+</footer>
+</body>
+</html>
