@@ -1,4 +1,4 @@
-# LearnCpp 中文翻译 HTML
+# LearnCpp 中文翻译
 
 本仓库收录 [LearnCpp.com](https://www.learncpp.com/) 教程的中文翻译静态页面及其配套资源，方便下载后离线浏览。
 
